@@ -1,0 +1,40 @@
+stages:
+  - build
+  - test
+  - jacoco
+  - checkstyle
+  - spotbugs
+
+cache:
+  paths:
+    - .m2/repository
+
+build:
+  stage: build
+  script:
+    - cd ../Project/Backend
+    - mvn compile
+
+test:
+  stage: test
+  script:
+    - cd ../Project/Backend
+    - mvn test
+
+jacoco:
+  stage: jacoco
+  script:
+    - cd ../Project/Backend
+    - mvn verify
+
+checkstyle:
+  stage: checkstyle
+  script:
+    - cd ../Project/Backend
+    - mvn checkstyle:check
+
+spotbugs:
+  stage: spotbugs
+  script:
+    - cd ../Project/Backend
+    - mvn spotbugs:check
