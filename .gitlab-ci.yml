@@ -12,29 +12,29 @@ cache:
 build:
   stage: build
   script:
-    - cd ../Project/Backend
+    - cd Project/Backend
     - mvn compile
 
 test:
   stage: test
   script:
-    - cd ../Project/Backend
+    - cd Project/Backend
     - mvn test
 
 jacoco:
   stage: jacoco
   script:
-    - cd ../Project/Backend
+    - cd Project/Backend
     - mvn verify
 
 checkstyle:
   stage: checkstyle
   script:
-    - cd ../Project/Backend
+    - cd Project/Backend
     - mvn checkstyle:check
 
 spotbugs:
   stage: spotbugs
   script:
-    - cd ../Project/Backend
+    - cd Project/Backend
     - mvn spotbugs:check
