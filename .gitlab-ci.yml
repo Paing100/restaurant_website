@@ -27,11 +27,12 @@ jacoco:
     - cd Project/Backend
     - mvn verify
 
-checkstyle:
+eslint:
   stage: checkstyle
   script:
-    - cd Project/Backend
-    - mvn checkstyle:check
+    - cd Project/Frontend
+    - npm install
+    - npx eslint . --ext .js,.jsx,.ts,.tsx
 
 spotbugs:
   stage: spotbugs
