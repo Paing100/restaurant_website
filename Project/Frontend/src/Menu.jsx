@@ -1,10 +1,19 @@
 
+import {Card, CardActionArea, Typography, CardContent} from "@mui/material";
+import {useState} from "react";
+
 function Menu() {
   return (
     <>
-      <div className="menu-content">
-        <h1>Menu items are shown here!</h1>
-      </div>
+      <Card sx={{margin: 2}}>
+        <CardActionArea height="140">
+          <CardContent>
+            <Typography>
+              Sample Item
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
     </>
   );
 }
