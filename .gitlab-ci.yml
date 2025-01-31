@@ -28,7 +28,7 @@ jacoco:
     - mvn verify
 
 eslint:
-  stage: checkstyle
+  stage: eslint
   script:
     - cd Project/Frontend
     - npm install
