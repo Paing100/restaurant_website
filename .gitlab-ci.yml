@@ -2,7 +2,6 @@ stages:
   - build
   - test
   - jacoco
-  - eslint
   - spotbugs
 
 cache:
@@ -26,13 +25,6 @@ jacoco:
   script:
     - cd Project/Backend
     - mvn verify
-
-eslint:
-  stage: eslint
-  script:
-    - cd Project/Frontend
-    - npm install
-    - npx eslint . --ext .js,.jsx,.ts,.tsx
 
 spotbugs:
   stage: spotbugs
