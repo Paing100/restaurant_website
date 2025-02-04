@@ -1,0 +1,184 @@
+{
+  "items": [
+    {
+      "name": "Guacamole",
+      "description": "Classic Mexican dip made with avocados, cilantro, and lime.",
+      "price": "£5.99",
+      "img": "src/assets/guac.png",
+      "calories": 150,
+      "allergies": ["Avocado", "Tomato"],
+      "category": 0
+    },
+    {
+      "name": "Queso Fundido",
+      "description": "Melted cheese with chorizo, served with warm tortillas.",
+      "price": "£6.99",
+      "img": "src/assets/queso_fundido.jpg",
+      "calories": 300,
+      "allergies": ["Dairy"],
+      "category": 0
+    },
+    {
+      "name": "Esquites",
+      "description": "Mexican street corn salad with lime, chili, and cheese.",
+      "price": "£4.99",
+      "img": "src/assets/esquites.jpg",
+      "calories": 250,
+      "allergies": ["Dairy"],
+      "category": 0
+    },
+    {
+      "name": "Sopes",
+      "description": "Thick corn tortillas topped with beans, lettuce, cheese, and salsa.",
+      "price": "£5.49",
+      "img": "src/assets/sopes.jpg",
+      "calories": 280,
+      "allergies": ["Dairy"],
+      "category": 0
+    },
+    {
+      "name": "Tacos al Pastor",
+      "description": "Corn tortillas filled with marinated pork, pineapple, and onion.",
+      "price": "£9.99",
+      "img": "src/assets/tacos_el_pastor.jpg",
+      "calories": 350,
+      "allergies": ["Wheat"],
+      "category": 1
+    },
+    {
+      "name": "Enchiladas Verdes",
+      "description": "Corn tortillas stuffed with chicken and covered in green sauce.",
+      "price": "£10.99",
+      "img": "src/assets/enchiladas.jpg",
+      "calories": 450,
+      "allergies": ["Dairy"],
+      "category": 1
+    },
+    {
+      "name": "Chiles Rellenos",
+      "description": "Poblano peppers stuffed with cheese and covered in tomato sauce.",
+      "price": "£11.99",
+      "img": "src/assets/chile_relleno.jpg",
+      "calories": 400,
+      "allergies": ["Dairy", "Egg"],
+      "category": 1
+    },
+    {
+      "name": "Birria Tacos",
+      "description": "Slow-cooked beef tacos served with a flavorful consommé dip.",
+      "price": "£12.99",
+      "img": "src/assets/birra_tacos.jpg",
+      "calories": 500,
+      "allergies": ["Wheat"],
+      "category": 1
+    },
+    {
+      "name": "Tamales",
+      "description": "Steamed corn dough filled with meat or cheese and wrapped in corn husks.",
+      "price": "£7.99",
+      "img": "src/assets/tamales.jpg",
+      "calories": 350,
+      "allergies": ["Corn"],
+      "category": 1
+    },
+    {
+      "name": "Pozole",
+      "description": "Traditional hominy soup with pork, radish, and cabbage.",
+      "price": "£9.99",
+      "img": "src/assets/pozole.jpg",
+      "calories": 400,
+      "allergies": ["None"],
+      "category": 1
+    },
+    {
+      "name": "Churros",
+      "description": "Sweet fried dough with a cinnamon-sugar coating.",
+      "price": "£4.99",
+      "img": "src/assets/churro.jpg",
+      "calories": 200,
+      "allergies": ["Wheat", "Egg"],
+      "category": 2
+    },
+    {
+      "name": "Tres Leches Cake",
+      "description": "Soft sponge cake soaked in three kinds of milk.",
+      "price": "£5.99",
+      "img": "src/assets/tres_leches_cake.jpg",
+      "calories": 350,
+      "allergies": ["Dairy", "Egg", "Wheat"],
+      "category": 2
+    },
+    {
+      "name": "Flan",
+      "description": "Creamy caramel custard dessert.",
+      "price": "£4.99",
+      "img": "src/assets/flan.jpg",
+      "calories": 300,
+      "allergies": ["Dairy", "Egg"],
+      "category": 2
+    },
+    {
+      "name": "Pan de Muerto",
+      "description": "Traditional sweet bread with a sugar topping.",
+      "price": "£3.99",
+      "img": "src/assets/pan_de_muerto.jpg",
+      "calories": 250,
+      "allergies": ["Wheat", "Egg"],
+      "category": 2
+    },
+    {
+      "name": "Capirotada",
+      "description": "Mexican bread pudding made with cinnamon, raisins, and cheese.",
+      "price": "£5.49",
+      "img": "src/assets/capirotada.jpg",
+      "calories": 380,
+      "allergies": ["Dairy", "Wheat"],
+      "category": 2
+    },
+    {
+      "name": "Margarita",
+      "description": "Refreshing lime cocktail with a hint of salt.",
+      "price": "£6.99",
+      "img": "src/assets/cocktail.jpg",
+      "calories": 250,
+      "allergies": ["Citrus"],
+      "category": 3
+    },
+    {
+      "name": "Horchata",
+      "description": "Sweet rice milk drink with cinnamon.",
+      "price": "£3.99",
+      "img": "src/assets/horchata.jpg",
+      "calories": 180,
+      "allergies": ["None"],
+      "category": 3
+    },
+    {
+      "name": "Agua de Jamaica",
+      "description": "Hibiscus iced tea with a tart, floral taste.",
+      "price": "£3.49",
+      "img": "src/assets/agua_dejamaica.jpg",
+      "calories": 100,
+      "allergies": ["None"],
+      "category": 3
+    },
+    {
+      "name": "Michelada",
+      "description": "Mexican beer cocktail with lime, tomato juice, and spices.",
+      "price": "£5.99",
+      "img": "src/assets/michelada.jpg",
+      "calories": 180,
+      "allergies": ["Citrus"],
+      "category": 3
+    },
+    {
+      "name": "Tequila Sunrise",
+      "description": "Tequila, orange juice, and grenadine for a vibrant layered drink.",
+      "price": "£7.49",
+      "img": "src/assets/tequlisa_sunricse.jpg",
+      "calories": 220,
+      "allergies": ["Citrus"],
+      "category": 3
+    }
+  ]
+}

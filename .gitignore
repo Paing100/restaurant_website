@@ -387,4 +387,6 @@ dist-ssr
 *.sln
 *.sw?
 
+.Zone.Identifier
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij,eclipse,maven,java,windows,linux,macos,vim,notepadpp,git,react,visualstudiocode
