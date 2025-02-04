@@ -1,12 +1,6 @@
-import React, { useState, useEffect } from "react";
-import guacamoleImg from './assets/guacamole.jpg'
-import churroImg from './assets/churro.jpg'
-import cocktailImg from './assets/cocktail.jpg'
-import tacoImg from './assets/taco.jpg'
-import { Grid, Card, CardActionArea, CardContent, Typography, CardMedia, Box, Tabs, Tab, Button, Grid2} from "@mui/material";
+import { useState, useEffect } from "react";
+import { Grid, Box, Tabs, Tab, Typography} from "@mui/material";
 import MenuCard from './MenuCard.jsx'
-import Filter from './Filter.jsx'
-
 
 function Menu() {
   const [selectedTab, setSelectedTab] = useState(0);

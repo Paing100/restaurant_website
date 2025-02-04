@@ -1,33 +1,59 @@
 stages:
-  - build
+  - build-backend
   - test
   - jacoco
   - spotbugs
+  - build-frontend
+  - lint
+  - vitest
 
 cache:
   paths:
     - .m2/repository
+    - Project/Frontend/node_modules
 
-build:
-  stage: build
+backend-build:
+  stage: build-backend
   script:
     - cd Project/Backend
     - mvn compile
 
-test:
+backend-test:
   stage: test
   script:
     - cd Project/Backend
     - mvn test
 
-jacoco:
+backend-jacoco:
   stage: jacoco
   script:
     - cd Project/Backend
     - mvn verify
 
-spotbugs:
+backend-spotbugs:
   stage: spotbugs
   script:
     - cd Project/Backend
     - mvn spotbugs:check
+
+frontend-build:
+  stage: build-frontend
+  script: 
+    - cd Project/Frontend
+    - npm install
+    - npm run build
+
+frontend-lint:
+  stage: lint
+  script: 
+    - cd Project/Frontend
+    - npm run lint 
+
+frontend-test:
+  stage: vitest 
+  script: 
+    - cd Project/Frontend
+    - npm run test
+
+  
+

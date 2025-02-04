@@ -1,4 +1,5 @@
 import { Card, CardActionArea, CardContent, Typography, CardMedia} from "@mui/material";
+import PropTypes from 'prop-types';
 
 function MenuCard({item}) {
   return (<>
@@ -32,4 +33,16 @@ function MenuCard({item}) {
   );
 }
 
-export default MenuCard;``
+MenuCard.propTypes = {
+  item: PropTypes.shape({
+    img: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    calories: PropTypes.number.isRequired,
+    allergies: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }).isRequired,
+};
+
+
+export default MenuCard;
