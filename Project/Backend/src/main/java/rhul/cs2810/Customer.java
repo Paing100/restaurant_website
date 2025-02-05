@@ -1,26 +1,32 @@
 package rhul.cs2810;
 
 import java.util.List;
+import java.util.Set;
 
 public class Customer {
 
   int order_No;
   List<MenuItem> orderedItems;
 
-  public int getOrder_No() {
-    return order_No;
+  public void viewMenu() {
+
   }
 
-  public void setOrder_No(int order_No) {
-    this.order_No = order_No;
+  public void addItemToCart() {
+
   }
 
-  public List<MenuItem> getOrderedItems() {
+  public void removeItemFromCart() {
+
+  }
+
+  public List<MenuItem> filterMenu(Set<DiretaryRestrictions> filter) {
     return orderedItems;
   }
 
-  public void setOrderedItems(List<MenuItem> orderedItems) {
-    this.orderedItems = orderedItems;
+  public void order() {
+    for (MenuItem item : orderedItems) {
+      System.out.print(item);
+    }
   }
-
 }
