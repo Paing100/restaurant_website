@@ -1,38 +1,20 @@
 package rhul.cs2810;
 
 import java.util.List;
+import java.util.Set;
 
 public class MenuItem {
 
   private int itemId;
   private String name;
-  private ItemCategory categoryId;
+  private Category category;
   private String description;
   private float price;
   private List<String> allergens;
   private int calories;
-  private boolean isHalal;
-  private boolean isVegan;
-  private boolean isGlutenFree;
-  private boolean isVegetarian;
+  private Set<DiretaryRestrictions> diretaryRestrictions;
   private boolean available;
 
-  public MenuItem(int itemId, String name, ItemCategory categoryId, String description, float price,
-      List<String> allergens, int calories, boolean isHalal, boolean isVegan, boolean isGlutenFree,
-      boolean isVegetarian, boolean available) {
-    this.itemId = itemId;
-    this.name = name;
-    this.categoryId = categoryId;
-    this.description = description;
-    this.price = price;
-    this.allergens = allergens;
-    this.calories = calories;
-    this.isHalal = isHalal;
-    this.isVegan = isVegan;
-    this.isGlutenFree = isGlutenFree;
-    this.isVegetarian = isVegetarian;
-    this.available = available;
-  }
 
   public int getItemId() {
     return itemId;
@@ -50,12 +32,12 @@ public class MenuItem {
     this.name = name;
   }
 
-  public ItemCategory getCategoryId() {
-    return categoryId;
+  public Category getCategory() {
+    return category;
   }
 
-  public void setCategoryId(ItemCategory categoryId) {
-    this.categoryId = categoryId;
+  public void setCategory(Category category) {
+    this.category = category;
   }
 
   public String getDescription() {
@@ -90,36 +72,12 @@ public class MenuItem {
     this.calories = calories;
   }
 
-  public boolean isHalal() {
-    return isHalal;
+  public Set<DiretaryRestrictions> getDiretaryRestrictions() {
+    return diretaryRestrictions;
   }
 
-  public void setHalal(boolean isHalal) {
-    this.isHalal = isHalal;
-  }
-
-  public boolean isVegan() {
-    return isVegan;
-  }
-
-  public void setVegan(boolean isVegan) {
-    this.isVegan = isVegan;
-  }
-
-  public boolean isGlutenFree() {
-    return isGlutenFree;
-  }
-
-  public void setGlutenFree(boolean isGlutenFree) {
-    this.isGlutenFree = isGlutenFree;
-  }
-
-  public boolean isVegetarian() {
-    return isVegetarian;
-  }
-
-  public void setVegetarian(boolean isVegetarian) {
-    this.isVegetarian = isVegetarian;
+  public void setDiretaryRestrictions(Set<DiretaryRestrictions> diretaryRestrictions) {
+    this.diretaryRestrictions = diretaryRestrictions;
   }
 
   public boolean isAvailable() {
@@ -129,10 +87,4 @@ public class MenuItem {
   public void setAvailable(boolean available) {
     this.available = available;
   }
-
-}
-
-
-// UML diagram not clear - Assumed this was an enum and added it (if incorrect please change)
-enum ItemCategory {
 }

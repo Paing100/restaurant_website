@@ -4,17 +4,8 @@ import java.util.List;
 
 public class Customer {
 
-  String name;
   int order_No;
   List<MenuItem> orderedItems;
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   public int getOrder_No() {
     return order_No;
