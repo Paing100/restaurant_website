@@ -8,6 +8,10 @@ public class Menu {
   List<MenuItem> categoryItems;
   List<MenuItem> dietItems;
 
+  public Menu() {
+
+  }
+
   public List<MenuItem> getMenuItems() {
     return Items;
   }
@@ -21,9 +25,9 @@ public class Menu {
     return categoryItems;
   }
 
-  public List<MenuItem> getDiretaryRestrictions(Set<DiretaryRestrictions> diretaryRestrictions) {
+  public List<MenuItem> getDietaryRestrictions(Set<DietaryRestrictions> dietaryRestrictions) {
     for (MenuItem item : Items) {
-      if (item.getDiretaryRestrictions() == diretaryRestrictions) {
+      if (item.getDietaryRestrictions() == dietaryRestrictions) {
         dietItems.add(item);
       }
     }

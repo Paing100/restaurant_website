@@ -5,10 +5,18 @@ import java.util.Set;
 
 public class Customer {
 
-  int order_No;
+  int order_No; // have this be ID?
   List<MenuItem> orderedItems;
   List<MenuItem> menuItems;
   Menu menu;
+
+  public Customer(int order_No, List<MenuItem> orderedItems, List<MenuItem> menuItems, Menu menu) {
+    this.order_No = order_No;
+    this.orderedItems = orderedItems;
+    this.menuItems = menuItems;
+    this.menu = menu;
+
+  }
 
   public void viewMenu() {
     menuItems = menu.getMenuItems();
@@ -25,8 +33,8 @@ public class Customer {
     orderedItems.remove(menuItem);
   }
 
-  public List<MenuItem> filterMenu(Set<DiretaryRestrictions> filter) {
-    return menu.getDiretaryRestrictions(filter);
+  public List<MenuItem> filterMenu(Set<DietaryRestrictions> filter) {
+    return menu.getDietaryRestrictions(filter);
   }
 
   public void order() {
