@@ -5,7 +5,9 @@ package rhul.cs2810.repository;
 import org.springframework.data.repository.CrudRepository;
 import jakarta.persistence.criteria.Order;
 
-
+/**
+ * Repository for managing Order entities.
+ */
 public interface OrderRepository extends CrudRepository<Order, Long> {
 
 }
