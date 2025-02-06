@@ -12,8 +12,23 @@ public class MenuItem {
   private float price;
   private List<String> allergens;
   private int calories;
-  private Set<DiretaryRestrictions> diretaryRestrictions;
+  private Set<DietaryRestrictions> dietaryRestrictions;
   private boolean available;
+
+  public MenuItem(int itemId, String name, Category category, String description, float price,
+      List<String> allergens, int calories, Set<DietaryRestrictions> dietaryRestrictions,
+      boolean available) {
+    this.itemId = itemId;
+    this.name = name;
+    this.category = category;
+    this.description = description;
+    this.price = price;
+    this.allergens = allergens;
+    this.calories = calories;
+    this.dietaryRestrictions = dietaryRestrictions;
+    this.available = available;
+
+  }
 
 
   public int getItemId() {
@@ -72,12 +87,12 @@ public class MenuItem {
     this.calories = calories;
   }
 
-  public Set<DiretaryRestrictions> getDiretaryRestrictions() {
-    return diretaryRestrictions;
+  public Set<DietaryRestrictions> getDietaryRestrictions() {
+    return dietaryRestrictions;
   }
 
-  public void setDiretaryRestrictions(Set<DiretaryRestrictions> diretaryRestrictions) {
-    this.diretaryRestrictions = diretaryRestrictions;
+  public void setDiretaryRestrictions(Set<DietaryRestrictions> dietaryRestrictions) {
+    this.dietaryRestrictions = dietaryRestrictions;
   }
 
   public boolean isAvailable() {

@@ -1,5 +1,19 @@
 DROP TABLE IF EXISTS menu_items CASCADE;
 DROP TABLE IF EXISTS item_category CASCADE;
+DROP TABLE IF EXISTS customer CASCADE;
+DROP TABLE IF EXISTS allergies CASCADE;
+
+CREATE TABLE customer (
+    order_no SERIAL PRIMARY KEY,
+);
+
+CREATE TABLE customer_menu_items (
+    order_no INT,
+    item_id INT,
+    PRIMARY KEY (order_no, item_id),
+    FOREIGN KEY (order_no) REFERENCES customer(order_no) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES menu_items(item_id) ON DELETE CASCADE
+);
 
 CREATE TABLE menu_items (
     item_id INT PRIMARY KEY,
@@ -7,13 +21,34 @@ CREATE TABLE menu_items (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
-    allergens VARCHAR(255),
     calories INT(5),
-    is_halal BOOLEAN DEFAULT FALSE,
-    is_vegan BOOLEAN DEFAULT FALSE,
-    is_gluten_free BOOLEAN DEFAULT FALSE,
-    in_stock BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (category_id) REFERENCES categories(category_id) 
+);
+
+CREATE TABLE allergies (
+    allergy_id INT PRIMARY KEY, 
+    name VARCHAR(40) UNIQUE NOT NULL
+);
+
+CREATE TABLE item_allergies (
+    item_id INT,
+    allergy_id INT,
+    PRIMARY KEY (item_id, allergy_id),
+    FOREIGN KEY (item_id) REFERENCES menu_items(item_id) ON DELETE CASCADE,
+    FOREIGN KEY (allergy_id) REFERENCES allergies(allergy_id) ON DELETE CASCADE
+);
+
+CREATE TABLE dietary_restrictions (
+    dietaryRes_id SERIAL PRIMARY KEY,
+    dietaryRes_name VARCHAR(255) UNIQUE NOT NULL
+);
+
+CREATE TABLE menu_item_dietary_restrictions (
+    item_id INT,
+    dietaryRes_id INT,
+    PRIMARY KEY (item_id, dietaryRes_id),
+    FOREIGN KEY (item_id) REFERENCES menu_items(item_id) ON DELETE CASCADE,
+    FOREIGN KEY (dietaryRes_id) REFERENCES dietary_restrictions(dietaryRes_id) ON DELETE CASCADE
 );
 
 CREATE TABLE item_category ( 
@@ -25,7 +60,4 @@ INSERT INTO item_category (category_id, name) VALUES
 (1, 'Starters'),
 (2, 'Course');
 
-INSERT INTO menu_items (item_id, category_id, name, description, price, allergens, calories, is_halal, is_vegan, is_gluten_free, in_stock) VALUES
-(1, 1, 'Spring Rolls', 'veggie spring rolls', 3.99, 'Gluten, Soy', 250, TRUE, TRUE, FALSE, TRUE),
-(2, 1, 'Garlic Bread', 'garliced bread', 4.49, 'Gluten, Dairy', 300, FALSE, FALSE, FALSE, TRUE),
-(3, 2, 'Grilled Chicken', 'chicken been grilled', 6.99, NULL, 750, TRUE, FALSE, TRUE, TRUE);
+-- rewrite test data
