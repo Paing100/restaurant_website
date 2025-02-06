@@ -9,6 +9,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import rhul.cs2810.model.Category;
+import rhul.cs2810.model.DietaryRestrictions;
+import rhul.cs2810.model.MenuItem;
+
 public class MenuItemTest {
 
   private MenuItem item;
