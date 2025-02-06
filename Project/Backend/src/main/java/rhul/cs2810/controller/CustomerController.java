@@ -3,13 +3,15 @@ package rhul.cs2810.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import rhul.cs2810.Customer;
-import rhul.cs2810.Menu;
-import rhul.cs2810.MenuItem;
+
+import rhul.cs2810.model.Customer;
+import rhul.cs2810.model.Menu;
+import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.MenuItemRepository;
 
@@ -27,7 +29,6 @@ public class CustomerController {
    *
    * @param menuItemRepository the repository for menu items
    * @param customerRepository the repository for customers
-   * @param todo todo customers and orders(?)
    */
   public CustomerController(CustomerRepository customerRepository,
       MenuItemRepository menuItemRepository) {

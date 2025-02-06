@@ -1,4 +1,4 @@
-package rhul.cs2810;
+package rhul.cs2810.model;
 
 import java.util.List;
 import java.util.Set;
@@ -102,4 +102,15 @@ public class MenuItem {
   public void setAvailable(boolean available) {
     this.available = available;
   }
+
+
+  @Override
+  public String toString() {
+    return "ID: " + this.itemId + "\nName: " + this.name + "\nCategory: " + this.category
+        + "\nDescription: " + this.description + "\nPrice: " + this.price + "\nAllergens: "
+        + this.allergens + "\nCalories: " + calories + "\nDietary Restrictions: "
+        + this.dietaryRestrictions.toString() + "\nAvailable: " + this.available;
+  }
+
+
 }

@@ -6,13 +6,15 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import rhul.cs2810.Category;
-import rhul.cs2810.DietaryRestrictions;
-import rhul.cs2810.MenuItem;
+
+import rhul.cs2810.model.Category;
+import rhul.cs2810.model.DietaryRestrictions;
+import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.repository.CategoryRepository;
 import rhul.cs2810.repository.MenuItemRepository;
 
@@ -30,8 +32,7 @@ public class MenuItemController {
    * A constructor for the MenuItemController.
    *
    * @param menuItemRepository the repository for menu items
-   * @param itemCategoryRepository the repository for categories
-   * @param todo todo customers and orders(?)
+   * @param categoryRepository the repository for categories
    */
   public MenuItemController(MenuItemRepository menuItemRepository,
       CategoryRepository categoryRepository) {
