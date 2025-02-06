@@ -58,7 +58,7 @@ CREATE TABLE item_category (
 
 
 -- Insert categories
-INSERT INTO categories (category_id, name) VALUES
+INSERT INTO item_category (category_id, name) VALUES
 (1, 'Starters'),
 (2, 'Main Course'),
 (3, 'Desserts'),
