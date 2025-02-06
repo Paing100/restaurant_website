@@ -22,7 +22,7 @@ public class MenuItemTest {
    */
   @BeforeEach
   void setUp() {
-    item = new MenuItem(1, "Guacamole", Category.APPEITIZER,
+    item = new MenuItem(1, "Guacamole", Category.APPETIZER,
         "Classic Mexican dip made with avocados, cilantro, and lime", 5.99f, new ArrayList<>(), 150,
         EnumSet.noneOf(DietaryRestrictions.class), true);
   }
@@ -34,7 +34,7 @@ public class MenuItemTest {
   void testConstructorAndGetters() {
     assertEquals(1, item.getItemId());
     assertEquals("Guacamole", item.getName());
-    assertEquals(Category.APPEITIZER, item.getCategory());
+    assertEquals(Category.APPETIZER, item.getCategory());
     assertEquals("Classic Mexican dip made with avocados, cilantro, and lime",
         item.getDescription());
     assertEquals(5.99f, item.getPrice());
@@ -115,7 +115,7 @@ public class MenuItemTest {
   @Test
   void testSetAndGetDietaryRestrictions() {
     EnumSet<DietaryRestrictions> restrictions = EnumSet.of(DietaryRestrictions.VEGAN);
-    item.setDiretaryRestrictions(restrictions);
+    item.setDietaryRestrictions(restrictions);
     assertEquals(restrictions, item.getDietaryRestrictions());
   }
 
