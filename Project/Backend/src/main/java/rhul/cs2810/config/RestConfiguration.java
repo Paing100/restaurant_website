@@ -7,8 +7,8 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
 import rhul.cs2810.model.Customer;
-import rhul.cs2810.model.Menu;
 import rhul.cs2810.model.MenuItem;
+import rhul.cs2810.model.Order;
 
 
 /**
@@ -21,7 +21,7 @@ public class RestConfiguration implements RepositoryRestConfigurer {
   public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config,
       CorsRegistry cors) {
     config.exposeIdsFor(Customer.class);
-    config.exposeIdsFor(Menu.class);
+    config.exposeIdsFor(Order.class);
     config.exposeIdsFor(MenuItem.class);
   }
 

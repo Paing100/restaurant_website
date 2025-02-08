@@ -1,6 +1,5 @@
 package rhul.cs2810.model;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -8,39 +7,25 @@ import java.util.Set;
  */
 public class MenuItem {
 
-  /** The unique identifier for the menu item. */
   private int itemId;
-
-  /** The name of the menu item. */
   private String name;
-
-  /** The category of the menu item. */
-  private Category category;
-
-  /** The description of the menu item. */
   private String description;
-
-  /** The price of the menu item. */
-  private float price;
-
-  /** The list of allergens contained in the menu item. */
-  private List<String> allergens;
-
-  /** The calorie count of the menu item. */
+  private double price;
+  private Set<Allergen> allergens;
   private int calories;
-
-  /** The dietary restrictions applicable to the menu item. */
   private Set<DietaryRestrictions> dietaryRestrictions;
-
-  /** Availability status of the menu item. */
   private boolean available;
+
+  public MenuItem() {
+    this.allergens = null;
+    this.dietaryRestrictions = null;
+    this.available = false;
+  }
 
   /**
    * Constructs a new MenuItem with the specified attributes.
    *
-   * @param itemId the unique identifier of the item
    * @param name the name of the item
-   * @param category the category of the item
    * @param description the description of the item
    * @param price the price of the item
    * @param allergens the list of allergens present in the item
@@ -48,12 +33,9 @@ public class MenuItem {
    * @param dietaryRestrictions the set of dietary restrictions applicable to the item
    * @param available the availability status of the item
    */
-  public MenuItem(int itemId, String name, Category category, String description, float price,
-      List<String> allergens, int calories, Set<DietaryRestrictions> dietaryRestrictions,
-      boolean available) {
-    this.itemId = itemId;
+  public MenuItem(String name, String description, double price, Set<Allergen> allergens,
+      int calories, Set<DietaryRestrictions> dietaryRestrictions, boolean available) {
     this.name = name;
-    this.category = category;
     this.description = description;
     this.price = price;
     this.allergens = allergens;
@@ -98,23 +80,6 @@ public class MenuItem {
     this.name = name;
   }
 
-  /**
-   * Gets the category of the menu item.
-   *
-   * @return the category of the item
-   */
-  public Category getCategory() {
-    return category;
-  }
-
-  /**
-   * Sets the category of the menu item.
-   *
-   * @param category the category to set
-   */
-  public void setCategory(Category category) {
-    this.category = category;
-  }
 
   /**
    * Gets the description of the menu item.
@@ -139,7 +104,7 @@ public class MenuItem {
    *
    * @return the price of the item
    */
-  public float getPrice() {
+  public double getPrice() {
     return price;
   }
 
@@ -148,7 +113,7 @@ public class MenuItem {
    *
    * @param price the price to set
    */
-  public void setPrice(float price) {
+  public void setPrice(double price) {
     this.price = price;
   }
 
@@ -157,7 +122,7 @@ public class MenuItem {
    *
    * @return the list of allergens
    */
-  public List<String> getAllergens() {
+  public Set<Allergen> getAllergens() {
     return allergens;
   }
 
@@ -166,7 +131,7 @@ public class MenuItem {
    *
    * @param allergens the list of allergens to set
    */
-  public void setAllergens(List<String> allergens) {
+  public void setAllergens(Set<Allergen> allergens) {
     this.allergens = allergens;
   }
 
@@ -224,16 +189,4 @@ public class MenuItem {
     this.available = available;
   }
 
-  /**
-   * Returns a string representation of the menu item.
-   *
-   * @return a formatted string containing item details
-   */
-  @Override
-  public String toString() {
-    return "ID: " + this.itemId + "\nName: " + this.name + "\nCategory: " + this.category
-        + "\nDescription: " + this.description + "\nPrice: " + this.price + "\nAllergens: "
-        + this.allergens + "\nCalories: " + calories + "\nDietary Restrictions: "
-        + this.dietaryRestrictions.toString() + "\nAvailable: " + this.available;
-  }
 }
