@@ -21,6 +21,15 @@ public class Order {
   }
 
   /**
+   * Creates an order object with empty hashmap, given id, customer
+   */
+  public Order(int orderId, Customer customer) {
+    this.orderId = orderId;
+    this.customer = customer;
+    this.orderedItems = new HashMap<>();
+  }
+
+  /**
    * Creates an order object with customer object and menuitems.
    *
    * @param customer
@@ -38,11 +47,11 @@ public class Order {
    * @return the total price in double
    */
   private double calculateTotal() {
-    totalPrice = 0;
+    this.totalPrice = 0;
     for (Map.Entry<MenuItem, Integer> entry : orderedItems.entrySet()) {
-      totalPrice += entry.getKey().getPrice() * entry.getValue();
+      this.totalPrice += entry.getKey().getPrice() * entry.getValue();
     }
-    return totalPrice;
+    return this.totalPrice;
   }
 
   /**
