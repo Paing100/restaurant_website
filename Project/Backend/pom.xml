@@ -107,6 +107,7 @@
                 <configuration>
                   <excludes>
                     <exclude>**/BackendApplication*</exclude>
+                    <exclude>**/config/**</exclude>
                   </excludes>
                 </configuration>
                 <executions>

@@ -2,14 +2,16 @@ package rhul.cs2810;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.util.ArrayList;
+
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import rhul.cs2810.model.Category;
+import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
 
@@ -22,9 +24,8 @@ public class MenuItemTest {
    */
   @BeforeEach
   void setUp() {
-    item = new MenuItem(1, "Guacamole", Category.APPETIZER,
-        "Classic Mexican dip made with avocados, cilantro, and lime", 5.99f, new ArrayList<>(), 150,
-        EnumSet.noneOf(DietaryRestrictions.class), true);
+    item = new MenuItem("Guacamole", "Classic Mexican dip made with avocados, cilantro, and lime",
+        5.99, EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class), true);
   }
 
   /**
@@ -32,12 +33,10 @@ public class MenuItemTest {
    */
   @Test
   void testConstructorAndGetters() {
-    assertEquals(1, item.getItemId());
     assertEquals("Guacamole", item.getName());
-    assertEquals(Category.APPETIZER, item.getCategory());
     assertEquals("Classic Mexican dip made with avocados, cilantro, and lime",
         item.getDescription());
-    assertEquals(5.99f, item.getPrice());
+    assertEquals(5.99, item.getPrice());
     assertTrue(item.getAllergens().isEmpty());
     assertEquals(150, item.getCalories());
     assertTrue(item.getDietaryRestrictions().isEmpty());
@@ -63,16 +62,7 @@ public class MenuItemTest {
   }
 
   /**
-   * Test 4: Verify setting and getting the category.
-   */
-  @Test
-  void testSetAndGetCategory() {
-    item.setCategory(Category.MAIN);
-    assertEquals(Category.MAIN, item.getCategory());
-  }
-
-  /**
-   * Test 5: Verify setting and getting the description.
+   * Test 4: Verify setting and getting the description.
    */
   @Test
   void testSetAndGetDescription() {
@@ -82,7 +72,7 @@ public class MenuItemTest {
   }
 
   /**
-   * Test 6: Verify setting and getting the price.
+   * Test 5: Verify setting and getting the price.
    */
   @Test
   void testSetAndGetPrice() {
@@ -91,17 +81,17 @@ public class MenuItemTest {
   }
 
   /**
-   * Test 7: Verify setting and getting allergens.
+   * Test 6: Verify setting and getting allergens.
    */
   @Test
   void testSetAndGetAllergens() {
-    List<String> allergens = List.of("Tomato", "Avocado");
+    Set<Allergen> allergens = Set.of(Allergen.DAIRY, Allergen.NUTS);
     item.setAllergens(allergens);
     assertEquals(allergens, item.getAllergens());
   }
 
   /**
-   * Test 8: Verify setting and getting calories.
+   * Test 7: Verify setting and getting calories.
    */
   @Test
   void testSetAndGetCalories() {
@@ -110,7 +100,7 @@ public class MenuItemTest {
   }
 
   /**
-   * Test 9: Verify setting and getting dietary restrictions.
+   * Test 8: Verify setting and getting dietary restrictions.
    */
   @Test
   void testSetAndGetDietaryRestrictions() {
@@ -120,12 +110,28 @@ public class MenuItemTest {
   }
 
   /**
-   * Test 10: Verify setting and getting availability.
+   * Test 9: Verify setting and getting availability.
    */
   @Test
   void testSetAndGetAvailable() {
     item.setAvailable(false);
     assertFalse(item.isAvailable());
+  }
+
+  /**
+   * Test 10: Verify empty constructor.
+   */
+  @Test
+  void testEmptyConstructor() {
+    MenuItem menuItem = new MenuItem();
+    assertNull(menuItem.getName());
+    assertNull(menuItem.getDescription());
+    assertEquals(0.0, menuItem.getPrice());
+    assertEquals(0, menuItem.getCalories());
+    assertFalse(menuItem.isAvailable());
+    assertNull(menuItem.getAllergens());
+    assertNull(menuItem.getDietaryRestrictions());
+
   }
 
 }
