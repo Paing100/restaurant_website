@@ -33,6 +33,14 @@ public class Customer {
   }
 
   /**
+   * Constructs a Customer with an empty order list and a given ID.
+   */
+  public Customer(int customerID) {
+    this.customerID = customerID;
+    this.menuItems = new ArrayList<>();
+  }
+
+  /**
    * Constructs a Customer with an empty order list.
    */
   public Customer() {
