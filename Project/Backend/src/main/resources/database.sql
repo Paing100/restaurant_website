@@ -35,29 +35,29 @@ CREATE TABLE order_menu_items (
 );
 
 CREATE TABLE allergens (
-    allergen_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL
+    name VARCHAR(255) PRIMARY KEY,
+    description TEXT NOT NULL
 );
 
 CREATE TABLE menu_item_allergens (
     item_id INT,
-    allergen_id INT,
-    PRIMARY KEY (item_id, allergen_id),
+    allergen VARCHAR(255),
+    PRIMARY KEY (item_id, allergen),
     FOREIGN KEY (item_id) REFERENCES menu_item(item_id) ON DELETE CASCADE,
-    FOREIGN KEY (allergen_id) REFERENCES allergens(allergen_id) ON DELETE CASCADE
+    FOREIGN KEY (allergen) REFERENCES allergens(name) ON DELETE CASCADE
 );
 
 CREATE TABLE dietary_restrictions (
-    restriction_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL
+    name VARCHAR(255) PRIMARY KEY,
+    description TEXT NOT NULL
 );
 
 CREATE TABLE menu_item_dietary_restrictions (
     item_id INT,
-    restriction_id INT,
-    PRIMARY KEY (item_id, restriction_id),
+    restriction VARCHAR(255),
+    PRIMARY KEY (item_id, restriction),
     FOREIGN KEY (item_id) REFERENCES menu_item(item_id) ON DELETE CASCADE,
-    FOREIGN KEY (restriction_id) REFERENCES dietary_restrictions(restriction_id) ON DELETE CASCADE
+    FOREIGN KEY (restriction) REFERENCES dietary_restrictions(name) ON DELETE CASCADE
 );
 
 INSERT INTO dietary_restrictions (name) VALUES
