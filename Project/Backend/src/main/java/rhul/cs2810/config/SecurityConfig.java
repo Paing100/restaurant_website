@@ -28,11 +28,14 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf((csrf) -> csrf.disable())
         .cors(withDefaults())
+        /*
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/h2-console/**").permitAll() // Allow access to H2 Console
             .anyRequest().authenticated()
         )
-        .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())); // Allow H2 Console frames;
+        .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+    */
+    ; // Allow H2 Console frames;
 
     return http.build();
   }
