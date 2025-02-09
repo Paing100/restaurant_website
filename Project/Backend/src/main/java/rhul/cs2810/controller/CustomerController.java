@@ -1,5 +1,6 @@
 package rhul.cs2810.controller;
 
+import java.util.Optional;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -110,21 +111,41 @@ public class CustomerController {
    * @param params input parameters given to read off of.
    */
   @PostMapping(value = "/Customers/addItemToCart")
-  public ResponseEntity<Customer> addItem(@RequestBody Map<String, String> params) {
+  public ResponseEntity<?> addItem(@RequestBody Map<String, String> params) {
 
-    Customer customer =
-        customerRepository.findById(Long.valueOf(params.get("customer_id"))).orElseThrow();
-    MenuItem item = menuItemRepository.findById(Long.valueOf(params.get("item_id"))).orElseThrow();
+    // Convert IDs from String to Long
+    Long customerId = Long.valueOf(params.get("customer_id"));
+    Long itemId = Long.valueOf(params.get("item_id"));
+
+    // Check if customer exists
+    Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+    if (optionalCustomer.isEmpty()) {
+        return ResponseEntity.badRequest().body("Error: Customer with ID " + customerId + " not found.");
+    }
+
+    // Check if menu item exists
+    Optional<MenuItem> optionalItem = menuItemRepository.findById(itemId);
+    if (optionalItem.isEmpty()) {
+        return ResponseEntity.badRequest().body("Error: Menu item with ID " + itemId + " not found.");
+    }
+
+    // Get actual objects
+    Customer customer = optionalCustomer.get();
+    MenuItem item = optionalItem.get();
+
+    // Set quantity (default is 1)
     int count = 1;
     if (params.containsKey("amount")) {
-      count = Integer.valueOf(params.get("amount"));
+        count = Integer.parseInt(params.get("amount"));
     }
+
+    // Add item to the customer's order
     customer.getOrder().addItemToCart(item, count);
 
-    customer = customerRepository.save(customer);
+    // Save updated customer (should cascade save the order)
+    customerRepository.save(customer);
 
     return ResponseEntity.ok(customer);
-
   }
 
 }
