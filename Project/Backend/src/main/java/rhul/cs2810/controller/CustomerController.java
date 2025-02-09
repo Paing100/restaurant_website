@@ -44,16 +44,27 @@ public class CustomerController {
    */
   @PostMapping(value = "/Customers/addCustomer")
   public ResponseEntity<Customer> addCustomer(@RequestBody Map<String, String> params) {
+    System.out.println("Received params: " + params); // Debugging output
 
-    Customer customer = new Customer(Integer.valueOf(params.get("customer_id")));
-    Order order = new Order(Integer.valueOf(params.get("order_id")), customer);
+    if (!params.containsKey("customer_id") || params.get("customer_id") == null) {
+        return ResponseEntity.badRequest().body(null); // Prevents NumberFormatException
+    }
+
+    int customerId;
+    try {
+        customerId = Integer.parseInt(params.get("customer_id"));
+    } catch (NumberFormatException e) {
+        return ResponseEntity.badRequest().body(null);
+    }
+
+    Customer customer = new Customer(customerId);
+
+    Order order = new Order(customer);
     customer.setOrder(order);
 
     customer = customerRepository.save(customer);
 
     return ResponseEntity.ok(customer);
-
-
   }
 
   /**
