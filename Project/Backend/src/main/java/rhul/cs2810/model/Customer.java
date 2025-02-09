@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 /**
  * Represents a customer in the restaurant system.
@@ -21,6 +22,7 @@ public class Customer {
   List<MenuItem> menuItems;
 
   @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
   Order order;
 
   /**
@@ -114,5 +116,10 @@ public class Customer {
   public void setOrder(Order order) {
     this.order = order;
   }
+
+  public int getCustomerID() {
+    return customerID;
+  }
+
 
 }

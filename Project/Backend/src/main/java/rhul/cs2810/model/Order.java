@@ -3,7 +3,7 @@ package rhul.cs2810.model;
 import jakarta.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 /**
  * Represents an Order class to handle customers orders.
@@ -17,6 +17,7 @@ public class Order {
 
   @OneToOne
   @JoinColumn(name = "customer_id", unique = true)
+  @JsonBackReference
   Customer customer;
 
   @ElementCollection
@@ -40,6 +41,16 @@ public class Order {
     this.customer = customer;
     this.orderedItems = new HashMap<>();
   }
+
+  /**
+     * Creates an order object with a customer, initializing an empty cart.
+     *
+     * @param customer the customer associated with the order
+     */
+    public Order(Customer customer) {
+        this.customer = customer;
+        this.orderedItems = new HashMap<>();
+    }
 
   /**
    * Creates an order object with customer object and menuitems.
@@ -133,6 +144,10 @@ public class Order {
    */
   public void addItemToCart(MenuItem newItem, int quantity) {
     orderedItems.put(newItem, quantity);
+  }
+
+  public int getOrderId() {
+    return orderId;
   }
 
 
