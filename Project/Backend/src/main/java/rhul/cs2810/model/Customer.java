@@ -1,5 +1,6 @@
 package rhul.cs2810.model;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -7,10 +8,19 @@ import java.util.Set;
 /**
  * Represents a customer in the restaurant system.
  */
+@Entity
+@Table(name = "customer")
 public class Customer {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "customer_id")
   int customerID;
+
+  @Transient
   List<MenuItem> menuItems;
+
+  @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
   Order order;
 
   /**

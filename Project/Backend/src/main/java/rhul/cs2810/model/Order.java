@@ -1,5 +1,6 @@
 package rhul.cs2810.model;
 
+import jakarta.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,9 +8,20 @@ import java.util.Map;
 /**
  * Represents an Order class to handle customers orders.
  */
+@Entity
+@Table(name = "\"ORDER\"")
 public class Order {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   int orderId;
+
+  @OneToOne
+  @JoinColumn(name = "customer_id", unique = true)
   Customer customer;
+
+  @ElementCollection
+  @CollectionTable(name = "order_menu_items", joinColumns = @JoinColumn(name = "order_id"))
+  @MapKeyJoinColumn(name = "item_id")
   Map<MenuItem, Integer> orderedItems;
   double totalPrice;
 
