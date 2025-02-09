@@ -26,7 +26,6 @@ public class MenuItemController {
    * A constructor for the MenuItemController.
    *
    * @param menuItemRepository the repository for menu items
-   * @param categoryRepository the repository for categories
    */
   public MenuItemController(MenuItemRepository menuItemRepository) {
     this.menuItemRepository = menuItemRepository;
