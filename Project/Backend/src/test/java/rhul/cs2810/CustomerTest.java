@@ -12,122 +12,91 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import rhul.cs2810.model.Category;
+import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.Customer;
 import rhul.cs2810.model.DietaryRestrictions;
-import rhul.cs2810.model.Menu;
 import rhul.cs2810.model.MenuItem;
+import rhul.cs2810.model.Order;
+
 
 
 public class CustomerTest {
   Customer customer;
   MenuItem veganItem;
   MenuItem nonVeganItem;
-  Menu menu;
+  List<MenuItem> menuItems = new ArrayList<>();
 
   @BeforeEach
   void beforeEach() {
-    menu = new Menu();
     customer = new Customer();
-    veganItem = new MenuItem(1, "Vegan Burger", Category.MAIN, "Tasty vegan burger", 10.99F, null,
-        300, new HashSet<>(Set.of(DietaryRestrictions.VEGAN)), false);
+    veganItem = new MenuItem("Vegan Burger", "Tasty vegan burger", 10.99,
+        new HashSet<>(Set.of(Allergen.NUTS)), 300, new HashSet<>(Set.of(DietaryRestrictions.VEGAN)),
+        false);
 
-    nonVeganItem = new MenuItem(2, "Beef Burger", Category.MAIN, "Juicy beef burger", 12.99F, null,
-        500, new HashSet<>(), false);
-    menu.addMenuItem(veganItem);
-    menu.addMenuItem(nonVeganItem);
-    customer.setMenu(menu);
+    nonVeganItem = new MenuItem("Beef Burger", "Juicy beef burger", 12.99F,
+        new HashSet<>(Set.of(Allergen.EGG)), 500,
+        new HashSet<>(Set.of(DietaryRestrictions.GLUTENFREE)), false);
+    menuItems.add(veganItem);
+    menuItems.add(nonVeganItem);
   }
 
   @Test
-  void testCustomerConstructor() {
-    List<MenuItem> orderedItems = new ArrayList<>();
-    orderedItems.add(veganItem);
-    List<MenuItem> menuItems = menu.getMenuItems();
-
-    Customer c = new Customer(1, orderedItems, menuItems, menu);
-
-    assertEquals(1, c.getOrderNo());
-    assertEquals(orderedItems.size(), c.getOrderedItems().size());
-    assertTrue(c.getOrderedItems().contains(veganItem));
-    assertFalse(c.getOrderedItems().contains(nonVeganItem));
-
-
-    assertEquals(menuItems.size(), c.getMenuItems().size());
-    assertTrue(c.getMenuItems().contains(veganItem));
-    assertTrue(c.getMenuItems().contains(nonVeganItem));
-
-    assertEquals(menu, c.getMenu());
+  void testCustomerEmptyConstructor() {
+    assertEquals(0, customer.getMenuItems().size());
   }
 
   @Test
-  void testZeroItemFromCart() {
-    assertEquals(0, customer.getOrderedItems().size());
+  void testArgumentConstructor() {
+    Customer customer1 = new Customer(menuItems);
+    assertEquals(2, customer1.getMenuItems().size());
   }
 
-  @Test
-  void testAddItemFromCard() {
-    customer.addItemToCart(veganItem);
-    assertEquals(1, customer.getOrderedItems().size());
-  }
-
-  @Test
-  void testRemoveItemFromCard() {
-    customer.addItemToCart(veganItem);
-    customer.removeItemFromCart(veganItem);
-    assertEquals(0, customer.getOrderedItems().size());
-  }
-
-  @Test
-  void testOrder() {
-    customer.addItemToCart(veganItem);
-    assertEquals(1, customer.getOrderedItems().size());
-    customer.order();
-    assertEquals(0, customer.getOrderedItems().size(), "Empty cart after ordering");
-  }
-
-  @Test
-  void testEmptyOrder() {
-    customer.order();
-    assertEquals(0, customer.getOrderedItems().size());
-  }
 
   @Test
   void testFilterMenu() {
-    Set<DietaryRestrictions> filter = new HashSet<>(Set.of(DietaryRestrictions.VEGAN));
-    List<MenuItem> filteredItems = customer.filterMenu(filter);
+    customer.setMenuItems(menuItems);
+    Set<DietaryRestrictions> dietaryRestrictions =
+        new HashSet<>(Set.of(DietaryRestrictions.GLUTENFREE));
+    Set<Allergen> allergens = new HashSet<>(Set.of(Allergen.NUTS));
+
+    List<MenuItem> filteredItems = customer.filterMenu(dietaryRestrictions, allergens);
 
     assertEquals(1, filteredItems.size());
+    assertFalse(filteredItems.contains(veganItem));
+    assertTrue(filteredItems.contains(nonVeganItem));
+  }
+
+  @Test
+  void testFilterMenuCustomerNullForDietsAndAllergens() {
+    customer.setMenuItems(menuItems);
+    List<MenuItem> filteredItems = customer.filterMenu(null, null);
+    assertEquals(2, filteredItems.size());
     assertTrue(filteredItems.contains(veganItem));
-    assertFalse(filteredItems.contains(nonVeganItem));
+    assertTrue(filteredItems.contains(nonVeganItem));
   }
 
   @Test
-  void testViewMenu() {
-    String menuOutputString = customer.viewMenu();
-
-    List<MenuItem> menuItems = customer.getMenu().getMenuItems();
-    assertTrue(menuItems.stream().anyMatch(item -> item.getItemId() == 1));
-    assertTrue(menuItems.stream().anyMatch(item -> item.getItemId() == 2));
-
-    assertEquals(1, menuItems.get(0).getItemId());
-    assertEquals(2, menuItems.get(1).getItemId());
+  void testFilterMenuCustomerNullForDiets() {
+    customer.setMenuItems(menuItems);
+    Set<Allergen> allergens = new HashSet<>(Set.of(Allergen.NUTS));
+    List<MenuItem> filteredItems = customer.filterMenu(null, allergens);
+    assertEquals(1, filteredItems.size());
+    assertFalse(filteredItems.contains(veganItem));
+    assertTrue(filteredItems.contains(nonVeganItem));
   }
 
 
   @Test
-  void testGetAndSetOrderNo() {
-    customer.setOrderNo(1);
-    assertEquals(1, customer.getOrderNo());
+  void testFilterMenuCustomerNullForAllergens() {
+    customer.setMenuItems(menuItems);
+    Set<DietaryRestrictions> dietaryRestrictions =
+        new HashSet<>(Set.of(DietaryRestrictions.GLUTENFREE));
+    List<MenuItem> filteredItems = customer.filterMenu(dietaryRestrictions, null);
+    assertEquals(1, filteredItems.size());
+    assertFalse(filteredItems.contains(veganItem));
+    assertTrue(filteredItems.contains(nonVeganItem));
   }
 
-  @Test
-  void testGetAndSetOrderedItems() {
-    List<MenuItem> orderedItems = new ArrayList<>();
-    orderedItems.add(veganItem);
-    customer.setOrderedItems(orderedItems);
-    assertEquals(veganItem.getItemId(), customer.getOrderedItems().get(0).getItemId());
-  }
 
   @Test
   void testGetAndSetMenuItems() {
@@ -138,9 +107,11 @@ public class CustomerTest {
   }
 
   @Test
-  void testGetAndSetMenu() {
-    customer.setMenu(menu);
-    assertEquals(menu, customer.getMenu());
+  void testGetAndSetOrder() {
+    Order order = new Order();
+    customer.setOrder(order);
+    assertEquals(order, customer.getOrder());
   }
+
 
 }
