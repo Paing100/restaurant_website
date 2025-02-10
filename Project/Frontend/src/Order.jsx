@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, TextField, Typography, Stack, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 function Order() {
-    const [order, setOrder] = useState({ item: '', quantity: 1 });
+    const [order, setOrder] = useState({ customer: {}, orderedItems: {}, totalPrice: 0 });
     const [menuItems, setMenuItems] = useState([]);
 
     useEffect(() => {
@@ -17,6 +17,11 @@ function Order() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setOrder({ ...order, [name]: value });
+    };
+
+    const handleItemChange = (e) => {
+        const { value } = e.target;
+        setOrder({ ...order, orderedItems: { ...order.orderedItems, [value]: (order.orderedItems[value] || 0) + 1 } });
     };
 
     const handleSubmit = (e) => {
@@ -35,8 +40,7 @@ function Order() {
                         <Select
                             labelId="item-label"
                             name="item"
-                            value={order.item}
-                            onChange={handleChange}
+                            onChange={handleItemChange}
                             label="Item"
                         >
                             {menuItems.map((menuItem) => (

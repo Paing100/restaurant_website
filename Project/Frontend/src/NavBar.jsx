@@ -15,7 +15,7 @@ function NavBar() {
           <Stack direction="row" spacing={2}>
             <Button variant="text" color="inherit" component={Link} to="/">About</Button>
             <Button variant="text" color="inherit" component={Link} to="/menu">Menu</Button>
-            <Button variant="text" color="inherit" component={Link} to="/order">Customer Order</Button>
+            <Button variant="text" color="inherit" component={Link} to="/order">Cart</Button>
             <Button variant="text" color="inherit" component={Link} to="/login">Staff Login</Button>
           </Stack>
         </Toolbar>
