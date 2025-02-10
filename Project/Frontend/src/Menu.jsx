@@ -1,86 +1,67 @@
-import React, { useState } from "react";
-import guacamoleImg from './assets/guacamole.jpg'
-import churroImg from './assets/churro.jpg'
-import cocktailImg from './assets/cocktail.jpg'
-import tacoImg from './assets/taco.jpg'
-import { Grid, Card, CardActionArea, CardContent, Typography, CardMedia, Box, Tabs, Tab, Button, Grid2} from "@mui/material";
+import { useState, useEffect } from "react";
+import { Grid, Box, Tabs, Tab, Typography} from "@mui/material";
 import MenuCard from './MenuCard.jsx'
 import Filter from './Filter.jsx'
 
 function Menu() {
   const [selectedTab, setSelectedTab] = useState(0);
+  const [menuItems, setMenuItems] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:2810/items')
+      .then(response => response.json())
+      .then(data => {
+          setMenuItems(data);
+      })
+      .catch(err => console.error(err)); 
+}, []); 
+
+  
 
   const categories = ["Appetizers", "Mains", "Desserts", "Drinks"];
-  const menuItems = [
-    {
-      name: "Guacamole",
-      description: "Classic Mexican dip made with avocados, cilantro, and lime.",
-      price: "£5.99",
-      img: guacamoleImg,
-      calories: 150,
-      allergies: ["Avocado", "Tomato"],
-      category: 0,
-    },
-    {
-      name: "Tacos",
-      description: "Fresh tacos with your choice of meat or veggies.",
-      price: "£8.99",
-      img: tacoImg,
-      calories: 300,
-      allergies: ["Wheat", "Dairy"],
-      category: 1,
-    },
-    {
-      name: "Churros",
-      description: "Sweet fried dough with a cinnamon-sugar coating.",
-      price: "£4.99",
-      img: churroImg,
-      calories: 200,
-      allergies: ["Wheat", "Egg"],
-      category: 2,
-    },
-    {
-      name: "Margarita",
-      description: "Refreshing lime cocktail with a hint of salt.",
-      price: "£6.99",
-      img: cocktailImg,
-      calories: 250,
-      allergies: ["Citrus"],
-      category: 3,
-    },
-  ];  
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
   };
+  const handleFilterChange = (event) => {
+    setSelectedFilter(event.target.value);
+    console.log('Selected Filters:', event.target.value); 
+  };
 
   return (
     <>
-    <div className="filter">
-       <Filter></Filter>
-    </div>
     <Box sx={{ padding: 3 }}>
-      <Tabs
-        value={selectedTab}
-        onChange={handleTabChange}
-        centered
-        textColor="primary"
-        indicatorColor="primary"
-      >
-        {categories.map((category, index) => (
-          <Tab key={index} label={category} />
-        ))}
-      </Tabs>
-      <Grid container spacing={3} sx={{ marginTop: 2 }}>
-  {menuItems
-    .filter((item) => item.category === selectedTab)
-    .map((item, index) => (
-      <Grid item xs={12} sm={6} md={4} key={index}>
-        <MenuCard item={item}></MenuCard>
-            </Grid>
+        <Filter 
+          selectedFilter={selectedFilter}
+          onFilterChange={handleFilterChange}
+        />
+        <Tabs
+          value={selectedTab}
+          onChange={handleTabChange}
+          centered
+          textColor="primary"
+          indicatorColor="primary"
+        >
+          {categories.map((category, index) => (
+            <Tab key={index} label={category} />
           ))}
-      </Grid>
-    </Box>
+        </Tabs>
+        {menuItems.length === 0 ? (
+          <Typography>
+            Loading ...
+          </Typography>
+        ) : (
+          <Grid container spacing={3} sx={{ marginTop: 2 }}>
+            {menuItems.filter((item) => item.category === selectedTab)
+              .map((item, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <MenuCard item={item}></MenuCard>
+                </Grid>
+              ))}
+          </Grid>
+        )}
+      </Box>
     </>
   );
 }
