@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS menu_item_allergens CASCADE;
 DROP TABLE IF EXISTS dietary_restrictions CASCADE;
 DROP TABLE IF EXISTS allergens CASCADE;
 DROP TABLE IF EXISTS order_menu_items CASCADE;
-DROP TABLE IF EXISTS order CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS menu_item CASCADE;
 DROP TABLE IF EXISTS customer CASCADE;
 
@@ -11,7 +11,7 @@ CREATE TABLE customer (
     customer_id SERIAL PRIMARY KEY
 );
 
-CREATE TABLE order (
+CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     customer_id INT UNIQUE,
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
@@ -30,7 +30,7 @@ CREATE TABLE order_menu_items (
     order_id INT,
     item_id INT,
     PRIMARY KEY (order_id, item_id),
-    FOREIGN KEY (order_id) REFERENCES order(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES menu_item(item_id) ON DELETE CASCADE
 );
 
