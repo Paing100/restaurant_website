@@ -47,7 +47,7 @@ public class MenuItemController {
       allergens.add(allergen);
     }
 
-    String[] str2 = params.get("dietaryRestrictions").split(","); // get string params, split into
+    String[] str2 = params.get("dietary_restrictions").split(","); // get string params, split into
                                                                   // enums
     Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
     for (String dietaryRestrict : str2) {
