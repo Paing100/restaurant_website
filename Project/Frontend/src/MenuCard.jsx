@@ -1,70 +1,56 @@
-import React, { useState, useEffect } from 'react';
-import { Button, TextField, Typography, Stack, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Card, CardActionArea, CardContent, Typography, CardMedia, Button } from "@mui/material";
+import PropTypes from 'prop-types';
 
-function Order() {
-  const [order, setOrder] = useState({ customer: {}, orderedItems: {}, totalPrice: 0 });
-  const [menuItems, setMenuItems] = useState([]);
-
-  useEffect(() => {
-    fetch('http://localhost:2810/items')
-      .then(response => response.json())
-      .then(data => {
-        setMenuItems(data);
-      })
-      .catch(err => console.error(err));
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setOrder({ ...order, [name]: value });
-  };
-
-  const handleItemChange = (e) => {
-    const { value } = e.target;
-    setOrder({ ...order, orderedItems: { ...order.orderedItems, [value]: (order.orderedItems[value] || 0) + 1 } });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle order submission logic here
-    console.log('Order submitted:', order);
-  };
-
+function MenuCard({ item, onAdd }) {
   return (
-    <div>
-      <Typography variant="h4">Place Your Order</Typography>
-      <form onSubmit={handleSubmit}>
-        <Stack spacing={2}>
-          <FormControl fullWidth required>
-            <InputLabel id="item-label">Item</InputLabel>
-            <Select
-              labelId="item-label"
-              name="item"
-              onChange={handleItemChange}
-              label="Item"
-            >
-              {menuItems.map((menuItem) => (
-                <MenuItem key={menuItem.id} value={menuItem.name}>
-                  {menuItem.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <TextField
-            label="Quantity"
-            name="quantity"
-            type="number"
-            value={order.quantity}
-            onChange={handleChange}
-            required
+    <>
+      <Card>
+        <CardActionArea>
+          <CardMedia
+            component="img"
+            height="200"
+            image={item.img}
+            alt={item.name}
           />
-          <Button type="submit" variant="contained" color="primary">
-            Submit Order
-          </Button>
-        </Stack>
-      </form>
-    </div>
+          <CardContent>
+            <Typography variant="h6">{item.name}</Typography>
+            <Typography variant="body2" color="textSecondary">
+              {item.description}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ marginTop: 1 }}>
+              Price: {item.price}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Calories: {item.calories} kcal
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Allergies: {item.allergies.join(", ")}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => onAdd(item)}
+              sx={{ marginTop: 2 }}
+            >
+              Add
+            </Button>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </>
   );
 }
 
-export default Order;
+MenuCard.propTypes = {
+  item: PropTypes.shape({
+    img: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    calories: PropTypes.number.isRequired,
+    allergies: PropTypes.arrayOf(PropTypes.string).isRequired,
+  }).isRequired,
+  onAdd: PropTypes.func.isRequired,
+};
+
+export default MenuCard;

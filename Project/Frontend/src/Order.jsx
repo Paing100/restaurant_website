@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextField, Typography, Stack, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import MenuCard from './MenuCard';
 
 function Order() {
     const [order, setOrder] = useState({ customer: {}, orderedItems: {}, totalPrice: 0 });
@@ -14,14 +15,20 @@ function Order() {
             .catch(err => console.error(err));
     }, []);
 
+    const handleAddItem = (item) => {
+        setOrder((prevOrder) => {
+            const newOrderedItems = { ...prevOrder.orderedItems, [item.name]: (prevOrder.orderedItems[item.name] || 0) + 1 };
+            const newTotalPrice = Object.keys(newOrderedItems).reduce((total, key) => {
+                const menuItem = menuItems.find((menuItem) => menuItem.name === key);
+                return total + (menuItem.price * newOrderedItems[key]);
+            }, 0);
+            return { ...prevOrder, orderedItems: newOrderedItems, totalPrice: newTotalPrice };
+        });
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setOrder({ ...order, [name]: value });
-    };
-
-    const handleItemChange = (e) => {
-        const { value } = e.target;
-        setOrder({ ...order, orderedItems: { ...order.orderedItems, [value]: (order.orderedItems[value] || 0) + 1 } });
     };
 
     const handleSubmit = (e) => {
@@ -40,7 +47,7 @@ function Order() {
                         <Select
                             labelId="item-label"
                             name="item"
-                            onChange={handleItemChange}
+                            onChange={handleChange}
                             label="Item"
                         >
                             {menuItems.map((menuItem) => (
@@ -63,6 +70,11 @@ function Order() {
                     </Button>
                 </Stack>
             </form>
+            <div>
+                {menuItems.map((menuItem) => (
+                    <MenuCard key={menuItem.id} item={menuItem} onAdd={handleAddItem} />
+                ))}
+            </div>
         </div>
     );
 }
