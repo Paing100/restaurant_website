@@ -1,10 +1,19 @@
-import useState from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Typography, Stack, List, ListItem, ListItemText, Divider } from '@mui/material';
 import MenuCard from './MenuCard';
 
 function Order() {
     const [order, setOrder] = useState({ customer: {}, orderedItems: {}, totalPrice: 0 });
-    const [menuItems] = useState([]);
+    const [menuItems, setMenuItems] = useState([]);
+
+    useEffect(() => {
+        fetch('http://localhost:2810/items')
+            .then(response => response.json())
+            .then(data => {
+                setMenuItems(data);
+            })
+            .catch(err => console.error(err));
+    }, []);
 
     const handleAddItem = (item) => {
         setOrder((prevOrder) => {
