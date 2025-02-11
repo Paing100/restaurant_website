@@ -4,12 +4,10 @@ package rhul.cs2810.controller;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
@@ -45,28 +43,17 @@ public class MenuItemController {
     String str[] = params.get("allergens").split(",");
     Set<Allergen> allergens = EnumSet.noneOf(Allergen.class);
     for (String allergenStr : str) {
-      try {
-        Allergen allergen = Allergen.valueOf(allergenStr.trim().toUpperCase());
-        allergens.add(allergen);
-      } catch (IllegalArgumentException e) {
-        System.out.println("Invalid allergen: " + allergenStr);
-      }
+      Allergen allergen = Allergen.valueOf(allergenStr);
+      allergens.add(allergen);
     }
 
-
-    String[] str2 = params.get("dietaryRestrictions").split(","); // get string params, split into
+    String[] str2 = params.get("dietary_restrictions").split(","); // get string params, split into
                                                                   // enums
     Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
     for (String dietaryRestrict : str2) {
-      try {
-        DietaryRestrictions restrict =
-            DietaryRestrictions.valueOf(dietaryRestrict.trim().toUpperCase());
-        dietaryRestrictions.add(restrict);
-      } catch (IllegalArgumentException e) {
-        System.out.println("Invalid dietary restriction: " + dietaryRestrict);
-      }
+      DietaryRestrictions restrict = DietaryRestrictions.valueOf(dietaryRestrict);
+      dietaryRestrictions.add(restrict);
     }
-
 
     MenuItem item =
         new MenuItem(String.valueOf(params.get("name")), String.valueOf(params.get("description")),

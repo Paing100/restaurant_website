@@ -1,15 +1,28 @@
 package rhul.cs2810.model;
 
-import jakarta.persistence.*;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyJoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import rhul.cs2810.serializer.MenuItemKeyDeserializer;
+import rhul.cs2810.serializer.MenuItemKeySerializer;
 
 /**
  * Represents an Order class to handle customers orders.
  */
 @Entity
-@Table(name = "\"ORDER\"")
+@Table(name = "\"ORDERS\"")
 public class Order {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +36,8 @@ public class Order {
   @ElementCollection
   @CollectionTable(name = "order_menu_items", joinColumns = @JoinColumn(name = "order_id"))
   @MapKeyJoinColumn(name = "item_id")
+  @JsonSerialize(keyUsing = MenuItemKeySerializer.class)
+  @JsonDeserialize(keyUsing = MenuItemKeyDeserializer.class)
   Map<MenuItem, Integer> orderedItems;
   double totalPrice;
 
@@ -43,14 +58,14 @@ public class Order {
   }
 
   /**
-     * Creates an order object with a customer, initializing an empty cart.
-     *
-     * @param customer the customer associated with the order
-     */
-    public Order(Customer customer) {
-        this.customer = customer;
-        this.orderedItems = new HashMap<>();
-    }
+   * Creates an order object with a customer, initializing an empty cart.
+   *
+   * @param customer the customer associated with the order
+   */
+  public Order(Customer customer) {
+    this.customer = customer;
+    this.orderedItems = new HashMap<>();
+  }
 
   /**
    * Creates an order object with customer object and menuitems.

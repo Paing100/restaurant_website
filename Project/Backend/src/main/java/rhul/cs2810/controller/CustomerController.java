@@ -1,8 +1,8 @@
 package rhul.cs2810.controller;
 
-import java.util.Optional;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +15,7 @@ import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.MenuItemRepository;
+import rhul.cs2810.repository.OrderRepository;
 
 /**
  * A Controller for Customers.
@@ -23,6 +24,7 @@ import rhul.cs2810.repository.MenuItemRepository;
 public class CustomerController {
   private final CustomerRepository customerRepository;
   private final MenuItemRepository menuItemRepository;
+  private final OrderRepository orderRepository;
 
 
   /**
@@ -32,9 +34,10 @@ public class CustomerController {
    * @param customerRepository the repository for customers
    */
   public CustomerController(CustomerRepository customerRepository,
-      MenuItemRepository menuItemRepository) {
+      MenuItemRepository menuItemRepository, OrderRepository orderRepository) {
     this.menuItemRepository = menuItemRepository;
     this.customerRepository = customerRepository;
+    this.orderRepository = orderRepository;
 
   }
 
@@ -45,28 +48,19 @@ public class CustomerController {
    */
   @PostMapping(value = "/Customers/addCustomer")
   public ResponseEntity<Customer> addCustomer(@RequestBody Map<String, String> params) {
-    System.out.println("Received params: " + params); // Debugging output
+    // Extract parameters
+    String customerIdStr = params.get("customerID");
+    int customerID = customerIdStr != null ? Integer.parseInt(customerIdStr) : 0;
 
-    if (!params.containsKey("customer_id") || params.get("customer_id") == null) {
-        return ResponseEntity.badRequest().body(null); // Prevents NumberFormatException
-    }
+    // Create new customer
+    Customer newCustomer = new Customer(customerID);
 
-    int customerId;
-    try {
-        customerId = Integer.parseInt(params.get("customer_id"));
-    } catch (NumberFormatException e) {
-        return ResponseEntity.badRequest().body(null);
-    }
+    // Save to database
+    customerRepository.save(newCustomer);
 
-    Customer customer = new Customer(customerId);
-
-    Order order = new Order(customer);
-    customer.setOrder(order);
-
-    customer = customerRepository.save(customer);
-
-    return ResponseEntity.ok(customer);
+    return ResponseEntity.ok(newCustomer);
   }
+
 
   /**
    * A response entity for filtering orders.
@@ -101,6 +95,7 @@ public class CustomerController {
     customer.filterMenu(dietaryRestrictions, allergens);
     customer = customerRepository.save(customer);
 
+
     return ResponseEntity.ok(customer);
 
   }
@@ -120,13 +115,14 @@ public class CustomerController {
     // Check if customer exists
     Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
     if (optionalCustomer.isEmpty()) {
-        return ResponseEntity.badRequest().body("Error: Customer with ID " + customerId + " not found.");
+      return ResponseEntity.badRequest()
+          .body("Error: Customer with ID " + customerId + " not found.");
     }
 
     // Check if menu item exists
     Optional<MenuItem> optionalItem = menuItemRepository.findById(itemId);
     if (optionalItem.isEmpty()) {
-        return ResponseEntity.badRequest().body("Error: Menu item with ID " + itemId + " not found.");
+      return ResponseEntity.badRequest().body("Error: Menu item with ID " + itemId + " not found.");
     }
 
     // Get actual objects
@@ -136,14 +132,16 @@ public class CustomerController {
     // Set quantity (default is 1)
     int count = 1;
     if (params.containsKey("amount")) {
-        count = Integer.parseInt(params.get("amount"));
+      count = Integer.parseInt(params.get("amount"));
     }
 
     // Add item to the customer's order
     customer.getOrder().addItemToCart(item, count);
+    Order order = customer.getOrder();
 
     // Save updated customer (should cascade save the order)
-    customerRepository.save(customer);
+    order = orderRepository.save(order);
+    customer = customerRepository.save(customer);
 
     return ResponseEntity.ok(customer);
   }
