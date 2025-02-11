@@ -153,3 +153,11 @@ VALUES
  (SELECT allergen_id FROM allergens WHERE name = 'Eggs')),
 ((SELECT item_id FROM menu_item WHERE name = 'Tres Leches Cake'), 
  (SELECT allergen_id FROM allergens WHERE name = 'Eggs'));
+
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+);
+
