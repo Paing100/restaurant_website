@@ -44,21 +44,31 @@ public class MenuItemController {
    */
   @PostMapping(value = "/MenuItems/addMenuItem")
   public ResponseEntity<MenuItem> addMenuItem(@RequestBody Map<String, String> params) {
-
     String str[] = params.get("allergens").split(",");
     Set<Allergen> allergens = EnumSet.noneOf(Allergen.class);
     for (String allergenStr : str) {
-      Allergen allergen = Allergen.valueOf(allergenStr);
-      allergens.add(allergen);
+      try {
+        Allergen allergen = Allergen.valueOf(allergenStr.trim().toUpperCase());
+        allergens.add(allergen);
+      } catch (IllegalArgumentException e) {
+        System.out.println("Invalid allergen: " + allergenStr);
+      }
     }
+
 
     String[] str2 = params.get("dietary_restrictions").split(","); // get string params, split into
                                                                    // enums
     Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
     for (String dietaryRestrict : str2) {
-      DietaryRestrictions restrict = DietaryRestrictions.valueOf(dietaryRestrict);
-      dietaryRestrictions.add(restrict);
+      try {
+        DietaryRestrictions restrict =
+            DietaryRestrictions.valueOf(dietaryRestrict.trim().toUpperCase());
+        dietaryRestrictions.add(restrict);
+      } catch (IllegalArgumentException e) {
+        System.out.println("Invalid dietary restriction: " + dietaryRestrict);
+      }
     }
+
 
     MenuItem item =
         new MenuItem(String.valueOf(params.get("name")), String.valueOf(params.get("description")),
