@@ -1,13 +1,18 @@
 package rhul.cs2810.controller;
 
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
@@ -48,7 +53,7 @@ public class MenuItemController {
     }
 
     String[] str2 = params.get("dietary_restrictions").split(","); // get string params, split into
-                                                                  // enums
+                                                                   // enums
     Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
     for (String dietaryRestrict : str2) {
       DietaryRestrictions restrict = DietaryRestrictions.valueOf(dietaryRestrict);
@@ -63,6 +68,14 @@ public class MenuItemController {
     item = menuItemRepository.save(item);
 
     return ResponseEntity.ok(item);
+  }
+
+  @GetMapping(value = "/MenuItems")
+  public ResponseEntity<List<MenuItem>> getMenu() {
+    Iterable<MenuItem> menuItemsIterable = menuItemRepository.findAll();
+    List<MenuItem> menuItems = new ArrayList<>();
+    menuItemsIterable.forEach(menuItems::add);
+    return ResponseEntity.ok(menuItems);
   }
 
 }
