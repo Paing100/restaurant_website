@@ -9,7 +9,7 @@ function Menu() {
   const [selectedFilter, setSelectedFilter] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:2810/items')
+    fetch('http://localhost:8080/MenuItems')
       .then(response => response.json())
       .then(data => {
           setMenuItems(data);
