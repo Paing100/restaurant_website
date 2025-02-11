@@ -73,6 +73,7 @@ public class CustomerControllerTest {
     assertEquals(HttpStatus.OK.value(), action.getResponse().getStatus()); // testing for 200/201
     Customer testCustomer =
         objectMapper.readValue(action.getResponse().getContentAsString(), Customer.class);
+    assertEquals(testCustomer.getCustomerID(), 1);
 
   }
 

@@ -63,6 +63,7 @@ public class MenuItemControllerTest {
     assertEquals(HttpStatus.OK.value(), action.getResponse().getStatus()); // testing for 200/201
     MenuItem testItem =
         objectMapper.readValue(action.getResponse().getContentAsString(), MenuItem.class);
+    assertEquals(testItem.getDescription(), "its a beeg stew pot");
 
     menuItemRepository.deleteAll();
   }
