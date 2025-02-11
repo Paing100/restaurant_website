@@ -4,6 +4,7 @@ import Menu from './Menu'
 import Staff from './Staff'
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 import { Container } from "@mui/material";
+import Login from './Login'
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/menu" element={<Menu />} />
-                <Route path="/login" element={<Staff />}></Route>
+                <Route path="/login" element={<Login />}></Route>
               </Routes>
             </div>
           </div>
