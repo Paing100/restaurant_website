@@ -23,7 +23,10 @@ function MenuCard({item}) {
                       Calories: {item.calories} kcal
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Allergies: {item.allergies.join(", ")}
+                      Allergies: {item.allergens.join(", ")}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      Dietary Rescritions: {item.dietaryRestrictions.join(", ")}
                     </Typography>
                   </CardContent>
                 </CardActionArea>
