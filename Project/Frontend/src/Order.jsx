@@ -7,15 +7,6 @@ function Order() {
     const { cart, addItemToCart } = useContext(CartContext);
     const [menuItems, setMenuItems] = useState([]);
 
-    useEffect(() => {
-        fetch('http://localhost:2810/items')
-            .then(response => response.json())
-            .then(data => {
-                setMenuItems(data);
-            })
-            .catch(err => console.error(err));
-    }, []);
-
     const handleAddItem = (item) => {
         // Call backend API to add item to cart
         fetch('http://localhost:2810/cart', {
@@ -52,11 +43,6 @@ function Order() {
     return (
         <div>
             <Typography variant="h4">Place Your Order</Typography>
-            <div>
-                {menuItems.map((menuItem) => (
-                    <MenuCard key={menuItem.id} item={menuItem} onAdd={handleAddItem} />
-                ))}
-            </div>
             <Typography variant="h5" sx={{ marginTop: 4 }}>Ordered Items</Typography>
             <List>
                 {Object.keys(cart.orderedItems).map((itemName) => {
