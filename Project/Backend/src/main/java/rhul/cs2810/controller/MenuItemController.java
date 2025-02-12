@@ -58,7 +58,7 @@ public class MenuItemController {
       }
     }
 
-    String dietaryRestrictionsStr = params.get("dietary_restrictions");
+    String dietaryRestrictionsStr = params.get("dietaryRestrictions");
     String[] dietaryRestrictionsArray =
         (dietaryRestrictionsStr != null) ? dietaryRestrictionsStr.split(",") : new String[0];
     Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
