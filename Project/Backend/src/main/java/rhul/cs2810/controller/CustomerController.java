@@ -54,9 +54,12 @@ public class CustomerController {
 
     // Create new customer
     Customer newCustomer = new Customer(customerID);
+    Order order = new Order(newCustomer);
+    newCustomer.setOrder(order);
 
     // Save to database
-    customerRepository.save(newCustomer);
+    order = orderRepository.save(order);
+    newCustomer = customerRepository.save(newCustomer);
 
     return ResponseEntity.ok(newCustomer);
   }

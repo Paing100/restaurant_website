@@ -74,7 +74,41 @@ public class CustomerControllerTest {
     Customer testCustomer =
         objectMapper.readValue(action.getResponse().getContentAsString(), Customer.class);
     assertEquals(testCustomer.getCustomerID(), 1);
+    assertEquals(testCustomer.getOrder().getOrderId(), 1);
+
+    customerRepository.deleteAll();
 
   }
+
+  @Test
+  void addItemTest() throws JsonProcessingException, Exception {
+    Map<String, String> params = new HashMap<String, String>();
+    params.put("customer_id", "1");
+    MvcResult action = mockMvc
+        .perform(MockMvcRequestBuilders.post("/Customers/addCustomer")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(params)).accept(MediaType.APPLICATION_JSON))
+        .andReturn();
+    assertEquals(HttpStatus.OK.value(), action.getResponse().getStatus()); // testing for 200/201
+    Customer testCustomer =
+        objectMapper.readValue(action.getResponse().getContentAsString(), Customer.class);
+
+    Map<String, String> params2 = new HashMap<String, String>();
+    params2.put("customer_id", "1");
+    params2.put("item_id", "1");
+
+    MvcResult action2 = mockMvc
+        .perform(MockMvcRequestBuilders.post("/Customers/addItemToCart")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(params)).accept(MediaType.APPLICATION_JSON))
+        .andReturn();
+    assertEquals(HttpStatus.OK.value(), action.getResponse().getStatus()); // testing for 200/201
+
+
+    // customerRepository.deleteAll();
+
+  }
+
+
 
 }

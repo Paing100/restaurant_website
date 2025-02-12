@@ -1,6 +1,7 @@
 package rhul.cs2810.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -64,6 +65,7 @@ public class MenuItemControllerTest {
     MenuItem testItem =
         objectMapper.readValue(action.getResponse().getContentAsString(), MenuItem.class);
     assertEquals(testItem.getDescription(), "its a beeg stew pot");
+    assertTrue(testItem.getAllergens().isEmpty() == false);
 
     menuItemRepository.deleteAll();
   }
