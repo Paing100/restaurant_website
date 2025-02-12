@@ -44,9 +44,12 @@ public class MenuItemController {
    */
   @PostMapping(value = "/MenuItems/addMenuItem")
   public ResponseEntity<MenuItem> addMenuItem(@RequestBody Map<String, String> params) {
-    String str[] = params.get("allergens").split(",");
+    String allergensString = params.get("allergens");
+    String[] allergensArray =
+        (allergensString != null) ? allergensString.split(",") : new String[0];
     Set<Allergen> allergens = EnumSet.noneOf(Allergen.class);
-    for (String allergenStr : str) {
+
+    for (String allergenStr : allergensArray) {
       try {
         Allergen allergen = Allergen.valueOf(allergenStr.trim().toUpperCase());
         allergens.add(allergen);
@@ -55,11 +58,11 @@ public class MenuItemController {
       }
     }
 
-
-    String[] str2 = params.get("dietary_restrictions").split(","); // get string params, split into
-                                                                   // enums
+    String dietaryRestrictionsStr = params.get("dietary_restrictions");
+    String[] dietaryRestrictionsArray =
+        (dietaryRestrictionsStr != null) ? dietaryRestrictionsStr.split(",") : new String[0];
     Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
-    for (String dietaryRestrict : str2) {
+    for (String dietaryRestrict : dietaryRestrictionsArray) {
       try {
         DietaryRestrictions restrict =
             DietaryRestrictions.valueOf(dietaryRestrict.trim().toUpperCase());
