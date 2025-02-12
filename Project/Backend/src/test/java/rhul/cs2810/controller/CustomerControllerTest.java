@@ -100,7 +100,7 @@ public class CustomerControllerTest {
     MvcResult action2 = mockMvc
         .perform(MockMvcRequestBuilders.post("/Customers/addItemToCart")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(params)).accept(MediaType.APPLICATION_JSON))
+            .content(objectMapper.writeValueAsString(params2)).accept(MediaType.APPLICATION_JSON))
         .andReturn();
     assertEquals(HttpStatus.OK.value(), action.getResponse().getStatus()); // testing for 200/201
 
