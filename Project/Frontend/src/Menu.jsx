@@ -18,7 +18,6 @@ function Menu() {
 }, []); 
 
   
-
   const categories = ["Appetizers", "Mains", "Desserts", "Drinks"];
 
   const handleTabChange = (event, newValue) => {
@@ -53,12 +52,11 @@ function Menu() {
           </Typography>
         ) : (
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
-            {menuItems.filter((item) => item.category === selectedTab)
-              .map((item, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <MenuCard item={item}></MenuCard>
-                </Grid>
-              ))}
+            {menuItems.map((item, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <MenuCard item={item} />
+              </Grid>
+            ))}
           </Grid>
         )}
       </Box>
