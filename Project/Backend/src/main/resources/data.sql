@@ -1,21 +1,18 @@
--- Insert into dietary_restrictions
-INSERT INTO dietary_restrictions (name) VALUES
-('Vegetarian'),
-('Vegan'),
-('Gluten-Free'),
-('Halal');
+INSERT INTO dietary_restrictions (name, description) VALUES
+('Vegetarian', 'No meat or fish'),
+('Vegan', 'No animal products'),
+('Gluten-Free', 'No gluten-containing ingredients'),
+('Halal', 'Prepared according to Islamic law');
 
--- Insert into allergens
-INSERT INTO allergens (name) VALUES
-('Gluten'),
-('Shellfish'),
-('Dairy'),
-('Nuts'),
-('Soya'),
-('Eggs');
+INSERT INTO allergens (name, description) VALUES
+('Gluten', 'Wheat, barley, and rye'),
+('Shellfish', 'Crustaceans and mollusks'),
+('Dairy', 'Milk and milk products'),
+('Nuts', 'Peanuts, tree nuts'),
+('Soya', 'Soy products'),
+('Eggs', 'Eggs and egg-based products');
 
--- Insert into menu_item
-INSERT INTO menu_item (name, description, price, in_stock, calories) VALUES
+INSERT INTO menu_item (name, description, price, available, calories) VALUES
 ('Agua de Jamaica', 'Refreshing hibiscus flower tea, lightly sweetened', 3.99, TRUE, 90),
 ('Birria Tacos', 'Slow-cooked beef tacos served with consommé for dipping', 12.99, TRUE, 750),
 ('Capirotada', 'Traditional Mexican bread pudding with cinnamon and raisins', 6.99, TRUE, 500),
@@ -39,44 +36,38 @@ INSERT INTO menu_item (name, description, price, in_stock, calories) VALUES
 ('Tequila Sunrise', 'Vibrant cocktail with tequila, orange juice, and grenadine', 9.99, TRUE, 200),
 ('Tres Leches Cake', 'Moist sponge cake soaked in three kinds of milk', 7.49, TRUE, 450);
 
--- Insert into menu_item_dietary_restrictions
 INSERT INTO menu_item_dietary_restrictions (item_id, restriction)
-VALUES 
-((SELECT item_id FROM menu_item WHERE name = 'Chile Relleno'), 'Vegetarian'),
-((SELECT item_id FROM menu_item WHERE name = 'Esquites'), 'Vegetarian'),
-((SELECT item_id FROM menu_item WHERE name = 'Guac'), 'Vegan'),
-((SELECT item_id FROM menu_item WHERE name = 'Guacamole'), 'Vegan'),
-((SELECT item_id FROM menu_item WHERE name = 'Queso Fundido'), 'Vegetarian'),
-((SELECT item_id FROM menu_item WHERE name = 'Birria Tacos'), 'Halal'),
-((SELECT item_id FROM menu_item WHERE name = 'Enchiladas'), 'Halal'),
-((SELECT item_id FROM menu_item WHERE name = 'Pozole'), 'Halal'),
-((SELECT item_id FROM menu_item WHERE name = 'Sopes'), 'Halal'),
-((SELECT item_id FROM menu_item WHERE name = 'Taco'), 'Halal'),
-((SELECT item_id FROM menu_item WHERE name = 'Tamales'), 'Halal');
+VALUES
+((SELECT item_id FROM menu_item WHERE name = 'Chile Relleno'), (SELECT name FROM dietary_restrictions WHERE name = 'Vegetarian')),
+((SELECT item_id FROM menu_item WHERE name = 'Esquites'), (SELECT name FROM dietary_restrictions WHERE name = 'Vegetarian')),
+((SELECT item_id FROM menu_item WHERE name = 'Guac'), (SELECT name FROM dietary_restrictions WHERE name = 'Vegan')),
+((SELECT item_id FROM menu_item WHERE name = 'Guacamole'), (SELECT name FROM dietary_restrictions WHERE name = 'Vegan')),
+((SELECT item_id FROM menu_item WHERE name = 'Queso Fundido'), (SELECT name FROM dietary_restrictions WHERE name = 'Vegetarian')),
+((SELECT item_id FROM menu_item WHERE name = 'Birria Tacos'), (SELECT name FROM dietary_restrictions WHERE name = 'Halal')),
+((SELECT item_id FROM menu_item WHERE name = 'Enchiladas'), (SELECT name FROM dietary_restrictions WHERE name = 'Halal')),
+((SELECT item_id FROM menu_item WHERE name = 'Pozole'), (SELECT name FROM dietary_restrictions WHERE name = 'Halal')),
+((SELECT item_id FROM menu_item WHERE name = 'Sopes'), (SELECT name FROM dietary_restrictions WHERE name = 'Halal')),
+((SELECT item_id FROM menu_item WHERE name = 'Taco'), (SELECT name FROM dietary_restrictions WHERE name = 'Halal')),
+((SELECT item_id FROM menu_item WHERE name = 'Tamales'), (SELECT name FROM dietary_restrictions WHERE name = 'Halal'));
 
--- Insert into menu_item_allergens
 INSERT INTO menu_item_allergens (item_id, allergen)
-VALUES 
--- Dairy
-((SELECT item_id FROM menu_item WHERE name = 'Chile Relleno'), 'Dairy'),
-((SELECT item_id FROM menu_item WHERE name = 'Esquites'), 'Dairy'),
-((SELECT item_id FROM menu_item WHERE name = 'Flan'), 'Dairy'),
-((SELECT item_id FROM menu_item WHERE name = 'Queso Fundido'), 'Dairy'),
-((SELECT item_id FROM menu_item WHERE name = 'Tres Leches Cake'), 'Dairy'),
+VALUES
+((SELECT item_id FROM menu_item WHERE name = 'Chile Relleno'), (SELECT name FROM allergens WHERE name = 'Dairy')),
+((SELECT item_id FROM menu_item WHERE name = 'Esquites'), (SELECT name FROM allergens WHERE name = 'Dairy')),
+((SELECT item_id FROM menu_item WHERE name = 'Flan'), (SELECT name FROM allergens WHERE name = 'Dairy')),
+((SELECT item_id FROM menu_item WHERE name = 'Queso Fundido'), (SELECT name FROM allergens WHERE name = 'Dairy')),
+((SELECT item_id FROM menu_item WHERE name = 'Tres Leches Cake'), (SELECT name FROM allergens WHERE name = 'Dairy')),
 
--- Gluten
-((SELECT item_id FROM menu_item WHERE name = 'Capirotada'), 'Gluten'),
-((SELECT item_id FROM menu_item WHERE name = 'Churro'), 'Gluten'),
-((SELECT item_id FROM menu_item WHERE name = 'Pan de Muerto'), 'Gluten'),
+((SELECT item_id FROM menu_item WHERE name = 'Capirotada'), (SELECT name FROM allergens WHERE name = 'Gluten')),
+((SELECT item_id FROM menu_item WHERE name = 'Churro'), (SELECT name FROM allergens WHERE name = 'Gluten')),
+((SELECT item_id FROM menu_item WHERE name = 'Pan de Muerto'), (SELECT name FROM allergens WHERE name = 'Gluten')),
 
--- Nuts
-((SELECT item_id FROM menu_item WHERE name = 'Capirotada'), 'Nuts'),
+((SELECT item_id FROM menu_item WHERE name = 'Capirotada'), (SELECT name FROM allergens WHERE name = 'Nuts')),
 
--- Eggs
-((SELECT item_id FROM menu_item WHERE name = 'Capirotada'), 'Eggs'),
-((SELECT item_id FROM menu_item WHERE name = 'Chile Relleno'), 'Eggs'),
-((SELECT item_id FROM menu_item WHERE name = 'Churro'), 'Eggs'),
-((SELECT item_id FROM menu_item WHERE name = 'Flan'), 'Eggs'),
-((SELECT item_id FROM menu_item WHERE name = 'Pan de Muerto'), 'Eggs'),
-((SELECT item_id FROM menu_item WHERE name = 'Tamales'), 'Eggs'),
-((SELECT item_id FROM menu_item WHERE name = 'Tres Leches Cake'), 'Eggs');
+((SELECT item_id FROM menu_item WHERE name = 'Capirotada'), (SELECT name FROM allergens WHERE name = 'Eggs')),
+((SELECT item_id FROM menu_item WHERE name = 'Chile Relleno'), (SELECT name FROM allergens WHERE name = 'Eggs')),
+((SELECT item_id FROM menu_item WHERE name = 'Churro'), (SELECT name FROM allergens WHERE name = 'Eggs')),
+((SELECT item_id FROM menu_item WHERE name = 'Flan'), (SELECT name FROM allergens WHERE name = 'Eggs')),
+((SELECT item_id FROM menu_item WHERE name = 'Pan de Muerto'), (SELECT name FROM allergens WHERE name = 'Eggs')),
+((SELECT item_id FROM menu_item WHERE name = 'Tamales'), (SELECT name FROM allergens WHERE name = 'Eggs')),
+((SELECT item_id FROM menu_item WHERE name = 'Tres Leches Cake'), (SELECT name FROM allergens WHERE name = 'Eggs'));
