@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Grid, Box, Tabs, Tab, Typography} from "@mui/material";
+import { Grid, Box, Tabs, Tab, Typography } from "@mui/material";
 import MenuCard from './MenuCard.jsx'
 import Filter from './Filter.jsx'
 
@@ -12,12 +12,12 @@ function Menu() {
     fetch('http://localhost:2810/items')
       .then(response => response.json())
       .then(data => {
-          setMenuItems(data);
+        setMenuItems(data);
       })
-      .catch(err => console.error(err)); 
-}, []); 
+      .catch(err => console.error(err));
+  }, []);
 
-  
+
 
   const categories = ["Appetizers", "Mains", "Desserts", "Drinks"];
 
@@ -26,13 +26,13 @@ function Menu() {
   };
   const handleFilterChange = (event) => {
     setSelectedFilter(event.target.value);
-    console.log('Selected Filters:', event.target.value); 
+    console.log('Selected Filters:', event.target.value);
   };
 
   return (
     <>
-    <Box sx={{ padding: 3 }}>
-        <Filter 
+      <Box sx={{ padding: 3 }}>
+        <Filter
           selectedFilter={selectedFilter}
           onFilterChange={handleFilterChange}
         />
