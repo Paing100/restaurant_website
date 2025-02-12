@@ -1,10 +1,20 @@
 package rhul.cs2810.model;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 /**
  * Represents a customer in the restaurant system.
@@ -76,14 +86,13 @@ public class Customer {
    * @return a list of menu items that meet the dietary restrictions
    */
   public List<MenuItem> filterMenu(Set<DietaryRestrictions> dietaryRestrictions,
-      Set<Allergen> allergens) {
-
+      Set<Allergen> allergens, List<MenuItem> menu) {
     if (dietaryRestrictions == null && allergens == null) {
       return this.menuItems;
     }
 
     List<MenuItem> filteredMenuItems = new ArrayList<>();
-    for (MenuItem item : this.menuItems) {
+    for (MenuItem item : menu) {
       boolean add = true;
       if (dietaryRestrictions != null) {
         add = add && item.getDietaryRestrictions().equals(dietaryRestrictions);

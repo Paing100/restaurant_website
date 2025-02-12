@@ -1,13 +1,16 @@
 package rhul.cs2810.controller;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.Customer;
 import rhul.cs2810.model.DietaryRestrictions;
@@ -71,10 +74,11 @@ public class CustomerController {
    * @param params input parameters given to read off of.
    */
   @PostMapping(value = "/Menu/filter")
-  public ResponseEntity<Customer> filter(@RequestBody Map<String, String> params) {
+  public ResponseEntity<List<MenuItem>> filter(@RequestBody Map<String, String> params) {
 
     Customer customer =
         customerRepository.findById(Long.valueOf(params.get("customer_id"))).orElseThrow();
+    System.out.println(customer.getCustomerID());
 
     Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
     if (params.containsKey("dietary_restrictions")
@@ -94,12 +98,17 @@ public class CustomerController {
         allergens.add(allergy);
       }
     }
+    System.out.println("DR: " + dietaryRestrictions);
+    System.out.println("Allergens: " + allergens);
 
-    customer.filterMenu(dietaryRestrictions, allergens);
-    customer = customerRepository.save(customer);
+    List<MenuItem> menuItems = customer.getMenuItems();
+    System.out.println(menuItems);
+    List<MenuItem> filteredMenuItems =
+        customer.filterMenu(dietaryRestrictions, allergens, menuItems);
+    // customer = customerRepository.save(customer);
 
-
-    return ResponseEntity.ok(customer);
+    System.out.println(filteredMenuItems);
+    return ResponseEntity.ok(filteredMenuItems);
 
   }
 

@@ -1,7 +1,6 @@
 import NavBar from './NavBar'
 import Home from './Home'
 import Menu from './Menu'
-import Staff from './Staff'
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 import { Container } from "@mui/material";
 import Login from './Login'
