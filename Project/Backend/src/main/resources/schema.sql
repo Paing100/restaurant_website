@@ -1,3 +1,6 @@
+-- for menu table
+DROP TABLE IF EXISTS customer_menu_items CASCADE;
+
 DROP TABLE IF EXISTS menu_item_dietary_restrictions CASCADE;
 DROP TABLE IF EXISTS menu_item_allergens CASCADE;
 DROP TABLE IF EXISTS dietary_restrictions CASCADE;
@@ -16,7 +19,7 @@ CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     customer_id INT UNIQUE,
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
-);
+);  
 
 CREATE TABLE menu_item (
     item_id SERIAL PRIMARY KEY,
@@ -25,6 +28,15 @@ CREATE TABLE menu_item (
     price DECIMAL(10,2) NOT NULL,
     available BOOLEAN NOT NULL DEFAULT TRUE,
     calories INT
+);
+
+-- remove transient
+CREATE TABLE customer_menu_items (
+    customer_id INT,
+    item_id INT,
+    PRIMARY KEY (customer_id, item_id),
+    FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES menu_item(item_id) ON DELETE CASCADE
 );
 
 CREATE TABLE order_menu_items (

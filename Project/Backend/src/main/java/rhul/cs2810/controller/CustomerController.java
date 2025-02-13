@@ -48,17 +48,14 @@ public class CustomerController {
    * @param params input parameters given to read off of.
    */
   @PostMapping(value = "/Customers/addCustomer")
-  public ResponseEntity<Customer> addCustomer(@RequestBody Map<String, String> params) {
-    // Extract parameters
-    String customerIdStr = params.get("customerID");
-    int customerID = customerIdStr != null ? Integer.parseInt(customerIdStr) : 0;
+  public ResponseEntity<Customer> addCustomer() {
 
-    // Create new customer
-    Customer newCustomer = new Customer(customerID);
+    // create new customer
+    Customer newCustomer = new Customer();
     Order order = new Order(newCustomer);
     newCustomer.setOrder(order);
 
-    // Save to database
+    // save to database
     order = orderRepository.save(order);
     newCustomer = customerRepository.save(newCustomer);
 
@@ -72,7 +69,7 @@ public class CustomerController {
    * @param params input parameters given to read off of.
    */
   @PostMapping(value = "/Menu/filter")
-  public ResponseEntity<List<MenuItem>> filter(@RequestBody Map<String, String> params) {
+  public ResponseEntity<Customer> filter(@RequestBody Map<String, String> params) {
 
     Customer customer =
         customerRepository.findById(Long.valueOf(params.get("customer_id"))).orElseThrow();
@@ -100,18 +97,17 @@ public class CustomerController {
     // System.out.println("Allergens: " + allergens);
 
     List<MenuItem> menuItems = customer.getMenuItems();
-    System.out.println(menuItems);
-    List<MenuItem> filteredMenuItems =
-        customer.filterMenu(dietaryRestrictions, allergens, menuItems);
-    customer = customerRepository.save(customer);
+    List<MenuItem> filteredItems = customer.filterMenu(dietaryRestrictions, allergens, menuItems);
+    customer.setMenuItems(filteredItems);
+    customerRepository.save(customer);
 
     // System.out.println(filteredMenuItems);
-    return ResponseEntity.ok(filteredMenuItems);
+    return ResponseEntity.ok(customer);
 
   }
 
   /**
-   * A response entity for filtering orders.
+   * A response entity for adding orders.
    *
    * @param params input parameters given to read off of.
    */
@@ -155,5 +151,45 @@ public class CustomerController {
 
     return ResponseEntity.ok(customer);
   }
+
+  /**
+   * A response entity for adding orders.
+   *
+   * @param params input parameters given to read off of.
+   */
+  @PostMapping(value = "/Customers/addItemToMenu")
+  public ResponseEntity<?> addItemToMenu(@RequestBody Map<String, String> params) {
+
+    // Convert IDs from String to Long
+    Long customerId = Long.valueOf(params.get("customer_id"));
+    Long itemId = Long.valueOf(params.get("item_id"));
+
+    // Check if customer exists
+    Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+    if (optionalCustomer.isEmpty()) {
+      return ResponseEntity.badRequest()
+          .body("Error: Customer with ID " + customerId + " not found.");
+    }
+
+    // Check if menu item exists
+    Optional<MenuItem> optionalItem = menuItemRepository.findById(itemId);
+    if (optionalItem.isEmpty()) {
+      return ResponseEntity.badRequest().body("Error: Menu item with ID " + itemId + " not found.");
+    }
+
+    // Get actual objects
+    Customer customer = optionalCustomer.get();
+    MenuItem item = optionalItem.get();
+
+    // Add item to the customer's menu
+    customer.getMenuItems().add(item);
+
+    // Save updated customer (should cascade save the order)
+    customerRepository.save(customer);
+
+    return ResponseEntity.ok(customer);
+  }
+
+
 
 }
