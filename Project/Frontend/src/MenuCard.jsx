@@ -1,38 +1,45 @@
-import { Card, CardActionArea, CardContent, Typography, CardMedia} from "@mui/material";
+import React, { useContext } from 'react';
+import { Card, CardActionArea, CardContent, Typography, CardMedia, Button } from "@mui/material";
 import PropTypes from 'prop-types';
+import { CartContext } from './CartContext';
 
-function MenuCard({item}) {
-  return (<>
-          <Card>
-                <CardActionArea>
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={item.img} 
-                    alt={item.name}
-                  />
-                  <CardContent>
-                    <Typography variant="h6">{item.name}</Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {item.description}
-                    </Typography>
-                    <Typography variant="subtitle1" sx={{ marginTop: 1 }}>
-                      Price: {item.price}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Calories: {item.calories} kcal
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Allergies: {item.allergens.join(", ")}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Dietary Rescritions: {item.dietaryRestrictions.join(", ")}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
+function MenuCard({ item }) {
+  const { addItemToCart } = useContext(CartContext);
 
-          </>
+  return (
+    <Card>
+      <CardActionArea>
+        <CardMedia
+          component="img"
+          height="200"
+          image={item.img}
+          alt={item.name}
+        />
+        <CardContent>
+          <Typography variant="h6">{item.name}</Typography>
+          <Typography variant="body2" color="textSecondary">
+            {item.description}
+          </Typography>
+          <Typography variant="subtitle1" sx={{ marginTop: 1 }}>
+            Price: {item.price}
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Calories: {item.calories} kcal
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Allergies: {item.allergies.join(", ")}
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => addItemToCart(item)}
+            sx={{ marginTop: 2 }}
+          >
+            Add
+          </Button>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }
 
@@ -47,6 +54,5 @@ MenuCard.propTypes = {
     dietaryRestrictions: PropTypes.arrayOf(PropTypes.string).isRequired,
     }).isRequired,
 };
-
 
 export default MenuCard;
