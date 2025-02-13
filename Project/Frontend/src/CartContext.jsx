@@ -3,7 +3,7 @@ import React, { createContext, useEffect, useState } from 'react';
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState(null); // Start as null to indicate loading
+    const [cart, setCart] = useState({ orderedItems: {}, totalPrice: 0 });
 
     const fetchCart = () => {
         fetch('http://localhost:2810/api/cart')
@@ -23,7 +23,7 @@ export const CartProvider = ({ children }) => {
             body: JSON.stringify(item),
         })
             .then(response => response.json())
-            .then(data => setCart(data)) // Update cart with the response from the server
+            .then(data => setCart(data))
             .catch(err => console.error('Failed to add item to cart:', err));
     };
 
@@ -34,7 +34,7 @@ export const CartProvider = ({ children }) => {
             body: JSON.stringify(item),
         })
             .then(response => response.json())
-            .then(data => setCart(data)) // Update cart with the response from the server
+            .then(data => setCart(data))
             .catch(err => console.error('Failed to remove item from cart:', err));
     };
 
