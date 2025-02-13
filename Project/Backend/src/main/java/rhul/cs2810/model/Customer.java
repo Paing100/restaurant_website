@@ -3,14 +3,34 @@ package rhul.cs2810.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 /**
  * Represents a customer in the restaurant system.
  */
+@Entity
+@Table(name = "customer")
 public class Customer {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "customer_id")
   int customerID;
+
+  @Transient
   List<MenuItem> menuItems;
+
+  @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
   Order order;
 
   /**
@@ -20,6 +40,14 @@ public class Customer {
    */
   public Customer(List<MenuItem> menuItems) {
     this.menuItems = menuItems;
+  }
+
+  /**
+   * Constructs a Customer with an empty order list and a given ID.
+   */
+  public Customer(int customerID) {
+    this.customerID = customerID;
+    this.menuItems = new ArrayList<>();
   }
 
   /**
@@ -56,14 +84,13 @@ public class Customer {
    * @return a list of menu items that meet the dietary restrictions
    */
   public List<MenuItem> filterMenu(Set<DietaryRestrictions> dietaryRestrictions,
-      Set<Allergen> allergens) {
-
+      Set<Allergen> allergens, List<MenuItem> menu) {
     if (dietaryRestrictions == null && allergens == null) {
       return this.menuItems;
     }
 
     List<MenuItem> filteredMenuItems = new ArrayList<>();
-    for (MenuItem item : this.menuItems) {
+    for (MenuItem item : menu) {
       boolean add = true;
       if (dietaryRestrictions != null) {
         add = add && item.getDietaryRestrictions().equals(dietaryRestrictions);
@@ -96,5 +123,10 @@ public class Customer {
   public void setOrder(Order order) {
     this.order = order;
   }
+
+  public int getCustomerID() {
+    return customerID;
+  }
+
 
 }

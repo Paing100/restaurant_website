@@ -59,7 +59,8 @@ public class CustomerTest {
         new HashSet<>(Set.of(DietaryRestrictions.GLUTENFREE));
     Set<Allergen> allergens = new HashSet<>(Set.of(Allergen.NUTS));
 
-    List<MenuItem> filteredItems = customer.filterMenu(dietaryRestrictions, allergens);
+    List<MenuItem> filteredItems =
+        customer.filterMenu(dietaryRestrictions, allergens, customer.getMenuItems());
 
     assertEquals(1, filteredItems.size());
     assertFalse(filteredItems.contains(veganItem));
@@ -69,7 +70,7 @@ public class CustomerTest {
   @Test
   void testFilterMenuCustomerNullForDietsAndAllergens() {
     customer.setMenuItems(menuItems);
-    List<MenuItem> filteredItems = customer.filterMenu(null, null);
+    List<MenuItem> filteredItems = customer.filterMenu(null, null, customer.getMenuItems());
     assertEquals(2, filteredItems.size());
     assertTrue(filteredItems.contains(veganItem));
     assertTrue(filteredItems.contains(nonVeganItem));
@@ -79,7 +80,7 @@ public class CustomerTest {
   void testFilterMenuCustomerNullForDiets() {
     customer.setMenuItems(menuItems);
     Set<Allergen> allergens = new HashSet<>(Set.of(Allergen.NUTS));
-    List<MenuItem> filteredItems = customer.filterMenu(null, allergens);
+    List<MenuItem> filteredItems = customer.filterMenu(null, allergens, customer.getMenuItems());
     assertEquals(1, filteredItems.size());
     assertFalse(filteredItems.contains(veganItem));
     assertTrue(filteredItems.contains(nonVeganItem));
@@ -91,7 +92,8 @@ public class CustomerTest {
     customer.setMenuItems(menuItems);
     Set<DietaryRestrictions> dietaryRestrictions =
         new HashSet<>(Set.of(DietaryRestrictions.GLUTENFREE));
-    List<MenuItem> filteredItems = customer.filterMenu(dietaryRestrictions, null);
+    List<MenuItem> filteredItems =
+        customer.filterMenu(dietaryRestrictions, null, customer.getMenuItems());
     assertEquals(1, filteredItems.size());
     assertFalse(filteredItems.contains(veganItem));
     assertTrue(filteredItems.contains(nonVeganItem));

@@ -9,7 +9,7 @@ function Menu() {
   const [selectedFilter, setSelectedFilter] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:2810/items')
+    fetch('http://localhost:8080/MenuItems')
       .then(response => response.json())
       .then(data => {
         setMenuItems(data);
@@ -53,12 +53,11 @@ function Menu() {
           </Typography>
         ) : (
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
-            {menuItems.filter((item) => item.category === selectedTab)
-              .map((item, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <MenuCard item={item}></MenuCard>
-                </Grid>
-              ))}
+            {menuItems.map((item, index) => (
+              <Grid item xs={12} sm={6} md={4} key={index}>
+                <MenuCard item={item} />
+              </Grid>
+            ))}
           </Grid>
         )}
       </Box>

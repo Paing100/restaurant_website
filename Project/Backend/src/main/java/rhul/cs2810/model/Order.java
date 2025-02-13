@@ -2,14 +2,43 @@ package rhul.cs2810.model;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyJoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import rhul.cs2810.serializer.MenuItemKeyDeserializer;
+import rhul.cs2810.serializer.MenuItemKeySerializer;
 
 /**
  * Represents an Order class to handle customers orders.
  */
+@Entity
+@Table(name = "\"ORDERS\"")
 public class Order {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   int orderId;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "customer_id", unique = true)
+  @JsonBackReference
   Customer customer;
+
+  @ElementCollection
+  @CollectionTable(name = "order_menu_items", joinColumns = @JoinColumn(name = "order_id"))
+  @MapKeyJoinColumn(name = "item_id")
+  @JsonSerialize(keyUsing = MenuItemKeySerializer.class)
+  @JsonDeserialize(keyUsing = MenuItemKeyDeserializer.class)
   Map<MenuItem, Integer> orderedItems;
   double totalPrice;
 
@@ -17,6 +46,25 @@ public class Order {
    * Creates an order object with empty hashmap.
    */
   public Order() {
+    this.orderedItems = new HashMap<>();
+  }
+
+  /**
+   * Creates an order object with empty hashmap, given id, customer
+   */
+  public Order(int orderId, Customer customer) {
+    this.orderId = orderId;
+    this.customer = customer;
+    this.orderedItems = new HashMap<>();
+  }
+
+  /**
+   * Creates an order object with a customer, initializing an empty cart.
+   *
+   * @param customer the customer associated with the order
+   */
+  public Order(Customer customer) {
+    this.customer = customer;
     this.orderedItems = new HashMap<>();
   }
 
@@ -38,11 +86,11 @@ public class Order {
    * @return the total price in double
    */
   private double calculateTotal() {
-    totalPrice = 0;
+    this.totalPrice = 0;
     for (Map.Entry<MenuItem, Integer> entry : orderedItems.entrySet()) {
-      totalPrice += entry.getKey().getPrice() * entry.getValue();
+      this.totalPrice += entry.getKey().getPrice() * entry.getValue();
     }
-    return totalPrice;
+    return this.totalPrice;
   }
 
   /**
@@ -112,6 +160,10 @@ public class Order {
    */
   public void addItemToCart(MenuItem newItem, int quantity) {
     orderedItems.put(newItem, quantity);
+  }
+
+  public int getOrderId() {
+    return orderId;
   }
 
 
