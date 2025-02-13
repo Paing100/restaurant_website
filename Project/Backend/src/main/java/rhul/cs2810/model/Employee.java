@@ -7,24 +7,24 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "user")
-public class User {
+@Table(name = "employee")
+public class Employee {
   @Id
   @GeneratedValue
   private long id;
 
-  @Column(nullable = false, unique = true)
-  private String userId;
+  @Column(nullable = false, unique = true, name = "employeeId")
+  private String employeeId;
 
   @Column(nullable = false)
   private String password;
 
-  public User() {
+  public Employee() {
 
   }
 
-  public User(String userId, String password) {
-    this.userId = userId;
+  public Employee(String employeeId, String password) {
+    this.employeeId = employeeId;
     this.password = password;
   }
 
@@ -36,12 +36,12 @@ public class User {
     this.id = id;
   }
 
-  public String getUserId() {
-    return userId;
+  public String getEmployeeId() {
+    return employeeId;
   }
 
-  public void setUserId(String userId) {
-    this.userId = userId;
+  public void setEmployeeId(String employeeId) {
+    this.employeeId = employeeId;
   }
 
   public String getPassword() {
