@@ -6,7 +6,7 @@ function Order() {
 
     // Fetch the current order from the backend
     useEffect(() => {
-        fetch('http://localhost:2810/order')
+        fetch('http://localhost:8080/order')
             .then(response => response.json())
             .then(data => setOrder(data))
             .catch(err => console.error('Error fetching order:', err));
@@ -14,7 +14,7 @@ function Order() {
 
     // Function to add an item to the order
     const addItem = (itemName, quantity) => {
-        fetch(`http://localhost:2810/order/add`, {
+        fetch(`http://localhost:8080/order/add`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ itemName, quantity }),
@@ -26,7 +26,7 @@ function Order() {
 
     // Function to remove an item from the order
     const removeItem = (itemName) => {
-        fetch(`http://localhost:2810/order/remove`, {
+        fetch(`http://localhost:8080/order/remove`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ itemName }),
@@ -39,7 +39,7 @@ function Order() {
     // Function to submit the order
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch('http://localhost:2810/order/submit', {
+        fetch('http://localhost:8080/order/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(order),
