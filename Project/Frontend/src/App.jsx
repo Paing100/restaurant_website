@@ -4,7 +4,7 @@ import { Container } from "@mui/material";
 import NavBar from './NavBar';
 import Home from './Home';
 import Menu from './Menu';
-import Staff from './Staff';
+import Login from './Login';
 import Order from './Order';
 import { CartProvider } from './CartContext';
 
@@ -20,7 +20,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/menu" element={<Menu />} />
                 <Route path="/order" element={<Order />} />
-                <Route path="/login" element={<Staff />} />
+                <Route path="/login" element={<Login />} />
               </Routes>
             </div>
           </div>
