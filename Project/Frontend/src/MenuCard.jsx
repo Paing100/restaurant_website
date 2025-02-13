@@ -50,8 +50,9 @@ MenuCard.propTypes = {
     description: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
     calories: PropTypes.number.isRequired,
-    allergies: PropTypes.arrayOf(PropTypes.string).isRequired,
-  }).isRequired,
+    allergens: PropTypes.arrayOf(PropTypes.string).isRequired,
+    dietaryRestrictions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    }).isRequired,
 };
 
 export default MenuCard;

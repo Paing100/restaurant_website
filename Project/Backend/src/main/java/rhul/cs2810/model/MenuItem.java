@@ -1,18 +1,33 @@
 package rhul.cs2810.model;
 
+import jakarta.persistence.*;
 import java.util.Set;
 
 /**
  * Represents a menu item in the restaurant system.
  */
+@Entity
+@Table(name = "menu_item")
 public class MenuItem {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int itemId;
   private String name;
   private String description;
   private double price;
+
+  @ElementCollection(targetClass = Allergen.class, fetch = FetchType.EAGER)
+  @Enumerated(EnumType.STRING)
+  @CollectionTable(name = "menu_item_allergens", joinColumns = @JoinColumn(name = "item_id"))
+  @Column(name = "allergen")
   private Set<Allergen> allergens;
   private int calories;
+
+  @ElementCollection(targetClass = DietaryRestrictions.class, fetch = FetchType.EAGER)
+  @Enumerated(EnumType.STRING)
+  @CollectionTable(name = "menu_item_dietary_restrictions", joinColumns = @JoinColumn(name = "item_id"))
+  @Column(name = "restriction")
   private Set<DietaryRestrictions> dietaryRestrictions;
   private boolean available;
 
