@@ -6,7 +6,7 @@ function Order() {
 
     // Fetch the current order from the backend
     useEffect(() => {
-        fetch('http://localhost:8080/order')
+        fetch('http://localhost:2810/order')
             .then(response => response.json())
             .then(data => setOrder(data))
             .catch(err => console.error('Error fetching order:', err));
