@@ -1,25 +1,54 @@
 package rhul.cs2810.controller;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import rhul.cs2810.model.User;
-import rhul.cs2810.model.UserService;
+import rhul.cs2810.model.Employee;
+import rhul.cs2810.model.EmployeeService;
 
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
   @Autowired
-  private UserService userService;
+  private EmployeeService employeeService;
 
   @PostMapping("/login")
-  public String login(@RequestParam String userId, @RequestParam String password) {
-    Optional<User> userOptional = userService.authenticateUser(userId, password);
-    return userOptional.isPresent() ? "Login Successful!" : "Invalid Credientials";
+  public ResponseEntity<Map<String, String>> login(@RequestBody Employee employee) {
+    String employeeIdString = employee.getEmployeeId();
+    String passwordString = employee.getPassword();
+    Optional<Employee> employeeOptional =
+        employeeService.authenticateUser(employeeIdString, passwordString);
+    Map<String, String> response = new HashMap<>();
+    if (employeeOptional.isPresent()) {
+      response.put("message", "Login Successful!");
+      return ResponseEntity.ok(response);
+    } else {
+      response.put("message", "Invalid Credentials");
+      // 401 Unauthorized status
+      return ResponseEntity.status(401).body(response);
+    }
   }
+
+  @PostMapping("/register")
+  public ResponseEntity<Map<String, String>> register(@RequestBody Employee employee) {
+    boolean created = employeeService.registerUser(employee);
+    Map<String, String> response = new HashMap<>();
+    if (created) {
+      response.put("message", "Register Successful");
+      return ResponseEntity.ok(response);
+    } else {
+      response.put("message", "Something went wrong!");
+      // 500 Internal Server Error status
+      return ResponseEntity.status(500).body(response);
+    }
+  }
+
 }
