@@ -127,7 +127,7 @@ public class CustomerControllerTest {
     assertEquals(HttpStatus.OK.value(), action2.getResponse().getStatus()); // testing for 200/201
     Customer testCustomer2 =
         objectMapper.readValue(action2.getResponse().getContentAsString(), Customer.class);
-    assertTrue(!testCustomer2.getOrder().getOrderedItems().isEmpty());
+    assertTrue(testCustomer2.getOrder().getOrderedItems().isEmpty() != true);
 
     // WHY DOES IT WORK THIS WAY
 

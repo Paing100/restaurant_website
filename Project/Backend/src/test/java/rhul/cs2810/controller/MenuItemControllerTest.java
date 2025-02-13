@@ -67,6 +67,7 @@ public class MenuItemControllerTest {
     assertEquals(testItem.getDescription(), "its a beeg stew pot");
     assertTrue(testItem.getAllergens().isEmpty() == false);
 
+    orderRepository.deleteAll();
     menuItemRepository.deleteAll();
   }
 
