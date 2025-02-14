@@ -4,11 +4,11 @@ import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-import rhul.cs2810.model.User;
+import rhul.cs2810.model.Employee;
 
 /**
  * Repository for managing authentication of user entities.
  */
-public interface UserRepository extends CrudRepository<User, Long> {
-  Optional<User> findByUserId(String userId);
+public interface EmployeeRepository extends CrudRepository<Employee, Long> {
+  public Optional<Employee> findByEmployeeId(String userId);
 }

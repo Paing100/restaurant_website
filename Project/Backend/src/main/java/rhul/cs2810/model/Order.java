@@ -2,9 +2,11 @@ package rhul.cs2810.model;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
@@ -23,7 +25,7 @@ import rhul.cs2810.serializer.MenuItemKeySerializer;
  * Represents an Order class to handle customers orders.
  */
 @Entity
-@Table(name = "\"ORDERS\"")
+@Table(name = "ORDERS")
 public class Order {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

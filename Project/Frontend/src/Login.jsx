@@ -1,6 +1,27 @@
 import {Button,TextField} from "@mui/material";
+import React, {useState} from "react";
+import axios from "axios";
 
 function Login() {
+  const [userId, setUserId] = useState(""); 
+  const [password, setPassword] = useState(""); 
+  const [message, setMessage] = useState(""); 
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post("http://localhost:8080/auth/login", {
+        employeeId: userId,
+        password: password
+      }, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      setMessage(response.data.message);
+    } catch (error) {
+      setMessage("Error: Could not connect to the server OR Wrong credentials");
+    }
+  };
   return (
     <>
       <div 
@@ -18,6 +39,7 @@ function Login() {
           id="outlined-basic" 
           label="User ID" 
           variant="outlined" 
+          onChange={(e) => setUserId(e.target.value)}
         />
         </div>
         <div className="password">
@@ -26,9 +48,11 @@ function Login() {
           label="Password"
           type="password"
           autoComplete="current-password"
+          onChange={(e) => setPassword(e.target.value)} 
         />        </div>
-        <Button variant="contained">Login</Button>
+        <Button variant="contained" onClick={handleLogin}>Login</Button>
       </div>
+      <p>{message}</p> 
     </>
   );
 }

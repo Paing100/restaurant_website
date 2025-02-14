@@ -10,9 +10,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 
 /**
  * Represents a customer in the restaurant system.
@@ -26,8 +28,10 @@ public class Customer {
   @Column(name = "customer_id")
   int customerID;
 
-  @Transient
-  List<MenuItem> menuItems;
+  @ManyToMany
+  @JoinTable(name = "customer_menu_items", joinColumns = @JoinColumn(name = "customer_id"),
+      inverseJoinColumns = @JoinColumn(name = "item_id"))
+  List<MenuItem> menuItems; // why was this transient...
 
   @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference

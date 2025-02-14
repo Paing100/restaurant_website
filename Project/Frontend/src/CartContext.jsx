@@ -6,7 +6,7 @@ export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState({ orderedItems: {}, totalPrice: 0 });
 
     const fetchCart = () => {
-        fetch('http://localhost:2810/api/cart')
+        fetch('http://localhost:8080/api/cart')
             .then(response => response.json())
             .then(data => setCart(data))
             .catch(err => console.error('Failed to fetch cart:', err));
@@ -17,7 +17,7 @@ export const CartProvider = ({ children }) => {
     }, []);
 
     const addItemToCart = (item) => {
-        fetch('http://localhost:2810/api/cart', {
+        fetch('http://localhost:8080/api/cart', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(item),
@@ -28,7 +28,7 @@ export const CartProvider = ({ children }) => {
     };
 
     const removeItemFromCart = (item) => {
-        fetch('http://localhost:2810/api/cart/remove', {
+        fetch('http://localhost:8080/api/cart/remove', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(item),

@@ -1,12 +1,20 @@
 package rhul.cs2810.controller;
 
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.Customer;
+import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.repository.CustomerRepository;
@@ -43,17 +51,16 @@ public class CustomerController {
    * @param params input parameters given to read off of.
    */
   @PostMapping(value = "/Customers/addCustomer")
-  public ResponseEntity<Customer> addCustomer(@RequestBody Map<String, String> params) {
-    // Extract parameters
-    String customerIdStr = params.get("customerID");
-    int customerID = customerIdStr != null ? Integer.parseInt(customerIdStr) : 0;
+  public ResponseEntity<Customer> addCustomer() {
 
-    // Create new customer
-    Customer newCustomer = new Customer(customerID);
+    // create new customer
+    Customer newCustomer = new Customer();
     Order order = new Order(newCustomer);
     newCustomer.setOrder(order);
-
-    // Save to database
+    List<MenuItem> allMenuItems =
+        ((List<MenuItem>) menuItemRepository.findAll()).stream().collect(Collectors.toList());
+    newCustomer.setMenuItems(allMenuItems);
+    // save to database
     order = orderRepository.save(order);
     newCustomer = customerRepository.save(newCustomer);
 
@@ -61,52 +68,51 @@ public class CustomerController {
   }
 
 
-  // /**
-  // * A response entity for filtering orders.
-  // *
-  // * @param params input parameters given to read off of.
-  // */
-  // @PostMapping(value = "/Menu/filter")
-  // public ResponseEntity<List<MenuItem>> filter(@RequestBody Map<String, String> params) {
-  //
-  // Customer customer =
-  // customerRepository.findById(Long.valueOf(params.get("customer_id"))).orElseThrow();
-  // System.out.println(customer.getCustomerID());
-  //
-  // Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
-  // if (params.containsKey("dietary_restrictions")
-  // && params.get("dietary_restrictions").isEmpty() != true) {
-  // String[] dietaryStr = params.get("dietary_restrictions").split(",");
-  // for (String dietaryRestrict : dietaryStr) {
-  // DietaryRestrictions restrict = DietaryRestrictions.valueOf(dietaryRestrict);
-  // dietaryRestrictions.add(restrict);
-  // }
-  // }
-  //
-  // Set<Allergen> allergens = EnumSet.noneOf(Allergen.class);
-  // if (params.containsKey("allergens") && params.get("allergens").isEmpty() != true) {
-  // String[] allergensStr = params.get("allergens").split(",");
-  // for (String allergen : allergensStr) {
-  // Allergen allergy = Allergen.valueOf(allergen);
-  // allergens.add(allergy);
-  // }
-  // }
-  // System.out.println("DR: " + dietaryRestrictions);
-  // System.out.println("Allergens: " + allergens);
-  //
-  // List<MenuItem> menuItems = customer.getMenuItems();
-  // System.out.println(menuItems);
-  // List<MenuItem> filteredMenuItems =
-  // customer.filterMenu(dietaryRestrictions, allergens, menuItems);
-  // // customer = customerRepository.save(customer);
-  //
-  // System.out.println(filteredMenuItems);
-  // return ResponseEntity.ok(filteredMenuItems);
-  //
-  // }
-
   /**
    * A response entity for filtering orders.
+   *
+   * @param params input parameters given to read off of.
+   */
+  @PostMapping(value = "/Menu/filter")
+  public ResponseEntity<Customer> filter(@RequestBody Map<String, String> params) {
+
+    Customer customer =
+        customerRepository.findById(Long.valueOf(params.get("customer_id"))).orElseThrow();
+
+
+    Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
+    if (params.containsKey("dietary_restrictions")
+        && params.get("dietary_restrictions").isEmpty() != true) {
+      String[] dietaryStr = params.get("dietary_restrictions").split(",");
+      for (String dietaryRestrict : dietaryStr) {
+        DietaryRestrictions restrict = DietaryRestrictions.valueOf(dietaryRestrict);
+        dietaryRestrictions.add(restrict);
+      }
+    }
+
+    Set<Allergen> allergens = EnumSet.noneOf(Allergen.class);
+    if (params.containsKey("allergens") && params.get("allergens").isEmpty() != true) {
+      String[] allergensStr = params.get("allergens").split(",");
+      for (String allergen : allergensStr) {
+        Allergen allergy = Allergen.valueOf(allergen);
+        allergens.add(allergy);
+      }
+    }
+    // System.out.println("DR: " + dietaryRestrictions);
+    // System.out.println("Allergens: " + allergens);
+
+    List<MenuItem> menuItems = customer.getMenuItems();
+    List<MenuItem> filteredItems = customer.filterMenu(dietaryRestrictions, allergens, menuItems);
+    customer.setMenuItems(filteredItems);
+    customerRepository.save(customer);
+
+    // System.out.println(filteredMenuItems);
+    return ResponseEntity.ok(customer);
+
+  }
+
+  /**
+   * A response entity for adding orders.
    *
    * @param params input parameters given to read off of.
    */
@@ -150,5 +156,45 @@ public class CustomerController {
 
     return ResponseEntity.ok(customer);
   }
+
+  /**
+   * A response entity for adding orders.
+   *
+   * @param params input parameters given to read off of.
+   */
+  @PostMapping(value = "/Customers/addItemToMenu")
+  public ResponseEntity<?> addItemToMenu(@RequestBody Map<String, String> params) {
+
+    // Convert IDs from String to Long
+    Long customerId = Long.valueOf(params.get("customer_id"));
+    Long itemId = Long.valueOf(params.get("item_id"));
+
+    // Check if customer exists
+    Optional<Customer> optionalCustomer = customerRepository.findById(customerId);
+    if (optionalCustomer.isEmpty()) {
+      return ResponseEntity.badRequest()
+          .body("Error: Customer with ID " + customerId + " not found.");
+    }
+
+    // Check if menu item exists
+    Optional<MenuItem> optionalItem = menuItemRepository.findById(itemId);
+    if (optionalItem.isEmpty()) {
+      return ResponseEntity.badRequest().body("Error: Menu item with ID " + itemId + " not found.");
+    }
+
+    // Get actual objects
+    Customer customer = optionalCustomer.get();
+    MenuItem item = optionalItem.get();
+
+    // Add item to the customer's menu
+    customer.getMenuItems().add(item);
+
+    // Save updated customer (should cascade save the order)
+    customerRepository.save(customer);
+
+    return ResponseEntity.ok(customer);
+  }
+
+
 
 }
