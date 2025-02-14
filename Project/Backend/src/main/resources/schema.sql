@@ -17,9 +17,10 @@ CREATE TABLE customer (
 
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
-    customer_id INT UNIQUE,
+    customer_id INT,
+    total_price DECIMAL(10, 2),  
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
-);  
+);
 
 CREATE TABLE menu_item (
     item_id SERIAL PRIMARY KEY,
