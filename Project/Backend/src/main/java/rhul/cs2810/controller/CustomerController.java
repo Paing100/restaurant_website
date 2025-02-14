@@ -5,10 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.Customer;
 import rhul.cs2810.model.DietaryRestrictions;
@@ -54,7 +57,9 @@ public class CustomerController {
     Customer newCustomer = new Customer();
     Order order = new Order(newCustomer);
     newCustomer.setOrder(order);
-
+    List<MenuItem> allMenuItems =
+        ((List<MenuItem>) menuItemRepository.findAll()).stream().collect(Collectors.toList());
+    newCustomer.setMenuItems(allMenuItems);
     // save to database
     order = orderRepository.save(order);
     newCustomer = customerRepository.save(newCustomer);
