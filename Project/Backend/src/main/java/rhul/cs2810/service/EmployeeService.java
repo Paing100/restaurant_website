@@ -39,6 +39,10 @@ public class EmployeeService {
   public boolean registerUser(Employee employee) {
     String idString = employee.getEmployeeId();
     String passwString = employee.getPassword();
+    String firstNameString = employee.getFirstName();
+    String lastNameString = employee.getLastName();
+    String roleString = employee.getRole();
+
     if (idString != null && passwString != null) {
       Optional<Employee> existingUserOptional = employeeRepository.findByEmployeeId(idString);
       if (existingUserOptional.isPresent()) {
@@ -51,6 +55,9 @@ public class EmployeeService {
       }
       String encodedPasswordString = bCryptPasswordEncoder.encode(passwString);
       employee.setPassword(encodedPasswordString);
+      employee.setFirstName(firstNameString);
+      employee.setLastName(lastNameString);
+      employee.setRole(roleString);
       try {
         employeeRepository.save(employee);
         return true;
