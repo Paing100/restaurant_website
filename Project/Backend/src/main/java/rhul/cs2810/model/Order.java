@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,6 +30,7 @@ import rhul.cs2810.serializer.MenuItemKeySerializer;
 public class Order {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "order_id")
   int orderId;
 
   @OneToOne(cascade = CascadeType.ALL)
@@ -42,6 +44,8 @@ public class Order {
   @JsonSerialize(keyUsing = MenuItemKeySerializer.class)
   @JsonDeserialize(keyUsing = MenuItemKeyDeserializer.class)
   Map<MenuItem, Integer> orderedItems;
+
+  @Column(name = "total_price")
   double totalPrice;
 
   /**
