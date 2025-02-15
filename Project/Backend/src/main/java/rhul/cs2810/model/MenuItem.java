@@ -1,7 +1,19 @@
 package rhul.cs2810.model;
 
-import jakarta.persistence.*;
 import java.util.Set;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
 
 /**
  * Represents a menu item in the restaurant system.
@@ -12,6 +24,7 @@ public class MenuItem {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "item_id")
   private int itemId;
   private String name;
   private String description;
@@ -26,7 +39,8 @@ public class MenuItem {
 
   @ElementCollection(targetClass = DietaryRestrictions.class, fetch = FetchType.EAGER)
   @Enumerated(EnumType.STRING)
-  @CollectionTable(name = "menu_item_dietary_restrictions", joinColumns = @JoinColumn(name = "item_id"))
+  @CollectionTable(name = "menu_item_dietary_restrictions",
+      joinColumns = @JoinColumn(name = "item_id"))
   @Column(name = "restriction")
   private Set<DietaryRestrictions> dietaryRestrictions;
   private boolean available;
