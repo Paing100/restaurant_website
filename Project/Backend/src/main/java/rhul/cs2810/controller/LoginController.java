@@ -24,11 +24,17 @@ public class LoginController {
   public ResponseEntity<Map<String, String>> login(@RequestBody Employee employee) {
     String employeeIdString = employee.getEmployeeId();
     String passwordString = employee.getPassword();
+
     Optional<Employee> employeeOptional =
         employeeService.authenticateUser(employeeIdString, passwordString);
     Map<String, String> response = new HashMap<>();
+
     if (employeeOptional.isPresent()) {
+      Employee authenticatedEmployee = employeeOptional.get();
+
       response.put("message", "Login Successful!");
+      response.put("firstName", authenticatedEmployee.getFirstName());
+      response.put("role", authenticatedEmployee.getRole());
       return ResponseEntity.ok(response);
     } else {
       response.put("message", "Invalid Credentials");
@@ -43,6 +49,8 @@ public class LoginController {
     Map<String, String> response = new HashMap<>();
     if (created) {
       response.put("message", "Register Successful");
+      response.put("firstName", employee.getFirstName());
+      response.put("role", employee.getRole());
       return ResponseEntity.ok(response);
     } else {
       response.put("message", "Something went wrong!");
