@@ -72,11 +72,13 @@ public class MenuItemController {
       }
     }
 
+    String imagePath = params.get("imagePath");
+    String category = params.get("category");
 
-    MenuItem item =
-        new MenuItem(String.valueOf(params.get("name")), String.valueOf(params.get("description")),
-            Float.valueOf(params.get("price")), allergens, Integer.valueOf(params.get("calories")),
-            dietaryRestrictions, Boolean.valueOf(params.get("available")));
+    MenuItem item = new MenuItem(String.valueOf(params.get("name")),
+        String.valueOf(params.get("description")), Float.valueOf(params.get("price")), allergens,
+        Integer.valueOf(params.get("calories")), dietaryRestrictions,
+        Boolean.valueOf(params.get("available")), imagePath, Integer.valueOf(category));
 
     item = menuItemRepository.save(item);
 
