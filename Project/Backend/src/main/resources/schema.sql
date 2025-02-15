@@ -28,7 +28,9 @@ CREATE TABLE menu_item (
     description TEXT,
     price DECIMAL(10,2) NOT NULL,
     available BOOLEAN NOT NULL DEFAULT TRUE,
-    calories INT
+    calories INT,
+    category INT, 
+    image_path VARCHAR(225)
 );
 
 -- remove transient
