@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import rhul.cs2810.model.Employee;
-import rhul.cs2810.model.EmployeeService;
+import rhul.cs2810.service.EmployeeService;
 
 @RestController
 @RequestMapping("/auth")

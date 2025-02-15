@@ -1,4 +1,4 @@
-package rhul.cs2810.controller;
+package rhul.cs2810.service;
 
 import org.springframework.stereotype.Service;
 import rhul.cs2810.model.MenuItem;

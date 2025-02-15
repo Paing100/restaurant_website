@@ -1,4 +1,4 @@
-package rhul.cs2810.model;
+package rhul.cs2810.service;
 
 import java.util.Optional;
 
@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
 
 @Service
