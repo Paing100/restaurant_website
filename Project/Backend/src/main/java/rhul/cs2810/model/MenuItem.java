@@ -45,6 +45,11 @@ public class MenuItem {
   private Set<DietaryRestrictions> dietaryRestrictions;
   private boolean available;
 
+
+  private int category;
+  @Column(name = "image_path")
+  private String imagePath;
+
   public MenuItem() {
     this.allergens = null;
     this.dietaryRestrictions = null;
@@ -71,6 +76,20 @@ public class MenuItem {
     this.calories = calories;
     this.dietaryRestrictions = dietaryRestrictions;
     this.available = available;
+  }
+
+  public MenuItem(String name, String description, float price, Set<Allergen> allergens,
+      int calories, Set<DietaryRestrictions> dietaryRestrictions, boolean available,
+      String imagePath, int category) {
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.allergens = allergens;
+    this.calories = calories;
+    this.dietaryRestrictions = dietaryRestrictions;
+    this.available = available;
+    this.imagePath = imagePath;
+    this.category = category;
   }
 
   /**
@@ -216,6 +235,23 @@ public class MenuItem {
    */
   public void setAvailable(boolean available) {
     this.available = available;
+  }
+
+
+  public String getImagePath() {
+    return imagePath;
+  }
+
+  public void setImagePath(String imagePath) {
+    this.imagePath = imagePath;
+  }
+
+  public int getCategory() {
+    return this.category;
+  }
+
+  public void setCategory(int category) {
+    this.category = category;
   }
 
 }

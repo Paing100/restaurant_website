@@ -16,7 +16,7 @@ function MenuCard({ item }) {
         <CardMedia
           component="img"
           height="200"
-          image={item.img}
+          image={item.imagePath}
           alt={item.name}
         />
         <CardContent>

@@ -31,8 +31,8 @@ function Menu() {
 
   return (
     <>
-      <Box sx={{ padding: 3 }}>
-        <Filter
+    <Box sx={{ padding: 3 }}>
+        <Filter 
           selectedFilter={selectedFilter}
           onFilterChange={handleFilterChange}
         />
@@ -53,11 +53,12 @@ function Menu() {
           </Typography>
         ) : (
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
-            {menuItems.map((item, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
-                <MenuCard item={item} />
-              </Grid>
-            ))}
+            {menuItems.filter((item) => item.category === selectedTab)
+              .map((item, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <MenuCard item={item}></MenuCard>
+                </Grid>
+              ))}
           </Grid>
         )}
       </Box>
