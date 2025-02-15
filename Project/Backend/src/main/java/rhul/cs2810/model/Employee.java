@@ -17,8 +17,41 @@ public class Employee {
   @Column(nullable = false, unique = true, name = "employeeId")
   private String employeeId;
 
-  @Column(nullable = false)
+  @Column(nullable = false, name = "password")
   private String password;
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role;
+  }
+
+  @Column(nullable = false, name = "firstName")
+  private String firstName;
+
+  @Column(nullable = false, name = "lastName")
+  private String lastName;
+
+  @Column(nullable = false, name = "role")
+  private String role;
 
   public Employee() {
 
