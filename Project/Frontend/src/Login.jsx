@@ -1,11 +1,13 @@
 import {Button,TextField} from "@mui/material";
-import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import React, {useState, useEffect} from "react";
 import axios from "axios";
 
 function Login() {
   const [userId, setUserId] = useState(""); 
   const [password, setPassword] = useState(""); 
   const [message, setMessage] = useState(""); 
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -17,7 +19,15 @@ function Login() {
           "Content-Type": "application/json"
         }
       });
-      setMessage(response.data.message);
+      if (response.status === 200){
+        const expirationTime = new Date().getTime() + 30 * 60 * 1000;
+        localStorage.setItem("sessionExpiration", expirationTime);
+
+        const {firstName, role, message} = response.data;
+        localStorage.setItem("userName", firstName);
+        localStorage.setItem("userRole", role);
+        navigate("/waiter");
+      }
     } catch (error) {
       setMessage("Error: Could not connect to the server OR Wrong credentials");
     }
