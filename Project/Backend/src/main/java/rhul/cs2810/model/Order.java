@@ -1,5 +1,6 @@
 package rhul.cs2810.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashMap;
 import java.util.Map;
 
