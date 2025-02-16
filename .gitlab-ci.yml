@@ -40,7 +40,7 @@ frontend-build:
   stage: build-frontend
   script: 
     - cd Project/Frontend
-    - npm install
+    - npm ci
     - npm run build
 
 frontend-lint:

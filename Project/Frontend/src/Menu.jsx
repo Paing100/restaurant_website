@@ -25,9 +25,34 @@ function Menu() {
     setSelectedTab(newValue);
   };
   const handleFilterChange = (event) => {
-    setSelectedFilter(event.target.value);
-    console.log('Selected Filters:', event.target.value);
-  };
+  const { dietaryRestrictions, allergens } = event.target.value;
+  setSelectedFilter(dietaryRestrictions);
+
+  fetch('http://localhost:8080/Menu/filter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      customer_id: "1",
+      dietary_restrictions: dietaryRestrictions.join(','),
+      allergens: allergens.join(',')
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (!Array.isArray(data)) {
+      console.error("Unexpected API response structure:", data);
+      setMenuItems([]);
+      return;
+    }
+
+    setMenuItems(data);
+  })
+  .catch(err => {
+    console.error('Error fetching filtered menu:', err);
+    setMenuItems([]);
+  });
+};
+
 
   return (
     <>
@@ -47,10 +72,10 @@ function Menu() {
             <Tab key={index} label={category} />
           ))}
         </Tabs>
-        {menuItems.length === 0 ? (
-          <Typography>
-            Loading ...
-          </Typography>
+        {menuItems === null ? (
+        <Typography>Loading ...</Typography>
+        ) : menuItems.length === 0 ? (
+          <Typography>No matching items found.</Typography>
         ) : (
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
             {menuItems.filter((item) => item.category === selectedTab)

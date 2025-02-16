@@ -1,42 +1,89 @@
-import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { Select, MenuItem, FormControl, InputLabel, Button, Box } from "@mui/material";
 import PropTypes from "prop-types";
-
+import { useState } from "react";
 
 function Filter({ selectedFilter, onFilterChange }) {
-  return (
-    <FormControl fullWidth variant="outlined" sx={{ marginBottom: 2, width: 400}}>
-      <InputLabel>Filter by</InputLabel>
-      <Select
-        multiple
-        value={selectedFilter}
-        onChange={onFilterChange}
-        label="Filter by"
-        renderValue={(selected) => selected.join(', ')}
-      >
-        <MenuItem value="Vegetarian">Vegetarian</MenuItem>
-        <MenuItem value="Gluten-Free">Gluten-Free</MenuItem>
-        <MenuItem value="Vegan">Vegan</MenuItem>
-        <MenuItem value="Halal">Halal</MenuItem>
-        <MenuItem value="Avocado">Avocado</MenuItem> 
-        <MenuItem value="Tomato">Tomato</MenuItem>
-        <MenuItem value="Dairy">Dairy</MenuItem> 
-        <MenuItem value="Wheat">Wheat</MenuItem> 
-        <MenuItem value="Egg">Egg</MenuItem>
-        <MenuItem value="Corn">Corn</MenuItem> 
-        <MenuItem value="Citrus">Citrus</MenuItem> 
-        <MenuItem value="None">None</MenuItem> 
+  const [selectedDietary, setSelectedDietary] = useState([]);
+  const [selectedAllergens, setSelectedAllergens] = useState([]);
 
-        
-      </Select>
-      
-    </FormControl>
+  const handleDietaryChange = (event) => {
+    setSelectedDietary(event.target.value);
+  };
+
+  const handleAllergenChange = (event) => {
+    setSelectedAllergens(event.target.value);
+  };
+
+  const handleApplyFilter = () => {
+    onFilterChange({
+      target: {
+        value: {
+          dietaryRestrictions: selectedDietary,
+          allergens: selectedAllergens
+        }
+      }
+    });
+  };
+
+  const handleClearFilters = () => {
+    setSelectedDietary([]);
+    setSelectedAllergens([]);
+    onFilterChange({
+      target: {
+        value: {
+          dietaryRestrictions: [],
+          allergens: []
+        }
+      }
+    });
+  };
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 2 }}>
+      <FormControl fullWidth variant="outlined" sx={{ width: 400 }}>
+        <InputLabel>Dietary Restrictions</InputLabel>
+        <Select
+          multiple
+          value={selectedDietary}
+          onChange={handleDietaryChange}
+          label="Dietary Restrictions"
+          renderValue={(selected) => selected.join(", ")}
+        >
+          <MenuItem value="Vegetarian">Vegetarian</MenuItem>
+          <MenuItem value="GlutenFree">Gluten-Free</MenuItem>
+          <MenuItem value="Vegan">Vegan</MenuItem>
+          <MenuItem value="Halal">Halal</MenuItem>
+        </Select>
+      </FormControl>
+
+      <FormControl fullWidth variant="outlined" sx={{ width: 400 }}>
+        <InputLabel>Allergens</InputLabel>
+        <Select
+          multiple
+          value={selectedAllergens}
+          onChange={handleAllergenChange}
+          label="Exclude Allergens"
+          renderValue={(selected) => selected.join(", ")}
+        >
+          <MenuItem value="Dairy">Dairy</MenuItem>
+          <MenuItem value="Egg">Egg</MenuItem>
+          <MenuItem value="Nuts">Nuts</MenuItem>
+          <MenuItem value="Shellfish">Shellfish</MenuItem>
+          <MenuItem value="Soya">Soya</MenuItem>
+        </Select>
+      </FormControl>
+
+      <Box sx={{ display: "flex", gap: 2 }}>
+        <Button variant="contained" onClick={handleApplyFilter}>Filter</Button>
+        <Button variant="outlined" onClick={handleClearFilters}>Reset</Button>
+      </Box>
+    </Box>
   );
 }
+
 Filter.propTypes = {
-  selectedFilter: PropTypes.array.isRequired,  
-  onFilterChange: PropTypes.func.isRequired,   
+  selectedFilter: PropTypes.func.isRequired,
+  onFilterChange: PropTypes.func.isRequired,
 };
-
-
 
 export default Filter;

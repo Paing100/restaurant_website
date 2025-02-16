@@ -74,7 +74,7 @@ public class CustomerController {
    * @param params input parameters given to read off of.
    */
   @PostMapping(value = "/Menu/filter")
-  public ResponseEntity<Customer> filter(@RequestBody Map<String, String> params) {
+  public ResponseEntity<List<MenuItem>> filter(@RequestBody Map<String, String> params) {
 
     Customer customer =
         customerRepository.findById(Long.valueOf(params.get("customer_id"))).orElseThrow();
@@ -85,7 +85,7 @@ public class CustomerController {
         && params.get("dietary_restrictions").isEmpty() != true) {
       String[] dietaryStr = params.get("dietary_restrictions").split(",");
       for (String dietaryRestrict : dietaryStr) {
-        DietaryRestrictions restrict = DietaryRestrictions.valueOf(dietaryRestrict);
+        DietaryRestrictions restrict = DietaryRestrictions.valueOf((dietaryRestrict.trim().replace("-", "").toUpperCase()));
         dietaryRestrictions.add(restrict);
       }
     }
@@ -94,7 +94,7 @@ public class CustomerController {
     if (params.containsKey("allergens") && params.get("allergens").isEmpty() != true) {
       String[] allergensStr = params.get("allergens").split(",");
       for (String allergen : allergensStr) {
-        Allergen allergy = Allergen.valueOf(allergen);
+        Allergen allergy = Allergen.valueOf(allergen.trim().toUpperCase());
         allergens.add(allergy);
       }
     }
@@ -102,12 +102,15 @@ public class CustomerController {
     // System.out.println("Allergens: " + allergens);
 
     List<MenuItem> menuItems = customer.getMenuItems();
-    List<MenuItem> filteredItems = customer.filterMenu(dietaryRestrictions, allergens, menuItems);
-    customer.setMenuItems(filteredItems);
-    customerRepository.save(customer);
+    List<MenuItem> filteredItems = menuItems.stream()
+        .filter(item -> (dietaryRestrictions.isEmpty() ||
+                         item.getDietaryRestrictions().stream().anyMatch(dietaryRestrictions::contains)) &&
+                        (allergens.isEmpty() ||
+                         item.getAllergens().stream().noneMatch(allergens::contains))) // Exclude items with allergens
+        .collect(Collectors.toList());
 
     // System.out.println(filteredMenuItems);
-    return ResponseEntity.ok(customer);
+    return ResponseEntity.ok(filteredItems);
 
   }
 
