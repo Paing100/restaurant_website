@@ -28,12 +28,15 @@ function Order() {
             <Typography variant="h4">Place Your Order</Typography>
             <Typography variant="h5" sx={{ marginTop: 4 }}>Ordered Items</Typography>
             <List>
-                {Object.entries(localCart.orderedItems).map(([itemName, quantity]) => (
-                    <ListItem key={itemName}>
-                        <ListItemText primary={`${itemName} x${quantity}`} />
-                        <Button onClick={() => removeItemFromCart({ name: itemName })} color="secondary">Remove</Button>
-                    </ListItem>
-                ))}
+                {Object.entries(localCart.orderedItems).map(([itemName, { quantity, price }]) => {
+                    const itemTotal = price * quantity;
+                    return (
+                        <ListItem key={itemName}>
+                            <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: $${itemTotal.toFixed(2)}`} />
+                            <Button onClick={() => removeItemFromCart({ name: itemName, price })} color="secondary">Remove</Button>
+                        </ListItem>
+                    );
+                })}
             </List>
             <Divider />
             <Typography variant="h6" sx={{ marginTop: 2 }}>Total Price: ${localCart.totalPrice.toFixed(2)}</Typography>

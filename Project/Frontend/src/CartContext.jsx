@@ -20,7 +20,13 @@ export const CartProvider = ({ children }) => {
     const addItemToCart = (item) => {
         // Update local cart state
         setLocalCart(prevCart => {
-            const updatedOrderedItems = { ...prevCart.orderedItems, [item.name]: (prevCart.orderedItems[item.name] || 0) + 1 };
+            const updatedOrderedItems = {
+                ...prevCart.orderedItems,
+                [item.name]: {
+                    quantity: (prevCart.orderedItems[item.name]?.quantity || 0) + 1,
+                    price: item.price
+                }
+            };
             const updatedTotalPrice = prevCart.totalPrice + item.price;
             const updatedCart = { orderedItems: updatedOrderedItems, totalPrice: updatedTotalPrice };
             localStorage.setItem('cart', JSON.stringify(updatedCart)); // Save to local storage
@@ -32,8 +38,8 @@ export const CartProvider = ({ children }) => {
         // Update local cart state
         setLocalCart(prevCart => {
             const updatedOrderedItems = { ...prevCart.orderedItems };
-            if (updatedOrderedItems[item.name] > 1) {
-                updatedOrderedItems[item.name] -= 1;
+            if (updatedOrderedItems[item.name].quantity > 1) {
+                updatedOrderedItems[item.name].quantity -= 1;
             } else {
                 delete updatedOrderedItems[item.name];
             }
@@ -44,8 +50,13 @@ export const CartProvider = ({ children }) => {
         });
     };
 
+    const clearCart = () => {
+        setLocalCart({ orderedItems: {}, totalPrice: 0 });
+        localStorage.removeItem('cart');
+    };
+
     return (
-        <CartContext.Provider value={{ cart, localCart, addItemToCart, removeItemFromCart, fetchCart }}>
+        <CartContext.Provider value={{ cart, localCart, addItemToCart, removeItemFromCart, fetchCart, clearCart }}>
             {children}
         </CartContext.Provider>
     );
