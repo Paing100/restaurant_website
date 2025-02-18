@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { Button, Typography, Stack, List, ListItem, ListItemText, Divider } from '@mui/material';
+import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box } from '@mui/material';
 import { CartContext } from './CartContext';
 
 function Order() {
@@ -11,10 +11,17 @@ function Order() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const orderedItemsArray = Object.entries(localCart.orderedItems).map(([name, { quantity, price }]) => ({
+            name,
+            quantity,
+            price
+        }));
+        const orderData = { ...localCart, orderedItems: orderedItemsArray };
+
         fetch('http://localhost:8080/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(localCart),
+            body: JSON.stringify(orderData),
         })
             .then(response => response.json())
             .then(data => {
@@ -24,10 +31,9 @@ function Order() {
     };
 
     return (
-        <div>
+        <Box>
             <Typography variant="h4">Place Your Order</Typography>
             <Typography variant="h5" sx={{ marginTop: 4 }}>Ordered Items</Typography>
-            <Button onClick={() => clearCart()} color="primary">Clear Cart</Button>
             <List>
                 {Object.entries(localCart.orderedItems).map(([itemName, { quantity, price }]) => {
                     const itemTotal = price * quantity;
@@ -42,11 +48,18 @@ function Order() {
             <Divider />
             <Typography variant="h6" sx={{ marginTop: 2 }}>Total Price: £{localCart.totalPrice.toFixed(2)}</Typography>
             <form onSubmit={handleSubmit}>
-                <Stack spacing={2} sx={{ marginTop: 2 }}>
-                    <Button type="submit" variant="contained" color="primary">Submit Order</Button>
-                </Stack>
+                <Grid container spacing={2} sx={{ marginTop: 2 }}>
+                    <Grid item xs={6}>
+                        <Box sx={{ border: '1px solid blue', borderRadius: 1 }}>
+                            <Button onClick={() => clearCart()} color="primary" fullWidth>Clear Cart</Button>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Button type="submit" variant="contained" color="primary" fullWidth>Submit Order</Button>
+                    </Grid>
+                </Grid>
             </form>
-        </div>
+        </Box>
     );
 }
 
