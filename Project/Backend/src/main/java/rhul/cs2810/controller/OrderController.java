@@ -31,4 +31,10 @@ public class OrderController {
     Order order = orderService.removeItemFromCart(item);
     return ResponseEntity.ok(order);
   }
+
+  @PostMapping("/orders")
+  public ResponseEntity<String> submitOrder(@RequestBody Order order) {
+    orderService.submitOrder(order);
+    return ResponseEntity.ok("Order submitted successfully");
+  }
 }

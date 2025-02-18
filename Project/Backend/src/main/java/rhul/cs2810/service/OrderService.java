@@ -22,4 +22,9 @@ public class OrderService {
     order.removeItemsFromCart(item);
     return order;
   }
+
+  public void submitOrder(Order order) {
+    System.out.println("Order submitted: " + order);
+    this.order = new Order();
+  }
 }

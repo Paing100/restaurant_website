@@ -9,27 +9,53 @@ function Order() {
         fetchCart();
     }, [fetchCart]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        clearCart();
-        const orderedItemsArray = Object.entries(localCart.orderedItems).map(([name, { quantity, price, imagePath }]) => ({
-            name,
-            quantity,
-            price,
-            imagePath
-        }));
-        const orderData = { ...localCart, orderedItems: orderedItemsArray };
 
-        fetch('http://localhost:8080/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData),
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Order submitted:', data);
-            })
-            .catch(err => console.error('Error submitting order:', err));
+        if (!localCart.orderedItems || Object.keys(localCart.orderedItems).length === 0) {
+            console.error("Error: Cart is empty. Cannot submit order.");
+            return;
+        }
+
+        // Use a temporary customer if no actual customer info exists
+        const tempCustomer = {
+            customerId: 'temp12345', // Temporary customer ID
+            name: 'Guest User',      // Temporary name
+            email: 'guest@domain.com' // Temporary email
+        };
+
+        // Convert orderedItems into the expected array format
+        const orderedItemsArray = Object.entries(localCart.orderedItems).map(([name, item]) => ({
+            itemId: name,  // Use item ID or unique identifier here
+            price: item.price,
+            quantity: item.quantity
+        }));
+
+        const orderData = {
+            customer: tempCustomer, // Use the temporary customer
+            orderedItems: orderedItemsArray,
+        };
+
+        console.log(JSON.stringify(orderData, null, 2)); // Debugging log
+
+        try {
+            const response = await fetch('http://localhost:8080/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Order submitted successfully:', data);
+
+            clearCart();
+        } catch (err) {
+            console.error('Error submitting order:', err.message);
+        }
     };
 
     return (
@@ -41,7 +67,13 @@ function Order() {
                     const itemTotal = price * quantity;
                     return (
                         <ListItem key={itemName}>
-                            <Box height="100"><CardMedia component="img" image={imagePath} /></Box>
+                            <CardMedia
+                                component="img"
+                                height="50"
+                                image={imagePath}
+                                alt={itemName}
+                                sx={{ marginRight: 2, width: 50 }}
+                            />
                             <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
                             <Button onClick={() => removeItemFromCart({ name: itemName, price })} color="secondary">Remove</Button>
                         </ListItem>
