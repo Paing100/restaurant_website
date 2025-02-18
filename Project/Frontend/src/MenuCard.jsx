@@ -40,7 +40,7 @@ function MenuCard({ item }) {
           </Box>
           <Button
             variant="contained"
-            color="light"
+            color="primary"
             sx={{ marginTop: 2 }}
             onClick={handleAddToCart}
           >
