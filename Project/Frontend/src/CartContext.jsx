@@ -39,7 +39,7 @@ export const CartProvider = ({ children }) => {
         setLocalCart(prevCart => {
             const updatedOrderedItems = { ...prevCart.orderedItems };
             if (updatedOrderedItems[item.name].quantity > 1) {
-                updatedOrderedItems[item.name].quantity -= 0.5;
+                updatedOrderedItems[item.name].quantity -= 1;
             } else {
                 delete updatedOrderedItems[item.name];
             }
