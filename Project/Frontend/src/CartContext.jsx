@@ -39,13 +39,16 @@ export const CartProvider = ({ children }) => {
         setLocalCart(prevCart => {
             const updatedOrderedItems = { ...prevCart.orderedItems };
             if (updatedOrderedItems[item.name].quantity > 1) {
-                updatedOrderedItems[item.name].quantity -= 1;
+                updatedOrderedItems[item.name].quantity -= 0.5;
             } else {
                 delete updatedOrderedItems[item.name];
             }
             const updatedTotalPrice = prevCart.totalPrice - item.price;
             const updatedCart = { orderedItems: updatedOrderedItems, totalPrice: updatedTotalPrice };
             localStorage.setItem('cart', JSON.stringify(updatedCart)); // Save to local storage
+            if (updatedTotalPrice <= 0) {
+                clearCart();
+            }
             return updatedCart;
         });
     };
