@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box } from '@mui/material';
+import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia } from '@mui/material';
 import { CartContext } from './CartContext';
 
 function Order() {
@@ -11,14 +11,16 @@ function Order() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const orderedItemsArray = Object.entries(localCart.orderedItems).map(([name, { quantity, price }]) => ({
+        clearCart();
+        const orderedItemsArray = Object.entries(localCart.orderedItems).map(([name, { quantity, price, imagePath }]) => ({
             name,
             quantity,
-            price
+            price,
+            imagePath
         }));
         const orderData = { ...localCart, orderedItems: orderedItemsArray };
 
-        fetch('http://localhost:8080/api/orders', {
+        fetch('http://localhost:8080/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(orderData),
@@ -35,10 +37,11 @@ function Order() {
             <Typography variant="h4">Place Your Order</Typography>
             <Typography variant="h5" sx={{ marginTop: 4 }}>Ordered Items</Typography>
             <List>
-                {Object.entries(localCart.orderedItems).map(([itemName, { quantity, price }]) => {
+                {Object.entries(localCart.orderedItems).map(([itemName, { quantity, price, imagePath }]) => {
                     const itemTotal = price * quantity;
                     return (
                         <ListItem key={itemName}>
+                            <Box height="100"><CardMedia component="img" image={imagePath} /></Box>
                             <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
                             <Button onClick={() => removeItemFromCart({ name: itemName, price })} color="secondary">Remove</Button>
                         </ListItem>
