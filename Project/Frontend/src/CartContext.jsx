@@ -43,10 +43,10 @@ export const CartProvider = ({ children }) => {
             } else {
                 delete updatedOrderedItems[item.name];
             }
-            const updatedTotalPrice = prevCart.totalPrice - item.price;
+            const updatedTotalPrice = Math.max(prevCart.totalPrice - item.price, 0); // Ensure total price is not negative
             const updatedCart = { orderedItems: updatedOrderedItems, totalPrice: updatedTotalPrice };
             localStorage.setItem('cart', JSON.stringify(updatedCart)); // Save to local storage
-            if (updatedTotalPrice <= 0) {
+            if (updatedTotalPrice === 0) {
                 clearCart();
             }
             return updatedCart;
