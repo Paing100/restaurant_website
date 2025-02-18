@@ -3,7 +3,7 @@ import { Button, Typography, Stack, List, ListItem, ListItemText, Divider } from
 import { CartContext } from './CartContext';
 
 function Order() {
-    const { localCart, fetchCart, removeItemFromCart, saveCartToDatabase } = useContext(CartContext);
+    const { localCart, fetchCart, removeItemFromCart, clearCart } = useContext(CartContext);
 
     useEffect(() => {
         fetchCart();
@@ -27,6 +27,7 @@ function Order() {
         <div>
             <Typography variant="h4">Place Your Order</Typography>
             <Typography variant="h5" sx={{ marginTop: 4 }}>Ordered Items</Typography>
+            <Button onClick={() => clearCart()} color="primary">Clear Cart</Button>
             <List>
                 {Object.entries(localCart.orderedItems).map(([itemName, { quantity, price }]) => {
                     const itemTotal = price * quantity;
