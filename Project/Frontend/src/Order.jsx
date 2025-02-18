@@ -1,9 +1,11 @@
-import React, { useEffect, useContext } from 'react';
-import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia } from '@mui/material';
+import React, { useEffect, useContext, useState } from 'react';
+import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert } from '@mui/material';
 import { CartContext } from './CartContext';
 
 function Order() {
     const { localCart, fetchCart, removeItemFromCart, clearCart } = useContext(CartContext);
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         fetchCart();
@@ -14,6 +16,8 @@ function Order() {
 
         if (!localCart.orderedItems || Object.keys(localCart.orderedItems).length === 0) {
             console.error("Error: Cart is empty. Cannot submit order.");
+            setMessage("Error: Cart is empty. Cannot submit order.");
+            setOpen(true);
             return;
         }
 
@@ -52,10 +56,18 @@ function Order() {
             const data = await response.json();
             console.log('Order submitted successfully:', data);
 
+            setMessage('Order submitted successfully!');
+            setOpen(true);
             clearCart();
         } catch (err) {
             console.error('Error submitting order:', err.message);
+            setMessage(`Error submitting order: ${err.message}`);
+            setOpen(true);
         }
+    };
+
+    const handleClose = () => {
+        setOpen(false);
     };
 
     return (
@@ -94,6 +106,11 @@ function Order() {
                     </Grid>
                 </Grid>
             </form>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 }
