@@ -9,7 +9,7 @@ function Order() {
 
     useEffect(() => {
         fetchCart();
-    }, [fetchCart]);
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
