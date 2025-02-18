@@ -3,23 +3,23 @@ import { Button, Typography, Stack, List, ListItem, ListItemText, Divider } from
 import { CartContext } from './CartContext';
 
 function Order() {
-    const { localCart, fetchCart, removeItemFromCart } = useContext(CartContext);
+    const { localCart, fetchCart, removeItemFromCart, saveCartToDatabase } = useContext(CartContext);
 
-    // Fetch the current order from the backend
     useEffect(() => {
         fetchCart();
     }, [fetchCart]);
 
-    // Function to submit the order
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch('http://localhost:2810/api/order/submit', {
+        fetch('http://localhost:8080/api/orders', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(localCart),
         })
             .then(response => response.json())
-            .then(data => console.log('Order submitted:', data))
+            .then(data => {
+                console.log('Order submitted:', data);
+            })
             .catch(err => console.error('Error submitting order:', err));
     };
 
