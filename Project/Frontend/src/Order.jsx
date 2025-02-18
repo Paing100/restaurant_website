@@ -6,6 +6,7 @@ function Order() {
     const { localCart, fetchCart, removeItemFromCart, clearCart } = useContext(CartContext);
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
+    const [severity, setSeverity] = useState('success');
 
     useEffect(() => {
         fetchCart();
@@ -17,15 +18,16 @@ function Order() {
         if (!localCart.orderedItems || Object.keys(localCart.orderedItems).length === 0) {
             console.error("Error: Cart is empty. Cannot submit order.");
             setMessage("Error: Cart is empty. Cannot submit order.");
+            setSeverity('error');
             setOpen(true);
             return;
         }
 
         // Use a temporary customer if no actual customer info exists
         const tempCustomer = {
-            customerId: 'temp12345', // Temporary customer ID
-            name: 'Guest User',      // Temporary name
-            email: 'guest@domain.com' // Temporary email
+            customerId: 'temp12345',
+            name: 'Guest User',
+            email: 'guest@domain.com'
         };
 
         // Convert orderedItems into the expected array format
@@ -57,11 +59,13 @@ function Order() {
             console.log('Order submitted successfully:', data);
 
             setMessage('Order submitted successfully!');
+            setSeverity('success');
             setOpen(true);
             clearCart();
         } catch (err) {
             console.error('Error submitting order:', err.message);
             setMessage(`Error submitting order: ${err.message}`);
+            setSeverity('error');
             setOpen(true);
         }
     };
@@ -82,8 +86,7 @@ function Order() {
                             <CardMedia
                                 component="img"
                                 height="50"
-                                image={imagePath}
-                                alt={itemName}
+                                image={"Project\Frontend\src\assets\+" + itemName + ".jpg"}
                                 sx={{ marginRight: 2, width: 50 }}
                             />
                             <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
@@ -107,7 +110,7 @@ function Order() {
                 </Grid>
             </form>
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
                     {message}
                 </Alert>
             </Snackbar>

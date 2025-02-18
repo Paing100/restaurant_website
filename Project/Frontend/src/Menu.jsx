@@ -25,39 +25,39 @@ function Menu() {
     setSelectedTab(newValue);
   };
   const handleFilterChange = (event) => {
-  const { dietaryRestrictions, allergens } = event.target.value;
-  setSelectedFilter(dietaryRestrictions);
+    const { dietaryRestrictions, allergens } = event.target.value;
+    setSelectedFilter(dietaryRestrictions);
 
-  fetch('http://localhost:8080/Menu/filter', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      customer_id: "1",
-      dietary_restrictions: dietaryRestrictions.join(','),
-      allergens: allergens.join(',')
+    fetch('http://localhost:8080/Menu/filter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer_id: "1",
+        dietary_restrictions: dietaryRestrictions.join(','),
+        allergens: allergens.join(',')
+      })
     })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (!Array.isArray(data)) {
-      console.error("Unexpected API response structure:", data);
-      setMenuItems([]);
-      return;
-    }
+      .then(response => response.json())
+      .then(data => {
+        if (!Array.isArray(data)) {
+          console.error("Unexpected API response structure:", data);
+          setMenuItems([]);
+          return;
+        }
 
-    setMenuItems(data);
-  })
-  .catch(err => {
-    console.error('Error fetching filtered menu:', err);
-    setMenuItems([]);
-  });
-};
+        setMenuItems(data);
+      })
+      .catch(err => {
+        console.error('Error fetching filtered menu:', err);
+        setMenuItems([]);
+      });
+  };
 
 
   return (
     <>
-    <Box sx={{ padding: 3 }}>
-        <Filter 
+      <Box sx={{ padding: 3 }}>
+        <Filter
           selectedFilter={selectedFilter}
           onFilterChange={handleFilterChange}
         />
@@ -73,7 +73,7 @@ function Menu() {
           ))}
         </Tabs>
         {menuItems === null ? (
-        <Typography>Loading ...</Typography>
+          <Typography>Loading ...</Typography>
         ) : menuItems.length === 0 ? (
           <Typography>No matching items found.</Typography>
         ) : (

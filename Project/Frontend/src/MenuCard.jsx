@@ -1,4 +1,4 @@
-import { Card, CardActionArea, CardContent, Typography, CardMedia, Button } from "@mui/material";
+import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box } from "@mui/material";
 import PropTypes from 'prop-types';
 import { useContext } from 'react';
 import { CartContext } from './CartContext';
@@ -11,34 +11,36 @@ function MenuCard({ item }) {
   };
 
   return (
-    <Card>
-      <CardActionArea>
+    <Card sx={{ height: '100%' }}>
+      <CardActionArea sx={{ height: '100%' }}>
         <CardMedia
           component="img"
           height="200"
           image={item.imagePath}
           alt={item.name}
         />
-        <CardContent>
-          <Typography variant="h6">{item.name}</Typography>
-          <Typography variant="body2" color="textSecondary">
-            {item.description}
-          </Typography>
-          <Typography variant="subtitle1" sx={{ marginTop: 1 }}>
-            Price: {item.price}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Calories: {item.calories} kcal
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Allergies: {item.allergens.join(", ")}
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Dietary Restrictions: {item.dietaryRestrictions.join(", ")}
-          </Typography>
+        <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 'calc(100% - 200px)' }}>
+          <Box>
+            <Typography variant="h6">{item.name}</Typography>
+            <Typography variant="body2" color="textSecondary">
+              {item.description}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ marginTop: 1 }}>
+              Price: {item.price}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Calories: {item.calories} kcal
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Allergies: {item.allergens.join(", ")}
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Dietary Restrictions: {item.dietaryRestrictions.join(", ")}
+            </Typography>
+          </Box>
           <Button
             variant="contained"
-            color="primary"
+            color="light"
             sx={{ marginTop: 2 }}
             onClick={handleAddToCart}
           >
@@ -52,7 +54,7 @@ function MenuCard({ item }) {
 
 MenuCard.propTypes = {
   item: PropTypes.shape({
-    img: PropTypes.string.isRequired,
+    imagePath: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
