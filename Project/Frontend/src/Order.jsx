@@ -32,14 +32,14 @@ function Order() {
                     const itemTotal = price * quantity;
                     return (
                         <ListItem key={itemName}>
-                            <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: $${itemTotal.toFixed(2)}`} />
+                            <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
                             <Button onClick={() => removeItemFromCart({ name: itemName, price })} color="secondary">Remove</Button>
                         </ListItem>
                     );
                 })}
             </List>
             <Divider />
-            <Typography variant="h6" sx={{ marginTop: 2 }}>Total Price: ${localCart.totalPrice.toFixed(2)}</Typography>
+            <Typography variant="h6" sx={{ marginTop: 2 }}>Total Price: £{localCart.totalPrice.toFixed(2)}</Typography>
             <form onSubmit={handleSubmit}>
                 <Stack spacing={2} sx={{ marginTop: 2 }}>
                     <Button type="submit" variant="contained" color="primary">Submit Order</Button>
