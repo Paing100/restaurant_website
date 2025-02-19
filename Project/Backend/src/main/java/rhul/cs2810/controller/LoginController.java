@@ -14,12 +14,21 @@ import org.springframework.web.bind.annotation.RestController;
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.service.EmployeeService;
 
+/**
+ * A class responsible for login related operations.
+ */
 @RestController
 @RequestMapping("/auth")
 public class LoginController {
   @Autowired
   private EmployeeService employeeService;
 
+  /**
+   * Log an employee in using credentials (employeeId and password)
+   *
+   * @param employee An Employee object with employeeId and password for login
+   * @return ResponseEntity with status OK
+   */
   @PostMapping("/login")
   public ResponseEntity<Map<String, String>> login(@RequestBody Employee employee) {
     String employeeIdString = employee.getEmployeeId();
@@ -43,6 +52,12 @@ public class LoginController {
     }
   }
 
+  /**
+   * Register a new employee to the system.
+   *
+   * @param employee An Employee object
+   * @return ResponseEntity with status OK
+   */
   @PostMapping("/register")
   public ResponseEntity<Map<String, String>> register(@RequestBody Employee employee) {
     boolean created = employeeService.registerUser(employee);
@@ -51,6 +66,8 @@ public class LoginController {
       response.put("message", "Register Successful");
       response.put("firstName", employee.getFirstName());
       response.put("role", employee.getRole());
+      response.put("employeeId", employee.getEmployeeId());
+
       return ResponseEntity.ok(response);
     } else {
       response.put("message", "Something went wrong!");
