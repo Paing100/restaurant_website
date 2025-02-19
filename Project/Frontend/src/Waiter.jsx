@@ -17,19 +17,19 @@ function Waiter() {
       setOrders([
         {
           orderId: 101,
-          customer: { name: "Carlos Mendoza" },
+          customer: { name: "Carlos Mendoza", tableNumber: 5 },
           orderedItems: [{ name: "Tacos al Pastor", quantity: 3, price: 9.99 }],
           totalPrice: 29.97,
         },
         {
           orderId: 102,
-          customer: { name: "Maria Lopez" },
+          customer: { name: "Maria Lopez", tableNumber: 2 },
           orderedItems: [{ name: "Birria Tacos", quantity: 2, price: 12.99 }],
           totalPrice: 25.98,
         },
         {
           orderId: 103,
-          customer: { name: "Alejandro Rivera" },
+          customer: { name: "Alejandro Rivera", tableNumber: 7 },
           orderedItems: [
             { name: "Chiles Rellenos", quantity: 1, price: 11.99 },
             { name: "Horchata", quantity: 1, price: 3.99 },
@@ -38,7 +38,7 @@ function Waiter() {
         },
         {
           orderId: 104,
-          customer: { name: "Sofia Martinez" },
+          customer: { name: "Sofia Martinez", tableNumber: 3 },
           orderedItems: [
             { name: "Enchiladas Verdes", quantity: 1, price: 10.99 },
             { name: "Flan", quantity: 1, price: 4.99 },
@@ -65,7 +65,7 @@ function Waiter() {
         {orders.map((order) => (
           <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
             <ListItemText
-              primary={`Order #${order.orderId} - ${order.customer.name}`}
+              primary={`Order #${order.orderId} - ${order.customer.name} (Table ${order.customer.tableNumber})`}
               secondary={order.orderedItems
                 .map((item) => `${item.name} x${item.quantity}`)
                 .join(", ")}
