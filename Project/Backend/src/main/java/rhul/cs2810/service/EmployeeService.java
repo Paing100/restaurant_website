@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
 
+/**
+ * A class containing business logic of the employee login system.
+ */
 @Service
 public class EmployeeService {
   @Autowired
@@ -17,15 +20,28 @@ public class EmployeeService {
   @Autowired
   private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+  /**
+   * A constructor with two parameters.
+   *
+   * @param userRepository CRUD repository for Employee class
+   * @param bCryptPasswordEncoder Encoder for the password
+   */
   @Autowired
-  public EmployeeService(EmployeeRepository userRepository,
+  public EmployeeService(EmployeeRepository employeeRepository,
       BCryptPasswordEncoder bCryptPasswordEncoder) {
-    this.employeeRepository = userRepository;
+    this.employeeRepository = employeeRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
   }
 
-  public Optional<Employee> authenticateUser(String userId, String password) {
-    Optional<Employee> userOptional = employeeRepository.findByEmployeeId(userId);
+  /**
+   * Authenticate an employee based on employeeId and password.
+   *
+   * @param employeeId the id of the employee
+   * @param password the password of the employee
+   * @return Employee if employeeId matches. Otherwise, empty Optional
+   */
+  public Optional<Employee> authenticateUser(String employeeId, String password) {
+    Optional<Employee> userOptional = employeeRepository.findByEmployeeId(employeeId);
 
     if (userOptional.isPresent()) {
       Employee user = userOptional.get();
@@ -36,6 +52,12 @@ public class EmployeeService {
     return Optional.empty();
   }
 
+  /**
+   * Register user with all the details or change the password of a user.
+   *
+   * @param employee An employee object
+   * @return true if all details are present or false if not
+   */
   public boolean registerUser(Employee employee) {
     String idString = employee.getEmployeeId();
     String passwString = employee.getPassword();
