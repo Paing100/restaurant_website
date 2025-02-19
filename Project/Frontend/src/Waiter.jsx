@@ -5,6 +5,7 @@ import { Button } from "@mui/material";
 
 function Waiter() {
   const [orders, setOrders] = useState([]);
+  const [deliveredOrders, setDeliveredOrders] = useState([]);
 
   const fetchOrders = async () => {
     try {
@@ -20,12 +21,14 @@ function Waiter() {
           customer: { name: "Carlos Mendoza", tableNumber: 5 },
           orderedItems: [{ name: "Tacos al Pastor", quantity: 3, price: 9.99 }],
           totalPrice: 29.97,
+          delivered: false,
         },
         {
           orderId: 102,
           customer: { name: "Maria Lopez", tableNumber: 2 },
           orderedItems: [{ name: "Birria Tacos", quantity: 2, price: 12.99 }],
           totalPrice: 25.98,
+          delivered: false,
         },
         {
           orderId: 103,
@@ -35,6 +38,7 @@ function Waiter() {
             { name: "Horchata", quantity: 1, price: 3.99 },
           ],
           totalPrice: 15.98,
+          delivered: false,
         },
         {
           orderId: 104,
@@ -44,6 +48,7 @@ function Waiter() {
             { name: "Flan", quantity: 1, price: 4.99 },
           ],
           totalPrice: 15.98,
+          delivered: false,
         },
       ]);
     }
@@ -54,32 +59,63 @@ function Waiter() {
   }, []);
 
   const markAsDelivered = (orderId) => {
-    console.log(`Marked order ${orderId} as delivered`);
-    setOrders((prev) => prev.filter((order) => order.orderId !== orderId));
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.orderId === orderId ? { ...order, delivered: true } : order
+      )
+    );
   };
 
   return (
     <Box>
       <Typography variant="h4">Waiter Dashboard</Typography>
+
+      <Typography variant="h5" sx={{ mt: 2 }}>
+        Active Orders
+      </Typography>
       <List>
-        {orders.map((order) => (
-          <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
-            <ListItemText
-              primary={`Order #${order.orderId} - ${order.customer.name} (Table ${order.customer.tableNumber})`}
-              secondary={order.orderedItems
-                .map((item) => `${item.name} x${item.quantity}`)
-                .join(", ")}
-            />
-            <Typography variant="body2">£{order.totalPrice.toFixed(2)}</Typography>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => markAsDelivered(order.orderId)}
-            >
-              Mark as Delivered
-            </Button>
-          </ListItem>
-        ))}
+        {orders
+          .filter((order) => !order.delivered)
+          .map((order) => (
+            <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
+              <ListItemText
+                primary={`Order #${order.orderId} - ${order.customer.name} (Table ${order.customer.tableNumber})`}
+                secondary={order.orderedItems
+                  .map((item) => `${item.name} x${item.quantity}`)
+                  .join(", ")}
+              />
+              <Typography variant="body2">£{order.totalPrice.toFixed(2)}</Typography>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => markAsDelivered(order.orderId)}
+              >
+                Mark as Delivered
+              </Button>
+            </ListItem>
+          ))}
+      </List>
+
+      <Typography variant="h5" sx={{ mt: 2 }}>
+        Delivered Orders
+      </Typography>
+      <List>
+        {orders
+          .filter((order) => order.delivered)
+          .map((order) => (
+            <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
+              <ListItemText
+                primary={`Order #${order.orderId} - ${order.customer.name} (Table ${order.customer.tableNumber})`}
+                secondary={order.orderedItems
+                  .map((item) => `${item.name} x${item.quantity}`)
+                  .join(", ")}
+              />
+              <Typography variant="body2">£{order.totalPrice.toFixed(2)}</Typography>
+              <Button variant="contained" color="secondary" disabled>
+                Delivered
+              </Button>
+            </ListItem>
+          ))}
       </List>
     </Box>
   );
