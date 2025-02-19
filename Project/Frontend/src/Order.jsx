@@ -86,7 +86,7 @@ function Order() {
                             <CardMedia
                                 component="img"
                                 height="50"
-                                image={"Project\Frontend\src\assets\+" + itemName + ".jpg"}
+                                image="src/assets/flan.jpg"
                                 sx={{ marginRight: 2, width: 50 }}
                             />
                             <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />

@@ -24,7 +24,8 @@ export const CartProvider = ({ children }) => {
                 ...prevCart.orderedItems,
                 [item.name]: {
                     quantity: (prevCart.orderedItems[item.name]?.quantity || 0) + 1,
-                    price: item.price
+                    price: item.price,
+                    imagePath: item.imagePath
                 }
             };
             const updatedTotalPrice = prevCart.totalPrice + item.price;
