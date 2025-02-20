@@ -88,7 +88,7 @@ function Order() {
                                 image={imagePath}
                                 sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
                             />
-                            <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
+                            <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} sx={{color: 'white'}} />
                             <Button
                                 onClick={() => removeItemFromCart({ name: itemName, price })}
                                 sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}

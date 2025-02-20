@@ -40,8 +40,8 @@ function Filter({ selectedFilter, onFilterChange }) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 2 }}>
-      <FormControl fullWidth variant="outlined" sx={{ width: 400 }}>
-        <InputLabel>Dietary Restrictions</InputLabel>
+      <FormControl fullWidth variant="outlined" sx={{ width: 400, backgroundColor: '#3c3a3a', border: '1px solid #5762d5', borderRadius: '4px' }}>
+        <InputLabel sx={{ color: '#5762d5' }}>Dietary Restrictions</InputLabel>
         <Select
           multiple
           value={selectedDietary}
@@ -56,8 +56,8 @@ function Filter({ selectedFilter, onFilterChange }) {
         </Select>
       </FormControl>
 
-      <FormControl fullWidth variant="outlined" sx={{ width: 400 }}>
-        <InputLabel>Allergens</InputLabel>
+      <FormControl fullWidth variant="outlined" sx={{ width: 400, backgroundColor: '#3c3a3a', border: '1px solid #5762d5', borderRadius: '4px' }}>
+        <InputLabel sx={{ color: '#5762d5' }}>Allergens</InputLabel>
         <Select
           multiple
           value={selectedAllergens}
@@ -74,8 +74,8 @@ function Filter({ selectedFilter, onFilterChange }) {
       </FormControl>
 
       <Box sx={{ display: "flex", gap: 2 }}>
-        <Button variant="contained" onClick={handleApplyFilter}>Filter</Button>
-        <Button variant="outlined" onClick={handleClearFilters}>Reset</Button>
+        <Button variant="contained" sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }} onClick={handleApplyFilter}>Filter</Button>
+        <Button variant="outlined" sx={{ borderColor: '#5762d5', color: '#5762d5', '&:hover': { borderColor: 'darkgray', color: 'darkgray' } }} onClick={handleClearFilters}>Reset</Button>
       </Box>
     </Box>
   );

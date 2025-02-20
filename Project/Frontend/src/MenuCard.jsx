@@ -11,7 +11,7 @@ function MenuCard({ item }) {
   };
 
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card sx={{ height: '100%', backgroundColor: '#3c3a3a', color: 'white' }}>
       <CardActionArea sx={{ height: '100%' }}>
         <CardMedia
           component="img"
@@ -21,27 +21,26 @@ function MenuCard({ item }) {
         />
         <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 'calc(100% - 200px)' }}>
           <Box>
-            <Typography variant="h6">{item.name}</Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="h6" sx={{ color: 'white' }}>{item.name}</Typography>
+            <Typography variant="body2" sx={{ color: 'lightgray' }}>
               {item.description}
             </Typography>
-            <Typography variant="subtitle1" sx={{ marginTop: 1 }}>
+            <Typography variant="subtitle1" sx={{ marginTop: 1, color: 'white' }}>
               Price: {item.price}
             </Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" sx={{ color: 'lightgray' }}>
               Calories: {item.calories} kcal
             </Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" sx={{ color: 'lightgray' }}>
               Allergies: {item.allergens.join(", ")}
             </Typography>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" sx={{ color: 'lightgray' }}>
               Dietary Restrictions: {item.dietaryRestrictions.join(", ")}
             </Typography>
           </Box>
           <Button
             variant="contained"
-            color="primary"
-            sx={{ marginTop: 2 }}
+            sx={{ marginTop: 2, backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
             onClick={handleAddToCart}
           >
             Add to Cart

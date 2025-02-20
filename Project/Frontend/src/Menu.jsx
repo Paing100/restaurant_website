@@ -65,8 +65,16 @@ function Menu() {
           value={selectedTab}
           onChange={handleTabChange}
           centered
-          textColor="primary"
-          indicatorColor="primary"
+          textColor="inherit"
+          TabIndicatorProps={{ style: { backgroundColor: '#5762d5' } }}
+          sx={{
+            '& .MuiTab-root': {
+              color: 'white',
+            },
+            '& .Mui-selected': {
+              color: '#5762d5',
+            },
+          }}
         >
           {categories.map((category, index) => (
             <Tab key={index} label={category} />
