@@ -74,14 +74,14 @@ function Order() {
     };
 
     return (
-        <Box>
+        <Box sx={{ padding: 3 }}>
             <Typography sx={{ padding: '15px' }} variant="h4">Place Your Order</Typography>
-            <Typography variant="h5" sx={{ marginTop: 4 }}>Ordered Items</Typography>
+            <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom : '1px solid #333'}}>Ordered Items</Typography>
             <List>
                 {Object.entries(localCart.orderedItems).map(([itemName, { quantity, price, imagePath }]) => {
                     const itemTotal = price * quantity;
                     return (
-                        <ListItem key={itemName}>
+                        <ListItem key={itemName} sx={{ borderBottom: '1px solid #333' }}>
                             <CardMedia
                                 component="img"
                                 height="50"
