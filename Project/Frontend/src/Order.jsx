@@ -25,7 +25,7 @@ function Order() {
 
         const customerResponse = await fetch('http://localhost:8080/customers');
         if (!customerResponse.ok) {
-            console.log("ERROR")
+            console.log("ERROR");
         }
         const customer = await customerResponse.json();
 
@@ -89,7 +89,12 @@ function Order() {
                                 sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
                             />
                             <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
-                            <Button onClick={() => removeItemFromCart({ name: itemName, price })} color="secondary">Remove</Button>
+                            <Button
+                                onClick={() => removeItemFromCart({ name: itemName, price })}
+                                sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                            >
+                                Remove
+                            </Button>
                         </ListItem>
                     );
                 })}
@@ -99,12 +104,25 @@ function Order() {
             <form onSubmit={handleSubmit}>
                 <Grid container spacing={2} sx={{ marginTop: 2 }}>
                     <Grid item xs={6}>
-                        <Box sx={{ border: '1px solid blue', borderRadius: 1 }}>
-                            <Button onClick={() => clearCart()} color="primary" fullWidth>Clear Cart</Button>
+                        <Box sx={{}}>
+                            <Button
+                                onClick={() => clearCart()}
+                                sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                                fullWidth
+                            >
+                                Clear Cart
+                            </Button>
                         </Box>
                     </Grid>
                     <Grid item xs={6}>
-                        <Button type="submit" variant="contained" color="primary" fullWidth>Submit Order</Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                            fullWidth
+                        >
+                            Submit Order
+                        </Button>
                     </Grid>
                 </Grid>
             </form>
