@@ -91,7 +91,7 @@ function Order() {
                             <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
                             <Button
                                 onClick={() => removeItemFromCart({ name: itemName, price })}
-                                sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                             >
                                 Remove
                             </Button>
@@ -107,7 +107,7 @@ function Order() {
                         <Box sx={{}}>
                             <Button
                                 onClick={() => clearCart()}
-                                sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                                 fullWidth
                             >
                                 Clear Cart
@@ -118,7 +118,7 @@ function Order() {
                         <Button
                             type="submit"
                             variant="contained"
-                            sx={{ backgroundColor: 'black', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                            sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                             fullWidth
                         >
                             Submit Order
