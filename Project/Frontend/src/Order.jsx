@@ -75,7 +75,7 @@ function Order() {
 
     return (
         <Box>
-            <Typography variant="h4">Place Your Order</Typography>
+            <Typography sx={{ padding: '15px' }} variant="h4">Place Your Order</Typography>
             <Typography variant="h5" sx={{ marginTop: 4 }}>Ordered Items</Typography>
             <List>
                 {Object.entries(localCart.orderedItems).map(([itemName, { quantity, price, imagePath }]) => {
@@ -88,7 +88,7 @@ function Order() {
                                 image={imagePath}
                                 sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
                             />
-                            <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} sx={{color: 'white'}} />
+                            <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} sx={{ color: 'white' }} />
                             <Button
                                 onClick={() => removeItemFromCart({ name: itemName, price })}
                                 sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
