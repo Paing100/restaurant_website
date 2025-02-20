@@ -13,7 +13,7 @@ INSERT INTO allergens (name, description) VALUES
 ('EGG', 'Eggs and egg-based products');
 
 INSERT INTO menu_item (name, description, price, available, calories, category, image_path) VALUES
-('Agua de Jamaica', 'Refreshing hibiscus flower tea, lightly sweetened', 3.99, TRUE, 90, 3, 'src/assets/guac.png'),
+('Agua de Jamaica', 'Refreshing hibiscus flower tea, lightly sweetened', 3.99, TRUE, 90, 3, 'src/assets/agua_dejamaica.jpg'),
 ('Birria Tacos', 'Slow-cooked beef tacos served with consommé for dipping', 12.99, TRUE, 750, 1, 'src/assets/birra_tacos.jpg'),
 ('Capirotada', 'Traditional Mexican bread pudding with cinnamon and raisins', 6.99, TRUE, 500, 2, 'src/assets/capirotada.jpg'),
 ('Chile Relleno', 'Poblano pepper stuffed with cheese, battered, and fried', 11.99, TRUE, 750, 1, 'src/assets/chile_relleno.jpg'),
