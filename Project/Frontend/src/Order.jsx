@@ -23,8 +23,8 @@ function Order() {
             return;
         }
 
-        const customerResponse = await fetch('http://localhost:8080/customers'); 
-        if (!customerResponse.ok){
+        const customerResponse = await fetch('http://localhost:8080/customers');
+        if (!customerResponse.ok) {
             console.log("ERROR")
         }
         const customer = await customerResponse.json();
@@ -37,7 +37,7 @@ function Order() {
         }));
 
         const orderData = {
-            customer: customer, 
+            customer: customer,
             orderedItems: orderedItemsArray,
         };
 
@@ -85,8 +85,8 @@ function Order() {
                             <CardMedia
                                 component="img"
                                 height="50"
-                                image="src/assets/flan.jpg"
-                                sx={{ marginRight: 2, width: 50 }}
+                                image={imagePath}
+                                sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
                             />
                             <ListItemText primary={`${itemName} x${quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} />
                             <Button onClick={() => removeItemFromCart({ name: itemName, price })} color="secondary">Remove</Button>

@@ -18,9 +18,28 @@ a {
     color: inherit;
 }
 
-button {
+button,
+.btn {
     font-family: 'Roboto', sans-serif;
     cursor: pointer;
+    background-color: #d3d3d3;
+    /* Light grey background */
+    color: #333;
+    /* Dark grey text color */
+    border: 1px solid #d3d3d3;
+    /* Light grey border */
+}
+
+button:hover,
+.btn:hover,
+button:focus,
+.btn:focus,
+button:active,
+.btn:active {
+    background-color: #b0b0b0;
+    /* Darker grey on hover, focus, and active */
+    border-color: #b0b0b0;
+    /* Darker grey border on hover, focus, and active */
 }
 
 h1,
@@ -36,5 +55,21 @@ h6 {
 .container {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 0 15px;
+}
+
+nav {
+    width: 100%;
+    background-color: #333;
+    padding: 10px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    width: 100%;
+    max-width: 100%;
     padding: 0 15px;
 }
