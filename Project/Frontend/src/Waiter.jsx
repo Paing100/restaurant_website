@@ -3,7 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Typography, List, ListItem, ListItemText, Box } from "@mui/material";
 import { Button } from "@mui/material";
 
-function Waiter() {
+
+function Waiter() {  
+  const userName = localStorage.getItem("userName");
+  const userRole = localStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
   const [deliveredOrders, setDeliveredOrders] = useState([]);
 
@@ -67,9 +70,9 @@ function Waiter() {
   };
 
   return (
-    <Box>
-      <Typography variant="h4">Waiter Dashboard</Typography>
-
+    <Box>      
+      <Typography variant="h3">Welcome {userName}!</Typography>
+      <Typography variant="h4">{userRole} Dashboard</Typography>
       <Typography variant="h5" sx={{ mt: 2 }}>
         Active Orders
       </Typography>
