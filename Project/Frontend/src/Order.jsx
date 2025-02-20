@@ -23,12 +23,11 @@ function Order() {
             return;
         }
 
-        // Use a temporary customer if no actual customer info exists
-        const tempCustomer = {
-            customerId: 'temp12345',
-            name: 'Guest User',
-            email: 'guest@domain.com'
-        };
+        const customerResponse = await fetch('http://localhost:8080/customers'); 
+        if (!customerResponse.ok){
+            console.log("ERROR")
+        }
+        const customer = await customerResponse.json();
 
         // Convert orderedItems into the expected array format
         const orderedItemsArray = Object.entries(localCart.orderedItems).map(([name, item]) => ({
@@ -38,7 +37,7 @@ function Order() {
         }));
 
         const orderData = {
-            customer: tempCustomer, // Use the temporary customer
+            customer: customer, 
             orderedItems: orderedItemsArray,
         };
 
