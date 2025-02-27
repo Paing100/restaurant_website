@@ -129,8 +129,8 @@ public class MenuItemTest {
     assertEquals(0.0, menuItem.getPrice());
     assertEquals(0, menuItem.getCalories());
     assertFalse(menuItem.isAvailable());
-    assertNull(menuItem.getAllergens());
-    assertNull(menuItem.getDietaryRestrictions());
+    assertTrue(menuItem.getAllergens().isEmpty());
+    assertTrue(menuItem.getDietaryRestrictions().isEmpty());
 
   }
 

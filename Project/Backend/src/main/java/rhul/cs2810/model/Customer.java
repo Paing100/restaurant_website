@@ -1,100 +1,75 @@
 package rhul.cs2810.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 /**
  * Represents a customer in the restaurant system.
  */
+@Entity
+@Table(name = "customer")
 public class Customer {
 
-  int customerID;
-  List<MenuItem> menuItems;
-  Order order;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "customer_id")
+  private int customerId;
+
+  @Column(name = "name")
+  private String name;
+
+  @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @JsonManagedReference
+  private Order order;
+
+  public Customer() {}
 
   /**
-   * Constructs a Customer with specified order number, ordered items, menu items.
+   * Constructs a Customer with specified name.
    *
-   * @param menuItems the list of available menu items
+   * @param name the name of customer
    */
-  public Customer(List<MenuItem> menuItems) {
-    this.menuItems = menuItems;
+  public Customer(String name) {
+    this.name = name;
   }
 
-  /**
-   * Constructs a Customer with an empty order list.
-   */
-  public Customer() {
-    this.menuItems = new ArrayList<>();
+  public String getName() {
+    return name;
   }
 
-  /**
-   * Gets the list of available menu items.
-   *
-   * @return the list of menu items
-   */
-  public List<MenuItem> getMenuItems() {
-    return menuItems;
+  public void setName(String name) {
+    this.name = name;
   }
 
-  /**
-   * Sets the list of available menu items.
-   *
-   * @param menuItems the list of menu items to set
-   */
-  public void setMenuItems(List<MenuItem> menuItems) {
-    this.menuItems = menuItems;
-  }
-
-
-  /**
-   * Filters the menu based on dietary restrictions and allergens.
-   *
-   * @param dietaryRestrictions the set of dietary restrictions
-   * @param allergens the set of allergens
-   * @return a list of menu items that meet the dietary restrictions
-   */
-  public List<MenuItem> filterMenu(Set<DietaryRestrictions> dietaryRestrictions,
-      Set<Allergen> allergens) {
-
-    if (dietaryRestrictions == null && allergens == null) {
-      return this.menuItems;
-    }
-
-    List<MenuItem> filteredMenuItems = new ArrayList<>();
-    for (MenuItem item : this.menuItems) {
-      boolean add = true;
-      if (dietaryRestrictions != null) {
-        add = add && item.getDietaryRestrictions().equals(dietaryRestrictions);
-      }
-
-      if (allergens != null) {
-        add = add && !item.getAllergens().equals(allergens);
-      }
-      if (add) {
-        filteredMenuItems.add(item);
-      }
-    }
-    return filteredMenuItems;
-  }
-
-  /**
-   * Get the order from the customer.
-   *
-   * @return order in order
-   */
   public Order getOrder() {
     return order;
   }
 
-  /**
-   * Set the order for the customer.
-   * 
-   * @param order made by the customer
-   */
   public void setOrder(Order order) {
     this.order = order;
   }
+
+  public int getCustomerId() {
+    return customerId;
+  }
+
+  /*
+   * @Override public boolean equals(Object o) { if (this == o) return true; if (o == null ||
+   * getClass() != o.getClass()) return false; Customer customer = (Customer) o; return customerId
+   * == customer.customerId && Objects.equals(name, customer.name); }
+   * 
+   * @Override public int hashCode() { return Objects.hash(customerId, name); }
+   * 
+   */
+
 
 }

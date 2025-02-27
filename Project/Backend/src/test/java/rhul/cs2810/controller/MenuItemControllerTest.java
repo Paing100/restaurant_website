@@ -1,0 +1,97 @@
+package rhul.cs2810.controller;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import rhul.cs2810.model.MenuItem;
+import rhul.cs2810.repository.MenuItemRepository;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+public class MenuItemControllerTest {
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  private MenuItemRepository menuItemRepository;
+
+  @BeforeEach
+  void setUp() {
+    menuItemRepository.deleteAll(); // Clear repository before each test
+  }
+
+  @AfterEach
+  void tearDown() {
+    menuItemRepository.deleteAll(); // Ensure clean state after each test
+  }
+
+  @Test
+  void addMenuItemTest() throws Exception {
+    Map<String, String> params = new HashMap<>();
+    params.put("name", "Big Stew Pot");
+    params.put("description", "It's a big stew pot.");
+    params.put("price", "20.0");
+    params.put("allergens", "EGG,DAIRY");
+    params.put("calories", "700");
+    params.put("dietaryRestrictions", "GLUTENFREE");
+    params.put("available", "true");
+    params.put("imagePath", "/images/stew.jpg");
+    params.put("category", "1");
+
+    MvcResult action = mockMvc
+        .perform(post("/MenuItems/addMenuItem").contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(params)).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andReturn();
+
+    // Deserialize response
+    MenuItem testItem =
+        objectMapper.readValue(action.getResponse().getContentAsString(), MenuItem.class);
+
+    assertNotNull(testItem, "Returned MenuItem should not be null");
+    assertEquals("Big Stew Pot", testItem.getName(), "Name mismatch");
+    assertEquals("It's a big stew pot.", testItem.getDescription(), "Description mismatch");
+    assertEquals(20.0, testItem.getPrice(), "Price mismatch");
+    assertEquals(700, testItem.getCalories(), "Calories mismatch");
+    assertFalse(testItem.getAllergens().isEmpty(), "Allergens list should not be empty");
+    assertEquals("/images/stew.jpg", testItem.getImagePath(), "Image path mismatch");
+    assertEquals(1, testItem.getCategory(), "Category mismatch");
+  }
+
+  @Test
+  void getMenuTest() throws Exception {
+    menuItemRepository
+        .save(new MenuItem("Guacamole", "Classic dip", 5.99, null, 150, null, true, null, 1));
+    menuItemRepository
+        .save(new MenuItem("Chili", "Spicy stew", 10.99, null, 300, null, true, null, 2));
+
+    MvcResult action = mockMvc.perform(get("/MenuItems").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andReturn();
+
+    List<?> menuItems =
+        objectMapper.readValue(action.getResponse().getContentAsString(), List.class);
+
+    assertEquals(2, menuItems.size(), "Menu should contain exactly 2 items");
+  }
+}

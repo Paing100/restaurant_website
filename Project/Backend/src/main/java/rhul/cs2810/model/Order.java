@@ -1,118 +1,112 @@
 package rhul.cs2810.model;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 /**
  * Represents an Order class to handle customers orders.
  */
+@Entity
+@Table(name = "orders")
 public class Order {
-  int orderId;
-  Customer customer;
-  Map<MenuItem, Integer> orderedItems;
-  double totalPrice;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "order_id")
+  private int orderId;
 
-  /**
-   * Creates an order object with empty hashmap.
-   */
-  public Order() {
-    this.orderedItems = new HashMap<>();
-  }
+  @OneToOne
+  @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
+  @JsonBackReference
+  private Customer customer;
 
-  /**
-   * Creates an order object with customer object and menuitems.
-   *
-   * @param customer
-   * @param orderedItems
-   */
-  public Order(Customer customer, Map<MenuItem, Integer> orderedItems) {
+  @Column(name = "table_num", nullable = false)
+  private int tableNum;
+
+  @Column(name = "order_placed", columnDefinition = "TIMESTAMP")
+  private LocalDateTime orderPlaced;
+
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonManagedReference
+  private List<OrderMenuItem> orderMenuItems = new ArrayList<>();
+
+  public Order() {}
+
+  public Order(int tableNum, LocalDateTime orderPlaced, Customer customer) {
     this.customer = customer;
-    this.orderedItems = orderedItems;
-    this.totalPrice = calculateTotal();
+    this.orderPlaced = LocalDateTime.now();
+    this.tableNum = tableNum;
   }
 
-  /**
-   * Calculates the total price of the order.
-   *
-   * @return the total price in double
-   */
-  private double calculateTotal() {
-    totalPrice = 0;
-    for (Map.Entry<MenuItem, Integer> entry : orderedItems.entrySet()) {
-      totalPrice += entry.getKey().getPrice() * entry.getValue();
-    }
-    return totalPrice;
+  public int getOrderId() {
+    return orderId;
   }
 
-  /**
-   * Getter for customer.
-   *
-   * @return customer
-   */
   public Customer getCustomer() {
     return customer;
   }
 
-  /**
-   * Setter for customer.
-   *
-   * @param customer
-   */
   public void setCustomer(Customer customer) {
     this.customer = customer;
   }
 
-  /**
-   * Getter for ordered items.
-   *
-   * @return orderedItems as Map
-   */
-  public Map<MenuItem, Integer> getOrderedItems() {
-    return orderedItems;
+  public int getTableNum() {
+    return tableNum;
+  }
+
+  public void setTableNum(int tableNum) {
+    this.tableNum = tableNum;
+  }
+
+  public LocalDateTime getOrderPlaced() {
+    return orderPlaced;
+  }
+
+  public void setOrderPlaced(LocalDateTime orderPlaced) {
+    this.orderPlaced = orderPlaced;
+  }
+
+  public List<OrderMenuItem> getOrderMenuItems() {
+    return orderMenuItems;
+  }
+
+  public void setOrderMenuItems(List<OrderMenuItem> orderMenuItems) {
+    this.orderMenuItems = orderMenuItems;
   }
 
   /**
-   * Setter for ordered items.
+   * Adds a menu item to the order with a specified quantity.
    *
-   * @param orderedItems
+   * @param menuItem the menu item to add
+   * @param quantity the quantity of the item
    */
-  public void setOrderedItems(Map<MenuItem, Integer> orderedItems) {
-    this.orderedItems = orderedItems;
-    calculateTotal();
+  public void addItemToCart(MenuItem menuItem, int quantity) {
+    OrderMenuItem orderMenuItem = new OrderMenuItem(this, menuItem, quantity);
+    this.orderMenuItems.add(orderMenuItem);
   }
 
-  /**
-   * Getter for total price.
-   *
-   * @return total in double
+  /*
+   * @Override public boolean equals(Object o) { if (this == o) return true; if (o == null ||
+   * getClass() != o.getClass()) return false; Order order = (Order) o; return orderId ==
+   * order.orderId && tableNum == order.tableNum && Objects.equals(orderPlaced, order.orderPlaced);
+   * }
+   * 
+   * @Override public int hashCode() { return Objects.hash(orderId, tableNum, orderPlaced); }
+   * 
    */
-  public double getTotalPrice() {
-    return totalPrice;
-  }
-
-  /**
-   * Removes an item from the customer's cart.
-   *
-   * @param menuItem the menu item to remove
-   */
-  public void removeItemsFromCart(MenuItem menuItem) {
-    if (this.orderedItems.isEmpty()) {
-      return;
-    }
-    if (this.orderedItems.containsKey(menuItem)) {
-      this.orderedItems.remove(menuItem);
-    }
-  }
-
-  /**
-   * Adds an item to the customer's cart.
-   *
-   * @param newItem the menu item to add
-   */
-  public void addItemToCart(MenuItem newItem, int quantity) {
-    orderedItems.put(newItem, quantity);
-  }
-
 
 }
