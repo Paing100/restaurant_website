@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Grid, Box, Tabs, Tab, Typography} from "@mui/material";
+import { Grid, Box, Tabs, Tab, Typography } from "@mui/material";
 import MenuCard from './MenuCard.jsx'
 import Filter from './Filter.jsx'
 
@@ -9,15 +9,15 @@ function Menu() {
   const [selectedFilter, setSelectedFilter] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:2810/items')
+    fetch('http://localhost:8080/MenuItems')
       .then(response => response.json())
       .then(data => {
-          setMenuItems(data);
+        setMenuItems(data);
       })
-      .catch(err => console.error(err)); 
-}, []); 
+      .catch(err => console.error(err));
+  }, []);
 
-  
+
 
   const categories = ["Appetizers", "Mains", "Desserts", "Drinks"];
 
@@ -25,14 +25,38 @@ function Menu() {
     setSelectedTab(newValue);
   };
   const handleFilterChange = (event) => {
-    setSelectedFilter(event.target.value);
-    console.log('Selected Filters:', event.target.value); 
+    const { dietaryRestrictions, allergens } = event.target.value;
+    setSelectedFilter(dietaryRestrictions);
+
+    fetch('http://localhost:8080/Menu/filter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dietary_restrictions: dietaryRestrictions.join(','),
+        allergens: allergens.join(',')
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (!Array.isArray(data)) {
+          console.error("Unexpected API response structure:", data);
+          setMenuItems([]);
+          return;
+        }
+
+        setMenuItems(data);
+      })
+      .catch(err => {
+        console.error('Error fetching filtered menu:', err);
+        setMenuItems([]);
+      });
   };
+
 
   return (
     <>
-    <Box sx={{ padding: 3 }}>
-        <Filter 
+      <Box sx={{ padding: 3 }}>
+        <Filter
           selectedFilter={selectedFilter}
           onFilterChange={handleFilterChange}
         />
@@ -40,17 +64,25 @@ function Menu() {
           value={selectedTab}
           onChange={handleTabChange}
           centered
-          textColor="primary"
-          indicatorColor="primary"
+          textColor="inherit"
+          TabIndicatorProps={{ style: { backgroundColor: '#5762d5' } }}
+          sx={{
+            '& .MuiTab-root': {
+              color: 'white',
+            },
+            '& .Mui-selected': {
+              color: '#5762d5',
+            },
+          }}
         >
           {categories.map((category, index) => (
             <Tab key={index} label={category} />
           ))}
         </Tabs>
-        {menuItems.length === 0 ? (
-          <Typography>
-            Loading ...
-          </Typography>
+        {menuItems === null ? (
+          <Typography>Loading ...</Typography>
+        ) : menuItems.length === 0 ? (
+          <Typography>No matching items found.</Typography>
         ) : (
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
             {menuItems.filter((item) => item.category === selectedTab)

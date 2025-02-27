@@ -1,0 +1,79 @@
+package rhul.cs2810.controller;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.time.LocalDateTime;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import rhul.cs2810.model.Customer;
+import rhul.cs2810.repository.CustomerRepository;
+import rhul.cs2810.repository.OrderRepository;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+public class CustomerControllerTest {
+
+  @Autowired
+  private MockMvc mockMvc;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  private CustomerRepository customerRepository;
+
+  @Autowired
+  private OrderRepository orderRepository;
+
+  @BeforeEach
+  void setup() {
+    customerRepository.deleteAll();
+    orderRepository.deleteAll();
+  }
+
+  @Test
+  void addCustomerTest() throws Exception {
+    String name = "John Doe";
+    int tableNum = 5;
+
+    MvcResult result = mockMvc
+        .perform(post("/api/customers/add").param("name", name)
+            .param("tableNum", String.valueOf(tableNum)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andReturn();
+
+    // Parse response
+    Customer createdCustomer =
+        objectMapper.readValue(result.getResponse().getContentAsString(), Customer.class);
+
+    assertNotNull(createdCustomer);
+    assertNotNull(createdCustomer.getCustomerId());
+    assertEquals(name, createdCustomer.getName());
+
+    assertNotNull(createdCustomer.getOrder());
+    assertEquals(tableNum, createdCustomer.getOrder().getTableNum());
+    assertTrue(createdCustomer.getOrder().getOrderPlaced().isBefore(LocalDateTime.now()));
+  }
+
+  @Test
+  void getAllCustomersTest() throws Exception {
+    customerRepository.save(new Customer("Alice"));
+    customerRepository.save(new Customer("Bob"));
+
+    mockMvc.perform(get("/api/customers/all").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$.length()").value(2));
+  }
+}

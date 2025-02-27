@@ -1,24 +1,72 @@
 package rhul.cs2810.model;
 
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 /**
  * Represents a menu item in the restaurant system.
  */
+@Entity
+@Table(name = "menu_item")
 public class MenuItem {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "item_id")
   private int itemId;
+
   private String name;
+
+  @Column(name = "description")
   private String description;
+
+  @Column(name = "price")
   private double price;
+
+  @ElementCollection(targetClass = Allergen.class, fetch = FetchType.EAGER)
+  @Enumerated(EnumType.STRING)
+  @CollectionTable(name = "menu_item_allergens", joinColumns = @JoinColumn(name = "item_id"))
+  @Column(name = "allergen")
   private Set<Allergen> allergens;
+
+  @Column(name = "calories")
   private int calories;
+
+  @ElementCollection(targetClass = DietaryRestrictions.class, fetch = FetchType.EAGER)
+  @Enumerated(EnumType.STRING)
+  @CollectionTable(name = "menu_item_dietary_restrictions",
+      joinColumns = @JoinColumn(name = "item_id"))
+  @Column(name = "restriction")
   private Set<DietaryRestrictions> dietaryRestrictions;
+
+  @Column(name = "available")
   private boolean available;
 
+  @Column(name = "category")
+  private int category;
+
+  @Column(name = "image_path")
+  private String imagePath;
+
   public MenuItem() {
-    this.allergens = null;
-    this.dietaryRestrictions = null;
+    this.allergens = EnumSet.noneOf(Allergen.class);;
+    this.dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
     this.available = false;
   }
 
@@ -42,6 +90,20 @@ public class MenuItem {
     this.calories = calories;
     this.dietaryRestrictions = dietaryRestrictions;
     this.available = available;
+  }
+
+  public MenuItem(String name, String description, double d, Set<Allergen> allergens, int calories,
+      Set<DietaryRestrictions> dietaryRestrictions, boolean available, String imagePath,
+      int category) {
+    this.name = name;
+    this.description = description;
+    this.price = d;
+    this.allergens = allergens;
+    this.calories = calories;
+    this.dietaryRestrictions = dietaryRestrictions;
+    this.available = available;
+    this.imagePath = imagePath;
+    this.category = category;
   }
 
   /**
@@ -187,6 +249,23 @@ public class MenuItem {
    */
   public void setAvailable(boolean available) {
     this.available = available;
+  }
+
+
+  public String getImagePath() {
+    return imagePath;
+  }
+
+  public void setImagePath(String imagePath) {
+    this.imagePath = imagePath;
+  }
+
+  public int getCategory() {
+    return this.category;
+  }
+
+  public void setCategory(int category) {
+    this.category = category;
   }
 
 }
