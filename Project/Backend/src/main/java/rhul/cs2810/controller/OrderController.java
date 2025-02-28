@@ -42,7 +42,7 @@ public class OrderController {
     return ResponseEntity.ok("Item removed from order");
   }
 
-  @PostMapping("/Order/{orderId}/submitOrder")
+  @PostMapping("/order/{orderId}/submitOrder")
   public ResponseEntity<String> submitOrder(@PathVariable int orderId) {
     orderService.submitOrder(orderId);
     return ResponseEntity.ok("Order submitted successfully");
