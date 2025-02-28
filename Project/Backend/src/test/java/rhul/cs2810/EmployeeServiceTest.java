@@ -115,6 +115,13 @@ public class EmployeeServiceTest {
     boolean secondRegistered = mockEmployeeService.registerUser(mockEmployee);
     assertTrue(secondRegistered);
   }
+
+  @Test
+  void testRegisterUserNullCredentials() {
+    Employee mockEmployee = new Employee();
+    assertFalse(mockEmployeeService.registerUser(mockEmployee));
+  }
+
 }
 
 

@@ -25,7 +25,8 @@ public class MenuItemTest {
   @BeforeEach
   void setUp() {
     item = new MenuItem("Guacamole", "Classic Mexican dip made with avocados, cilantro, and lime",
-        5.99, EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class), true);
+        5.99, EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class), true,
+        "src.png", 1);
   }
 
   /**
