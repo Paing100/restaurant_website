@@ -48,7 +48,7 @@ public class OrderController {
     return ResponseEntity.ok("Order submitted successfully");
   }
 
-  @GetMapping("/Order/getAllOrders")
+  @GetMapping("/order/getAllOrders")
   public ResponseEntity<List<Order>> getAllOrders() {
     List<Order> orders = orderService.getAllOrders();
     return ResponseEntity.ok(orders);
