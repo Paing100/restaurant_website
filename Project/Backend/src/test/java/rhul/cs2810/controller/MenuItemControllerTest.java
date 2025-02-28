@@ -1,15 +1,21 @@
 package rhul.cs2810.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,8 +24,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import rhul.cs2810.model.Allergen;
+import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.repository.MenuItemRepository;
 
@@ -45,6 +55,21 @@ public class MenuItemControllerTest {
   @AfterEach
   void tearDown() {
     menuItemRepository.deleteAll(); // Ensure clean state after each test
+  }
+
+  @Test
+  void testGetMenuItemById() throws JsonProcessingException, Exception {
+    MenuItem menuItem =
+        new MenuItem("Guacamole", "Classic Mexican dip made with avocados, cilantro, and lime",
+            5.99, EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class),
+            true, "guac.src", 1);
+    MenuItem savedMenuItem = menuItemRepository.save(menuItem);
+
+    MvcResult action = mockMvc
+        .perform(get("/MenuItems/get/{id}", savedMenuItem.getItemId())
+            .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.name").value(menuItem.getName()))
+        .andReturn();
   }
 
   @Test
@@ -94,4 +119,28 @@ public class MenuItemControllerTest {
 
     assertEquals(2, menuItems.size(), "Menu should contain exactly 2 items");
   }
+
+  @Test
+  void testUpdateMenuItem() throws Exception {
+    MenuItem menuItem =
+        new MenuItem("Guacamole", "Classic Mexican dip made with avocados, cilantro, and lime",
+            5.99, EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class),
+            true, "guac.src", 1);
+
+    MenuItem savedMenuItem = menuItemRepository.save(menuItem);
+
+    MenuItem updatedMenuItem = new MenuItem("Guacamole", "Updated description", 6.99,
+        EnumSet.noneOf(Allergen.class), 180, EnumSet.noneOf(DietaryRestrictions.class), true,
+        "guac_updated.src", savedMenuItem.getItemId());
+
+    MvcResult action = mockMvc
+        .perform(put("/MenuItems/edit/{id}", savedMenuItem.getItemId())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(updatedMenuItem)))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.name").value(updatedMenuItem.getName()))
+        .andExpect(jsonPath("$.description").value(updatedMenuItem.getDescription()))
+        .andExpect(jsonPath("$.price").value(updatedMenuItem.getPrice())).andReturn();
+  }
+
+
 }
