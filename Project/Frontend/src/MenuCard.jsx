@@ -10,11 +10,12 @@ function MenuCard({ item, isWaiterView }) {
   const { addItemToCart } = useContext(CartContext);
   const [quantity, setQuantity] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
-  const [customer, setCustomer] = useState(null); // Assuming this comes from context or state
+  const [customer] = useState(null);
 
   const handleAddToCart = (itemId, quantity) => {
     if (!customer) {
       setModalOpen(true);
+      addItemToCart(itemId, quantity);
     }
     addItemToCart(itemId, quantity);
   };

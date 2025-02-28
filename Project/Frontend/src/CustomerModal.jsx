@@ -60,9 +60,6 @@ const CustomerModal = () => {
 
     return (
         <>
-            <Typography variant="h2" align="center" sx={{ marginTop: 2, color: 'white' }}>
-                Oaxaca
-            </Typography>
             <Modal open={open} onClose={() => { }}>
                 <Box sx={{
                     position: 'absolute',
