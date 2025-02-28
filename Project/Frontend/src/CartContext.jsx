@@ -66,15 +66,15 @@ export const CartProvider = ({ children }) => {
 
         try {
             const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
-            const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;    
+            const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;
 
-            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}`, {
+            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity},&orderSubmitted=false`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/hal+json',
                 },
             });
-            
+
 
             if (response.ok) {
                 console.log(response);
@@ -103,7 +103,7 @@ export const CartProvider = ({ children }) => {
 
         try {
             const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
-            
+
             if (!currentItem) {
                 console.error('Item not found in cart');
                 return;
@@ -147,7 +147,7 @@ export const CartProvider = ({ children }) => {
                             'accept': 'application/hal+json',
                         },
                     });
-                    
+
                     if (response.ok) {
                         await fetchCart();
                         console.log('Item quantity decreased by 1');
@@ -179,7 +179,7 @@ export const CartProvider = ({ children }) => {
                         'accept': 'application/hal+json',
                     },
                 });
-                
+
                 if (!response.ok) {
                     console.error(`Error removing item ${itemId} during cart clear`);
                 }
