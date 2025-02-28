@@ -2,19 +2,19 @@ import { useState, useContext } from "react";
 import { Toolbar, AppBar, Stack, Button, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "./CartContext";
+import CustomerModal from "./CustomerModal"; // Import the modal
 
 function NavBar() {
   const navigate = useNavigate();
-  const { customer } = useContext(CartContext); // Get customer data from context
+  const { customer } = useContext(CartContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCartClick = () => {
-    if (customer) {
-      navigate("/order");
-    } else {
+    if (!customer) {
       setIsModalOpen(true);
-      navigate("/order");
+      return;
     }
+    navigate("/order");
   };
 
   return (
@@ -43,6 +43,8 @@ function NavBar() {
           </Stack>
         </Toolbar>
       </AppBar>
+
+      {isModalOpen && <CustomerModal onClose={() => setIsModalOpen(false)} />}
     </>
   );
 }
