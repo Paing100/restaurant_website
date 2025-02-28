@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,7 +35,10 @@ class OrderControllerTest {
   @InjectMocks
   private OrderController orderController;
 
+  @Mock
   private ObjectMapper objectMapper;
+
+  List<Order> listOrders = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
@@ -74,6 +80,14 @@ class OrderControllerTest {
         .andExpect(content().string("Order submitted successfully"));
 
     verify(orderService, times(1)).submitOrder(1);
+  }
+
+  @Test
+  void testGetAllOrders() throws Exception {
+    mockMvc.perform(get("/api/order/getAllOrders")).andExpect(status().isOk());
+
+    verify(orderService, times(1)).getAllOrders();
+
   }
 
 }
