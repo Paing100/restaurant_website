@@ -9,7 +9,7 @@ function Waiter() {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/Order/getAllOrders");
+      const response = await fetch("http://localhost:8080/api/order/getAllOrders");
       if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
       console.log("Fetched Orders:", data);
