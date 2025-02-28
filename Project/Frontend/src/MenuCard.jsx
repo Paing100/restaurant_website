@@ -65,13 +65,23 @@ function MenuCard({ item, isWaiterView }) {
             </Box>
           { 
             !isWaiterView && item.available && (
-            <Button
-              variant="contained"
-              sx={{ marginTop: 2, backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </Button> 
+              <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
+                <TextField
+                  type="number"
+                  label="Quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  sx={{ width: 100, marginRight: 2, '& .MuiInputBase-input': { color: 'white' }, '& .MuiInputLabel-root': { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+                  InputProps={{ inputProps: { min: 1 } }}
+                />
+                <Button
+                  variant="contained"
+                  sx={{ marginTop: 2, backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                  onClick={handleAddToCart}
+                >
+                  Add to Cart
+                </Button> 
+              </Box>
           )}
           {
             isWaiterView && (
