@@ -62,8 +62,8 @@ function MenuCard({ item, isWaiterView }) {
             <Typography variant="body2" sx={{ color: 'lightgray' }}>
               Dietary Restrictions: {item.dietaryRestrictions.join(", ")}
             </Typography>
-            </Box>
-          { 
+          </Box>
+          {
             !isWaiterView && item.available && (
               <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
                 <TextField
@@ -81,9 +81,9 @@ function MenuCard({ item, isWaiterView }) {
                 >
 
                   Add to Cart
-                </Button> 
+                </Button>
               </Box>
-          )}
+            )}
           {
             isWaiterView && (
               <Link to={`/watier_edit_menu/${item.itemId}`}>
