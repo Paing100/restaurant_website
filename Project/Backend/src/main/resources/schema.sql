@@ -18,6 +18,7 @@ CREATE TABLE orders (
     customer_id INT NOT NULL,
     table_num INT NOT NULL,
     order_placed TIMESTAMP,
+    order_submitted BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
 

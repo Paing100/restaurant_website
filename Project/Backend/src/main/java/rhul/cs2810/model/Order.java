@@ -40,6 +40,17 @@ public class Order {
   @Column(name = "order_placed", columnDefinition = "TIMESTAMP")
   private LocalDateTime orderPlaced;
 
+  @Column(name = "order_submitted", nullable = false)
+  private boolean orderSubmitted = false;
+
+  public boolean isOrderSubmitted() {
+    return orderSubmitted;
+  }
+
+  public void setOrderSubmitted(boolean orderSubmitted) {
+    this.orderSubmitted = orderSubmitted;
+  }
+
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference
   private List<OrderMenuItem> orderMenuItems = new ArrayList<>();
