@@ -50,7 +50,6 @@ public class OrderService {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
     if (orderOptional.isPresent()) {
       Order order = orderOptional.get();
-      order.setOrderSubmitted(true);
       orderRepository.save(order);
     }
   }
