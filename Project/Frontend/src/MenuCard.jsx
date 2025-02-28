@@ -76,9 +76,10 @@ function MenuCard({ item, isWaiterView }) {
                 />
                 <Button
                   variant="contained"
-                  sx={{ marginTop: 2, backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-                  onClick={handleAddToCart}
+                  sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                  onClick={() => handleAddToCart(item.itemId, quantity)} // Pass item.itemId and quantity to the function
                 >
+
                   Add to Cart
                 </Button> 
               </Box>
