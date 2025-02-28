@@ -10,11 +10,11 @@ function MenuCard({ item, isWaiterView }) {
   const { addItemToCart } = useContext(CartContext);
   const [quantity, setQuantity] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
+  const [customer, setCustomer] = useState(null); // Assuming this comes from context or state
 
   const handleAddToCart = (itemId, quantity) => {
     if (!customer) {
       setModalOpen(true);
-      return;
     }
     addItemToCart(itemId, quantity);
   };
@@ -90,7 +90,7 @@ function MenuCard({ item, isWaiterView }) {
             )}
           {
             isWaiterView && (
-              <Link to={`/watier_edit_menu/${item.itemId}`}>
+              <Link to={`/waiter_edit_menu/${item.itemId}`}>
                 <Button>
                   Edit
                 </Button>
@@ -99,7 +99,7 @@ function MenuCard({ item, isWaiterView }) {
           }
         </CardContent>
       </CardActionArea>
-      <CustomerModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      {modalOpen && <CustomerModal open={modalOpen} onClose={() => setModalOpen(false)} />}
     </Card>
   );
 }
