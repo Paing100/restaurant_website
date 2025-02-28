@@ -65,7 +65,7 @@ export const CartProvider = ({ children }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${quantity}`, {
+            const response = await fetch(`http://localhost:8080/api/orders/1/addItems?itemId=1&quantity=1`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/hal+json',
