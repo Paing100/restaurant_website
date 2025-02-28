@@ -1,7 +1,14 @@
 package rhul.cs2810;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
@@ -78,8 +85,8 @@ class OrderServiceTest {
   void testAddItemToOrder_OrderNotFound() {
     when(orderRepository.findById(1)).thenReturn(Optional.empty());
 
-    Exception exception = assertThrows(IllegalArgumentException.class, 
-        () -> orderService.addItemToOrder(1, 100, 2));
+    Exception exception =
+        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2));
 
     assertEquals("Order with ID 1 not found.", exception.getMessage());
   }
@@ -109,9 +116,12 @@ class OrderServiceTest {
   @Test
   void testSubmitOrder() {
     Order mockOrder = new Order();
+    // first order id is 1, so this test passes
+    when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
 
-    orderService.submitOrder(mockOrder);
+    orderService.submitOrder(1);
 
+    assertTrue(mockOrder.isOrderSubmitted());
     verify(orderRepository, times(1)).save(mockOrder);
   }
 }
