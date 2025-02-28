@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField } from "@mui/material";
 import PropTypes from "prop-types";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { CartContext } from "./CartContext";
 import { Link } from "react-router-dom";
 import CustomerModal from "./CustomerModal";
@@ -10,13 +10,30 @@ function MenuCard({ item, isWaiterView }) {
   const { addItemToCart, customer } = useContext(CartContext);
   const [quantity, setQuantity] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [pendingAdd, setPendingAdd] = useState(false);
+
+  // Watch for customer changes to complete pending add
+  useEffect(() => {
+    if (customer && pendingAdd) {
+      addItemToCart(item.itemId, quantity);
+      setPendingAdd(false);
+    }
+  }, [customer, pendingAdd, item.itemId, quantity, addItemToCart]);
 
   const handleAddToCart = () => {
     if (!customer) {
       setShowModal(true);
+      setPendingAdd(true);
       return;
     }
     addItemToCart(item.itemId, quantity);
+  };
+
+  const handleModalClose = () => {
+    setShowModal(false);
+    if (!customer) {
+      setPendingAdd(false);
+    }
   };
 
   return (
@@ -100,7 +117,7 @@ function MenuCard({ item, isWaiterView }) {
         </CardActionArea>
       </Card>
 
-      {showModal && <CustomerModal onClose={() => setShowModal(false)} />}
+      {showModal && <CustomerModal onClose={handleModalClose} />}
     </>
   );
 }

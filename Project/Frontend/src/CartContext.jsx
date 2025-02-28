@@ -65,7 +65,10 @@ export const CartProvider = ({ children }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${quantity}`, {
+            const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
+            const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;    
+
+            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/hal+json',
@@ -91,39 +94,68 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // Handle removing item from the cart
-    const removeItemFromCart = async (itemId) => {
+    // Handle removing a single item from the cart
+    const removeItemFromCart = async (itemId, removeAll = false) => {
         if (!customer) {
             console.error('Customer is not set');
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/removeItems?itemId=${itemId}`, {
-                method: 'DELETE',
-                headers: {
-                    'accept': 'application/hal+json',
-                },
-            });
+            const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
+            
+            if (!currentItem) {
+                console.error('Item not found in cart');
+                return;
+            }
 
-            if (response.ok) {
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    const updatedCart = await response.json();
-                    setCart(updatedCart);
-                    if (updatedCart.totalPrice === 0) {
-                        setCart({ orderedItems: {}, totalPrice: 0 });
-                    }
-                } else {
-                    // If response is not JSON, fetch the updated cart
+            // If removeAll is true, remove the item completely
+            if (removeAll) {
+                const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/removeItems?itemId=${itemId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'accept': 'application/hal+json',
+                    },
+                });
+
+                if (response.ok) {
                     await fetchCart();
-                    console.log('Item removed from cart');
+                    console.log('All items removed from cart');
+                } else {
+                    console.error('Error removing all items from cart');
                 }
             } else {
-                console.error('Error removing item from cart');
+                // If quantity is 1, remove the item completely
+                if (currentItem.quantity === 1) {
+                    const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/removeItems?itemId=${itemId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'accept': 'application/hal+json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        await fetchCart();
+                        console.log('Last item removed from cart');
+                    }
+                } else {
+                    // If quantity > 1, decrease by 1
+                    const newQuantity = currentItem.quantity - 1;
+                    const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}`, {
+                        method: 'POST',
+                        headers: {
+                            'accept': 'application/hal+json',
+                        },
+                    });
+                    
+                    if (response.ok) {
+                        await fetchCart();
+                        console.log('Item quantity decreased by 1');
+                    }
+                }
             }
         } catch (error) {
-            console.error('Error removing item from cart:', error);
+            console.error('Error modifying cart:', error);
         }
     };
 
@@ -140,7 +172,17 @@ export const CartProvider = ({ children }) => {
 
             // Remove each item one by one
             for (const itemId of itemIds) {
-                await removeItemFromCart(itemId);
+                // Use the API's removeItems endpoint to remove all quantities of each item
+                const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/removeItems?itemId=${itemId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'accept': 'application/hal+json',
+                    },
+                });
+                
+                if (!response.ok) {
+                    console.error(`Error removing item ${itemId} during cart clear`);
+                }
             }
 
             // Reset the cart state after all items are removed

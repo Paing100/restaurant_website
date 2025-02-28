@@ -1,10 +1,12 @@
 /* eslint-disable */
 import React, { useContext, useState } from 'react';
-import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert } from '@mui/material';
+import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert, IconButton } from '@mui/material';
 import { CartContext } from './CartContext';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, setCustomer, customer } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, setCustomer, customer, addItemToCart } = useContext(CartContext);
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
@@ -20,6 +22,16 @@ function Order() {
     };
 
     document.addEventListener('click', handlePageClick);
+
+    // Decreases item quantity by one
+    const decreaseItemQuantity = (itemId) => {
+        removeItemFromCart(itemId, false); // Always pass false for single item removal
+    };
+
+    // Increases item quantity by one
+    const increaseItemQuantity = (itemId) => {
+        addItemToCart(itemId, 1);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -94,8 +106,7 @@ function Order() {
             <Typography sx={{ padding: '15px' }} variant="h4">Place Your Order</Typography>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List>
-                {Object.entries(orderedItems).map(([itemName, quantity]) => {
-                    const item = cart.orderedItems[itemName];
+                {Object.entries(orderedItems).map(([itemName, item]) => {
                     const itemTotal = item.price * item.quantity;
                     return (
                         <ListItem key={itemName} sx={{ borderBottom: '1px solid #333' }}>
@@ -105,12 +116,33 @@ function Order() {
                                 image={item.imagePath}
                                 sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
                             />
-                            <ListItemText primary={`${itemName} x ${item.quantity}`} secondary={`Total: £${itemTotal.toFixed(2)}`} sx={{ color: 'white' }} />
+                            <ListItemText 
+                                primary={itemName}
+                                secondary={`£${item.price.toFixed(2)} each • Total: £${itemTotal.toFixed(2)}`}
+                                sx={{ color: 'white' }}
+                            />
+                            <Box sx={{ display: 'flex', alignItems: 'center', marginRight: 2 }}>
+                                <IconButton 
+                                    onClick={() => decreaseItemQuantity(item.itemId)}
+                                    sx={{ color: 'white' }}
+                                >
+                                    <RemoveIcon />
+                                </IconButton>
+                                <Typography sx={{ margin: '0 10px', color: 'white' }}>
+                                    {item.quantity}
+                                </Typography>
+                                <IconButton 
+                                    onClick={() => increaseItemQuantity(item.itemId)}
+                                    sx={{ color: 'white' }}
+                                >
+                                    <AddIcon />
+                                </IconButton>
+                            </Box>
                             <Button
-                                onClick={() => removeItemFromCart(item.itemId)}  // Use itemId to remove
+                                onClick={() => removeItemFromCart(item.itemId, true)}
                                 sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                             >
-                                Remove
+                                Remove All
                             </Button>
                         </ListItem>
                     );
