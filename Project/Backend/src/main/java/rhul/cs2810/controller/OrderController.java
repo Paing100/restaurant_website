@@ -30,8 +30,8 @@ public class OrderController {
 
   @PostMapping("/orders/{orderId}/addItems")
   public ResponseEntity<String> addItemToOrder(@PathVariable int orderId, @RequestParam int itemId,
-      @RequestParam int quantity) {
-    orderService.addItemToOrder(orderId, itemId, quantity);
+      @RequestParam int quantity, @RequestParam boolean orderSubmitted) {
+    orderService.addItemToOrder(orderId, itemId, quantity, orderSubmitted);
     return ResponseEntity.ok("Item added to order");
   }
 

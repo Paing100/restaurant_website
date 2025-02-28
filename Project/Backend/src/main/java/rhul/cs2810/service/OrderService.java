@@ -30,7 +30,7 @@ public class OrderService {
     return orderRepository.findById(orderId).orElse(null);
   }
 
-  public void addItemToOrder(int orderId, int itemId, int quantity) {
+  public void addItemToOrder(int orderId, int itemId, int quantity, boolean orderSubmitted) {
     Order order = orderRepository.findById(orderId).orElseThrow(
         () -> new IllegalArgumentException("Order with ID " + orderId + " not found."));
 
