@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -86,4 +89,35 @@ public class MenuItemController {
     menuItemsIterable.forEach(menuItems::add);
     return ResponseEntity.ok(menuItems);
   }
+
+  @GetMapping("MenuItems/get/{id}")
+  public ResponseEntity<MenuItem> getMenuItemById(@PathVariable String id) {
+    int idInt = Integer.parseInt(id);
+    return menuItemRepository.findById(idInt).map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
+  }
+
+  @PutMapping("MenuItems/edit/{id}")
+  public ResponseEntity<MenuItem> updateMenuItems(@PathVariable String id,
+      @RequestBody MenuItem updateItem) {
+    int idInt = Integer.parseInt(id);
+    Optional<MenuItem> editedMenuItem = menuItemRepository.findById(idInt);
+    if (editedMenuItem.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+
+    MenuItem existingMenuItem = editedMenuItem.get();
+    existingMenuItem.setName(updateItem.getName());
+    existingMenuItem.setDescription(updateItem.getDescription());
+    existingMenuItem.setPrice(updateItem.getPrice());
+    existingMenuItem.setAllergens(updateItem.getAllergens());
+    existingMenuItem.setCalories(updateItem.getCalories());
+    existingMenuItem.setDietaryRestrictions(updateItem.getDietaryRestrictions());
+    existingMenuItem.setAvailable(updateItem.isAvailable());
+    existingMenuItem.setImagePath(updateItem.getImagePath());
+    existingMenuItem.setCategory(updateItem.getCategory());
+
+    return ResponseEntity.ok(menuItemRepository.save(existingMenuItem));
+  }
+
 }
