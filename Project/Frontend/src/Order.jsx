@@ -10,8 +10,6 @@ function Order() {
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
-    const [customerName, setCustomerName] = useState('');
-    const [tableNum, setTableNum] = useState(1);
 
     // Ensure cart.orderedItems exists before rendering
     const orderedItems = cart?.orderedItems || {};
@@ -44,31 +42,33 @@ function Order() {
             return;
         }
 
-        if (!customerName) {
-            console.error("Error: Customer name is required.");
-            setMessage("Error: Customer name is required.");
+        if (!customer) {
+            console.error("Error: Customer is not logged in.");
+            setMessage("Error: Customer is not logged in.");
             setSeverity('error');
             setOpen(true);
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/add?name=${customerName}&tableNum=${tableNum}`, {
+            // Update customer with current datetime
+            const currentDatetime = new Date().toISOString();
+            const response = await fetch(`http://localhost:8080/api/customers/update?name=${customer.name}&tableNum=${customer.tableNum}&datetime=${currentDatetime}`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/hal+json'
                 },
             });
-            const newCustomer = await response.json();
-            setCustomer(newCustomer);
+            const updatedCustomer = await response.json();
+            setCustomer(updatedCustomer);
 
-            const orderedItemsArray = Object.entries(orderedItems).map(([itemName, quantity]) => ({
-                itemName: itemName,  // Use the itemName here
-                quantity: quantity
+            const orderedItemsArray = Object.entries(orderedItems).map(([itemName, item]) => ({
+                itemName: itemName,
+                quantity: item.quantity
             }));
 
             const orderData = {
-                customer: newCustomer,
+                customer: updatedCustomer,
                 orderedItems: orderedItemsArray,
             };
 
@@ -116,13 +116,13 @@ function Order() {
                                 image={item.imagePath}
                                 sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
                             />
-                            <ListItemText 
+                            <ListItemText
                                 primary={itemName}
                                 secondary={`£${item.price.toFixed(2)} each • Total: £${itemTotal.toFixed(2)}`}
                                 sx={{ color: 'white' }}
                             />
                             <Box sx={{ display: 'flex', alignItems: 'center', marginRight: 2 }}>
-                                <IconButton 
+                                <IconButton
                                     onClick={() => decreaseItemQuantity(item.itemId)}
                                     sx={{ color: 'white' }}
                                 >
@@ -131,7 +131,7 @@ function Order() {
                                 <Typography sx={{ margin: '0 10px', color: 'white' }}>
                                     {item.quantity}
                                 </Typography>
-                                <IconButton 
+                                <IconButton
                                     onClick={() => increaseItemQuantity(item.itemId)}
                                     sx={{ color: 'white' }}
                                 >

@@ -37,7 +37,7 @@ public class OrderService {
     MenuItem item = menuItemRepository.findById(itemId).orElseThrow(
         () -> new IllegalArgumentException("Menu item with ID " + itemId + " not found."));
 
-    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity);
+    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity, false);
     orderMenuItemRepository.save(orderMenuItem);
   }
 

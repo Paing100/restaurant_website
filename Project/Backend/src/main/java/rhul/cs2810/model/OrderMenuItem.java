@@ -16,24 +16,30 @@ public class OrderMenuItem {
   private OrderMenuItemId orderMenuItemsId;
 
   @ManyToOne
-  @JoinColumn(name = "order_id", referencedColumnName = "order_id", insertable = false, updatable = false)
+  @JoinColumn(name = "order_id", referencedColumnName = "order_id", insertable = false,
+      updatable = false)
   @JsonBackReference
   private Order order;
 
   @ManyToOne
-  @JoinColumn(name = "item_id", referencedColumnName = "item_id", insertable = false, updatable = false)
+  @JoinColumn(name = "item_id", referencedColumnName = "item_id", insertable = false,
+      updatable = false)
   private MenuItem menuItem;
 
   @Column(name = "quantity", nullable = false)
   private int quantity;
 
+  @Column(name = "order_submitted", nullable = false)
+  private boolean orderSubmitted = false;
+
   public OrderMenuItem() {}
 
-  public OrderMenuItem(Order order, MenuItem menuItem, int quantity) {
+  public OrderMenuItem(Order order, MenuItem menuItem, int quantity, boolean orderSubmitted) {
     this.orderMenuItemsId = new OrderMenuItemId(order.getOrderId(), menuItem.getItemId());
     this.order = order;
     this.menuItem = menuItem;
     this.quantity = quantity;
+    this.orderSubmitted = orderSubmitted;
   }
 
   public OrderMenuItemId getOrderMenuItemsId() {

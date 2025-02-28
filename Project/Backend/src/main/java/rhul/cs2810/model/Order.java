@@ -106,7 +106,7 @@ public class Order {
    * @param quantity the quantity of the item
    */
   public void addItemToCart(MenuItem menuItem, int quantity) {
-    OrderMenuItem orderMenuItem = new OrderMenuItem(this, menuItem, quantity);
+    OrderMenuItem orderMenuItem = new OrderMenuItem(this, menuItem, quantity, false);
     this.orderMenuItems.add(orderMenuItem);
   }
 
