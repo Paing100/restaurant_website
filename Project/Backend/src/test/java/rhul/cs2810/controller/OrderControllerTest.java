@@ -70,7 +70,7 @@ class OrderControllerTest {
 
   @Test
   void testSubmitOrder() throws Exception {
-    mockMvc.perform(post("/api/Order/1/submitOrder")).andExpect(status().isOk())
+    mockMvc.perform(post("/api/order/1/submitOrder")).andExpect(status().isOk())
         .andExpect(content().string("Order submitted successfully"));
 
     verify(orderService, times(1)).submitOrder(1);
