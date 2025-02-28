@@ -90,14 +90,14 @@ public class MenuItemController {
     return ResponseEntity.ok(menuItems);
   }
 
-  @GetMapping("MenuItems/get/{id}")
+  @GetMapping("/MenuItems/get/{id}")
   public ResponseEntity<MenuItem> getMenuItemById(@PathVariable String id) {
     int idInt = Integer.parseInt(id);
     return menuItemRepository.findById(idInt).map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  @PutMapping("MenuItems/edit/{id}")
+  @PutMapping("/MenuItems/edit/{id}")
   public ResponseEntity<MenuItem> updateMenuItems(@PathVariable String id,
       @RequestBody MenuItem updateItem) {
     int idInt = Integer.parseInt(id);
