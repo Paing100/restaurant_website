@@ -4,13 +4,18 @@ import PropTypes from 'prop-types';
 import { useContext, useState } from 'react';
 import { CartContext } from './CartContext';
 import { Link } from "react-router-dom";
-
+import CustomerModal from "./CustomerModal";
 
 function MenuCard({ item, isWaiterView }) {
   const { addItemToCart } = useContext(CartContext);
   const [quantity, setQuantity] = useState(1);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const handleAddToCart = (itemId, quantity) => {
+    if (!customer) {
+      setModalOpen(true);
+      return;
+    }
     addItemToCart(itemId, quantity);
   };
 
@@ -31,7 +36,7 @@ function MenuCard({ item, isWaiterView }) {
               left: 0,
               width: '100%',
               height: '100%',
-              backgroundColor: 'rgba(0, 0, 0, 0.6)', // Transparent overlay
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -77,9 +82,8 @@ function MenuCard({ item, isWaiterView }) {
                 <Button
                   variant="contained"
                   sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-                  onClick={() => handleAddToCart(item.itemId, quantity)} // Pass item.itemId and quantity to the function
+                  onClick={(() => handleAddToCart(item.itemId, quantity))}
                 >
-
                   Add to Cart
                 </Button>
               </Box>
@@ -95,14 +99,14 @@ function MenuCard({ item, isWaiterView }) {
           }
         </CardContent>
       </CardActionArea>
+      <CustomerModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </Card>
   );
 }
 
-
 MenuCard.propTypes = {
   item: PropTypes.shape({
-    itemId: PropTypes.number.isRequired, // Change 'id' to 'itemId'
+    itemId: PropTypes.number.isRequired,
     imagePath: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
