@@ -1,6 +1,7 @@
 package rhul.cs2810.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -16,12 +17,14 @@ public class OrderMenuItem {
   private OrderMenuItemId orderMenuItemsId;
 
   @ManyToOne
-  @JoinColumn(name = "order_id", referencedColumnName = "order_id", insertable = false, updatable = false)
+  @JoinColumn(name = "order_id", referencedColumnName = "order_id", insertable = false,
+      updatable = false)
   @JsonBackReference
   private Order order;
 
   @ManyToOne
-  @JoinColumn(name = "item_id", referencedColumnName = "item_id", insertable = false, updatable = false)
+  @JoinColumn(name = "item_id", referencedColumnName = "item_id", insertable = false,
+      updatable = false)
   private MenuItem menuItem;
 
   @Column(name = "quantity", nullable = false)
@@ -43,7 +46,6 @@ public class OrderMenuItem {
   public void setOrderMenuItemsId(OrderMenuItemId orderMenuItemsId) {
     this.orderMenuItemsId = orderMenuItemsId;
   }
-
 
   public Order getOrder() {
     return order;

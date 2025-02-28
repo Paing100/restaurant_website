@@ -1,10 +1,8 @@
 package rhul.cs2810.model;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -16,7 +14,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 /**
@@ -80,18 +77,9 @@ public class MenuItem {
    * @param calories the calorie count of the item
    * @param dietaryRestrictions the set of dietary restrictions applicable to the item
    * @param available the availability status of the item
+   * @param imagePath the image path of the menuItem
+   * @param the category of the item
    */
-  public MenuItem(String name, String description, double price, Set<Allergen> allergens,
-      int calories, Set<DietaryRestrictions> dietaryRestrictions, boolean available) {
-    this.name = name;
-    this.description = description;
-    this.price = price;
-    this.allergens = allergens;
-    this.calories = calories;
-    this.dietaryRestrictions = dietaryRestrictions;
-    this.available = available;
-  }
-
   public MenuItem(String name, String description, double d, Set<Allergen> allergens, int calories,
       Set<DietaryRestrictions> dietaryRestrictions, boolean available, String imagePath,
       int category) {
