@@ -10,7 +10,6 @@ function EditMenu(){
   const [severity, setSeverity] = useState('success');
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [imageFile, setImageFile] = useState('');
 
   const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
   const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETERIAN", "VEGAN", "HALAL"];
@@ -32,8 +31,7 @@ function EditMenu(){
     setMenuItem({ ...menuItem, [event.target.name]: event.target.value });
   };
 
-  const handleImageUpload = (file) => {
-    setImageFile(file);
+  const handleImageUpload = () => {
   }
 
   const handleSubmit = async(e) => {

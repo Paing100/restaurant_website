@@ -1,4 +1,5 @@
 import {useState} from "react";
+import PropTypes from 'prop-types';
 
 function ImageUploader({setImagePath}) {
 
@@ -40,5 +41,8 @@ function ImageUploader({setImagePath}) {
   );
 }
 
+ImageUploader.propTypes = {
+  setImagePath: PropTypes.string.isReuqired
+};
 
 export default ImageUploader; 

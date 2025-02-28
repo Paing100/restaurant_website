@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Grid, Box, Tabs, Tab, Typography } from "@mui/material";
 import MenuCard from './MenuCard.jsx'
 import Filter from './Filter.jsx'
+import PropTypes from 'prop-types';
+
 
 function Menu({isWaiterView}) {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -97,5 +99,9 @@ function Menu({isWaiterView}) {
   </>
 );
 }
+
+Menu.propTypes = {
+  isWaiterView: PropTypes.bool.isRequired
+};
 
 export default Menu;
