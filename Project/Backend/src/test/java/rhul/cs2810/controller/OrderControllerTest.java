@@ -1,5 +1,6 @@
 package rhul.cs2810.controller;
 
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,6 +77,9 @@ class OrderControllerTest {
 
   @Test
   void testSubmitOrder() throws Exception {
+    Order mockOrder = new Order();
+    doNothing().when(orderService).submitOrder(1);
+
     mockMvc.perform(post("/api/order/1/submitOrder")).andExpect(status().isOk())
         .andExpect(content().string("Order submitted successfully"));
 
@@ -88,6 +92,13 @@ class OrderControllerTest {
 
     verify(orderService, times(1)).getAllOrders();
 
+  }
+
+  @Test
+  void testUpdatedOrderStatus() throws Exception {
+    mockMvc.perform(post("/api/order/1/updateOrderStatus")).andExpect(status().isOk());
+    Order mockOrder = new Order();
+    verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
   }
 
 }
