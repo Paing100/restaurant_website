@@ -1,7 +1,5 @@
 package rhul.cs2810.controller;
 
-import java.time.LocalDateTime;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +51,6 @@ public class CustomerController {
     // Create order linked to the persisted customer
     Order order = new Order();
     order.setTableNum(tableNum);
-    order.setOrderPlaced(LocalDateTime.now());
     order.setCustomer(newCustomer);
     order.setOrderStatus(OrderStatus.CREATED);
 

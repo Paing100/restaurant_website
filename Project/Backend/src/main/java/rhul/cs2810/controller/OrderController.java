@@ -1,5 +1,6 @@
 package rhul.cs2810.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -79,6 +80,8 @@ public class OrderController {
    */
   @PostMapping("/order/{orderId}/submitOrder")
   public ResponseEntity<String> submitOrder(@PathVariable int orderId) {
+    Order order = orderService.getOrder(orderId);
+    order.setOrderPlaced(LocalDateTime.now());
     orderService.submitOrder(orderId);
     return ResponseEntity.ok("Order submitted successfully");
   }
