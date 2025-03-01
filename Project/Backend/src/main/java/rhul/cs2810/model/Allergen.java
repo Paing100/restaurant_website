@@ -13,6 +13,11 @@ public enum Allergen {
     this.description = description;
   }
 
+  /**
+   * Description of an allergen.
+   * 
+   * @return the description
+   */
   public String getDescription() {
     return this.description;
   }
