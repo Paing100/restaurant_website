@@ -162,11 +162,6 @@ class OrderServiceTest {
   @Test
   void testSaveUpdatedOrder() {
     Order order1 = new Order(1, LocalDateTime.now(), new Customer("Will"));
-    order1.addItemToCart(
-        new MenuItem("Guacamole", "Classic Mexican dip made with avocados, cilantro, and lime",
-            5.99, EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class),
-            true, "src.png", 1),
-        1);
     orderService.saveUpdatedOrder(order1);
     verify(orderRepository, times(1)).save(order1);
   }
