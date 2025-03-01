@@ -14,6 +14,7 @@ function Order() {
     const [orderStatus, setOrderStatus] = useState('PENDING');
     const [showOrderInfo, setShowOrderInfo] = useState(false);
     const [expanded, setExpanded] = useState(false);
+    const [open, setOpen] = useState(false);
 
     // Ensure cart.orderedItems exists before rendering
     const orderedItems = cart?.orderedItems || {};
@@ -58,7 +59,10 @@ function Order() {
         setOpen(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
         setOpen(false);
     };
 
