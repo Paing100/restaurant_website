@@ -30,11 +30,11 @@ public class OrderTest {
     customer = new Customer("William");
     veganItem = new MenuItem("Vegan Burger", "Tasty vegan burger", 10.99,
         new HashSet<>(Set.of(Allergen.NUTS)), 300, new HashSet<>(Set.of(DietaryRestrictions.VEGAN)),
-        false);
+        false, "vegan.png", 1);
 
     nonVeganItem =
         new MenuItem("Beef Burger", "Juicy beef burger", 12.99, new HashSet<>(Set.of(Allergen.EGG)),
-            500, new HashSet<>(Set.of(DietaryRestrictions.GLUTENFREE)), false);
+            500, new HashSet<>(Set.of(DietaryRestrictions.GLUTENFREE)), false, "vegan.png", 1);
     order = new Order(1, LocalDateTime.now(), customer);
   }
 

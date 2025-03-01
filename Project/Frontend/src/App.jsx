@@ -8,6 +8,8 @@ import Waiter from './Waiter';
 import Order from './Order';
 import { CartProvider, CartContext } from './CartContext';
 import CustomerModal from './CustomerModal';
+import MenuWaiter from './MenuWaiter'; 
+import EditMenu from './EditMenu'
 
 function AppContent() {
   const { customer } = useContext(CartContext);
@@ -26,6 +28,8 @@ function AppContent() {
           <Route path="/order" element={<Order />} />
           <Route path="/login" element={<Login />} />
           <Route path="/waiter" element={<sessionCheck><Waiter /></sessionCheck>} />
+          <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>}/>
+          <Route path="/watier_edit_menu/:id" element={<sessionCheck><EditMenu></EditMenu></sessionCheck>}/>
         </Routes>
       </div>
     </div>

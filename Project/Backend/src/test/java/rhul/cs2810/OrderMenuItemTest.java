@@ -1,11 +1,15 @@
 package rhul.cs2810;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import rhul.cs2810.model.MenuItem;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderMenuItem;
+import rhul.cs2810.model.OrderMenuItemId;
 
 class OrderMenuItemTest {
 
@@ -55,4 +59,12 @@ class OrderMenuItemTest {
     orderMenuItem.setMenuItem(newItem);
     assertThat(orderMenuItem.getMenuItem().getItemId()).isEqualTo(202);
   }
+
+  @Test
+  void testGetAndSetOrderMenUItemsId() {
+    OrderMenuItemId orderMenuItemId = new OrderMenuItemId(1, 2);
+    orderMenuItem.setOrderMenuItemsId(orderMenuItemId);
+    assertEquals(orderMenuItemId, orderMenuItem.getOrderMenuItemsId());
+  }
+
 }

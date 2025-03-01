@@ -3,6 +3,8 @@ import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, 
 import PropTypes from 'prop-types';
 import { useContext, useState } from 'react';
 import { CartContext } from './CartContext';
+import { Link } from "react-router-dom";
+
 
 function MenuCard({ item, isWaiterView }) {
   const { addItemToCart } = useContext(CartContext);
@@ -60,29 +62,43 @@ function MenuCard({ item, isWaiterView }) {
             <Typography variant="body2" sx={{ color: 'lightgray' }}>
               Dietary Restrictions: {item.dietaryRestrictions.join(", ")}
             </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
-            <TextField
-              type="number"
-              label="Quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              sx={{ width: 100, marginRight: 2, '& .MuiInputBase-input': { color: 'white' }, '& .MuiInputLabel-root': { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
-              InputProps={{ inputProps: { min: 1 } }}
-            />
-            <Button
-              variant="contained"
-              sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-              onClick={() => handleAddToCart(item.itemId, quantity)} // Pass item.itemId and quantity to the function
-            >
-              Add to Cart
-            </Button>
-          </Box>
+            </Box>
+          { 
+            !isWaiterView && item.available && (
+              <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
+                <TextField
+                  type="number"
+                  label="Quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  sx={{ width: 100, marginRight: 2, '& .MuiInputBase-input': { color: 'white' }, '& .MuiInputLabel-root': { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+                  InputProps={{ inputProps: { min: 1 } }}
+                />
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                  onClick={() => handleAddToCart(item.itemId, quantity)} // Pass item.itemId and quantity to the function
+                >
+
+                  Add to Cart
+                </Button> 
+              </Box>
+          )}
+          {
+            isWaiterView && (
+              <Link to={`/watier_edit_menu/${item.itemId}`}>
+                <Button>
+                  Edit
+                </Button>
+              </Link>
+            )
+          }
         </CardContent>
       </CardActionArea>
     </Card>
   );
 }
+
 
 MenuCard.propTypes = {
   item: PropTypes.shape({
