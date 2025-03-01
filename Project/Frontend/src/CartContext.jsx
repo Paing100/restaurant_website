@@ -71,6 +71,7 @@ export const CartProvider = ({ children }) => {
                     'accept': 'application/hal+json',
                 },
             });
+            
 
             if (response.ok) {
                 console.log(response);

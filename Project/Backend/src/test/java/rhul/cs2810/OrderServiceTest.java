@@ -1,8 +1,18 @@
 package rhul.cs2810;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +21,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import rhul.cs2810.model.Allergen;
+import rhul.cs2810.model.Customer;
+import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderMenuItem;
@@ -33,6 +46,8 @@ class OrderServiceTest {
 
   @InjectMocks
   private OrderService orderService;
+
+  private List<Order> orders = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
@@ -78,8 +93,8 @@ class OrderServiceTest {
   void testAddItemToOrder_OrderNotFound() {
     when(orderRepository.findById(1)).thenReturn(Optional.empty());
 
-    Exception exception = assertThrows(IllegalArgumentException.class, 
-        () -> orderService.addItemToOrder(1, 100, 2));
+    Exception exception =
+        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2));
 
     assertEquals("Order with ID 1 not found.", exception.getMessage());
   }
@@ -109,9 +124,40 @@ class OrderServiceTest {
   @Test
   void testSubmitOrder() {
     Order mockOrder = new Order();
+    // first order id is 1, so this test passes
+    when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
 
-    orderService.submitOrder(mockOrder);
+    orderService.submitOrder(1);
 
     verify(orderRepository, times(1)).save(mockOrder);
   }
+
+  @Test
+  void testSubmitOrderNotPresent() {
+    Order mockOrder = new Order();
+
+    when(orderRepository.findById(0)).thenReturn(Optional.empty());
+    orderService.submitOrder(0);
+    // since order is not present, save is called 0 times.
+    verify(orderRepository, times(0)).save(mockOrder);
+  }
+
+  @Test
+  void testGetAllOrders() {
+    Order order1 = new Order(1, LocalDateTime.now(), new Customer("Will"));
+    order1.addItemToCart(
+        new MenuItem("Guacamole", "Classic Mexican dip made with avocados, cilantro, and lime",
+            5.99, EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class),
+            true, "src.png", 1),
+        1);
+    orders.add(order1);
+
+    when(orderRepository.findAll()).thenReturn(orders);
+
+    List<Order> listOrders = orderService.getAllOrders();
+    assertEquals("Guacamole", orders.get(0).getOrderMenuItems().get(0).getMenuItem().getName());
+    verify(orderRepository, times(1)).findAll();
+
+  }
+
 }

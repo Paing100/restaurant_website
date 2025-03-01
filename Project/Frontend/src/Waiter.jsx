@@ -1,59 +1,22 @@
-/* eslint-disable */
-import React, { useEffect, useState } from "react";
-import { Typography, List, ListItem, ListItemText, Box } from "@mui/material";
-import { Button } from "@mui/material";
-
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Typography, List, ListItem, ListItemText, Box, Button } from "@mui/material";
 
 function Waiter() {
   const userName = localStorage.getItem("userName");
   const userRole = localStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
-  const [deliveredOrders, setDeliveredOrders] = useState([]);
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/orders");
-      if (!response.ok) throw new Error("Backend error");
+      const response = await fetch("http://localhost:8080/api/order/getAllOrders");
+      if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
-      setOrders(data);
-    } catch (error) {
+      console.log("Fetched Orders:", data);
+      const submittedOrders = data.filter(order => order.orderSubmitted); 
+      setOrders(submittedOrders);
+      } catch (error) {
       console.error("Error fetching orders:", error);
-      setOrders([
-        {
-          orderId: 101,
-          customer: { name: "Carlos Mendoza", tableNumber: 5 },
-          orderedItems: [{ name: "Tacos al Pastor", quantity: 3, price: 9.99 }],
-          totalPrice: 29.97,
-          delivered: false,
-        },
-        {
-          orderId: 102,
-          customer: { name: "Maria Lopez", tableNumber: 2 },
-          orderedItems: [{ name: "Birria Tacos", quantity: 2, price: 12.99 }],
-          totalPrice: 25.98,
-          delivered: false,
-        },
-        {
-          orderId: 103,
-          customer: { name: "Alejandro Rivera", tableNumber: 7 },
-          orderedItems: [
-            { name: "Chiles Rellenos", quantity: 1, price: 11.99 },
-            { name: "Horchata", quantity: 1, price: 3.99 },
-          ],
-          totalPrice: 15.98,
-          delivered: false,
-        },
-        {
-          orderId: 104,
-          customer: { name: "Sofia Martinez", tableNumber: 3 },
-          orderedItems: [
-            { name: "Enchiladas Verdes", quantity: 1, price: 10.99 },
-            { name: "Flan", quantity: 1, price: 4.99 },
-          ],
-          totalPrice: 15.98,
-          delivered: false,
-        },
-      ]);
     }
   };
 
@@ -61,65 +24,106 @@ function Waiter() {
     fetchOrders();
   }, []);
 
-  const markAsDelivered = (orderId) => {
-    setOrders((prev) =>
-      prev.map((order) =>
+  const markAsDelivered = async (orderId) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
         order.orderId === orderId ? { ...order, delivered: true } : order
       )
     );
+
+    try {
+      await fetch(`http://localhost:8080/Order/markDelivered/${orderId}`, {
+        method: "POST",
+      });
+    } catch (error) {
+      console.error("Error updating order status:", error);
+    }
+  };
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleString("en-GB", { 
+      year: "numeric", month: "long", day: "numeric", 
+      hour: "2-digit", minute: "2-digit", second: "2-digit"
+    });
+  };
+
+  const formatElapsedTime = (orderPlaced) => {
+    const now = new Date();
+    const orderTime = new Date(orderPlaced);
+    const diffInMinutes = Math.floor((now - orderTime) / 60000);  // Difference in minutes
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes} minute(s) ago`;
+    } else {
+      const hours = Math.floor(diffInMinutes / 60);
+      const minutes = diffInMinutes % 60;
+      return `${hours} hour(s) and ${minutes} minute(s) ago`;
+    }
   };
 
   return (
     <Box>
       <Typography variant="h3">Welcome {userName}!</Typography>
       <Typography variant="h4">{userRole} Dashboard</Typography>
-      <Typography variant="h5" sx={{ mt: 2 }}>
-        Active Orders
-      </Typography>
+      <Link to="/waiter_menu">
+        <Button>Edit Menu</Button>
+      </Link>
+
+      <Typography variant="h5" sx={{ mt: 2 }}>Active Orders</Typography>
       <List>
-        {orders
-          .filter((order) => !order.delivered)
-          .map((order) => (
-            <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
-              <ListItemText
-                primary={`Order #${order.orderId} - ${order.customer.name} (Table ${order.customer.tableNumber})`}
-                secondary={order.orderedItems
-                  .map((item) => `${item.name} x${item.quantity}`)
-                  .join(", ")}
-              />
-              <Typography variant="body2">£{order.totalPrice.toFixed(2)}</Typography>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => markAsDelivered(order.orderId)}
-              >
-                Mark as Delivered
-              </Button>
-            </ListItem>
-          ))}
+        {orders.filter(order => !order.delivered && order.orderMenuItems.length > 0).map(order => (
+          <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
+            <ListItemText
+              primary={`Order #${order.orderId} - Table ${order.tableNum}`}
+              secondary={
+                <>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    Ordered At: {formatDate(order.orderPlaced)}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", color: 'gray' }}>
+                    Time in Progress: {formatElapsedTime(order.orderPlaced)}
+                  </Typography>
+                  {order.orderMenuItems.map(item => (
+                    <Typography key={item.orderMenuItemsId.itemId} variant="body2">
+                      {item.menuItem.name} x{item.quantity} (£{(item.menuItem.price * item.quantity).toFixed(2)})
+                    </Typography>
+                  ))}
+                </>
+              }
+            />
+            <Button variant="contained" color="success" onClick={() => markAsDelivered(order.orderId)}>
+              Mark as Delivered
+            </Button>
+          </ListItem>
+        ))}
       </List>
 
-      <Typography variant="h5" sx={{ mt: 2 }}>
-        Delivered Orders
-      </Typography>
+      <Typography variant="h5" sx={{ mt: 2 }}>Delivered Orders</Typography>
       <List>
-        {orders
-          .filter((order) => order.delivered)
-          .map((order) => (
-            <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
-              <ListItemText
-                primary={`Order #${order.orderId} - ${order.customer.name} (Table ${order.customer.tableNumber})`}
-                secondary={order.orderedItems
-                  .map((item) => `${item.name} x${item.quantity}`)
-                  .join(", ")}
-              />
-              <Typography variant="body2">£{order.totalPrice.toFixed(2)}</Typography>
-              <Button variant="contained" color="secondary" disabled>
-                Delivered
-              </Button>
-            </ListItem>
-          ))}
+        {orders.filter(order => order.delivered && order.orderMenuItems.length > 0).map(order => (
+          <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
+            <ListItemText
+              primary={`Order #${order.orderId} - Table ${order.tableNum}`}
+              secondary={
+                <>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    Ordered At: {formatDate(order.orderPlaced)}
+                  </Typography>
+                  {order.orderMenuItems.map(item => (
+                    <Typography key={item.orderMenuItemsId.itemId} variant="body2">
+                      {item.menuItem.name} x{item.quantity} (£{(item.menuItem.price * item.quantity).toFixed(2)})
+                    </Typography>
+                  ))}
+                </>
+              }
+            />
+            <Button variant="contained" color="secondary" disabled>
+              Delivered
+            </Button>
+          </ListItem>
+        ))}
       </List>
+
     </Box>
   );
 }
