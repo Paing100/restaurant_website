@@ -239,19 +239,38 @@ public class MenuItem {
     this.available = available;
   }
 
-
+  /**
+   * Gets the image path.
+   *
+   * @return the image path of the menu item
+   */
   public String getImagePath() {
     return imagePath;
   }
 
+  /**
+   * Sets the image path.
+   *
+   * @param imagePath of the menu item
+   */
   public void setImagePath(String imagePath) {
     this.imagePath = imagePath;
   }
 
+  /**
+   * Gets the category of the menu item.
+   *
+   * @return the category
+   */
   public int getCategory() {
     return this.category;
   }
 
+  /**
+   * Sets the category of the menu item.
+   *
+   * @param category of the menu item.
+   */
   public void setCategory(int category) {
     this.category = category;
   }
