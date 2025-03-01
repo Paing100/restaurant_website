@@ -28,7 +28,9 @@ public class OrderService {
   private MenuItemRepository menuItemRepository;
 
   public Order getOrder(int orderId) {
-    return orderRepository.findById(orderId).orElse(null);
+    return orderRepository.findById(orderId)
+        .filter(order -> orderMenuItemRepository.existsByOrderAndOrderSubmittedFalse(order))
+        .orElse(null);
   }
 
   public void addItemToOrder(int orderId, int itemId, int quantity, boolean orderSubmitted) {

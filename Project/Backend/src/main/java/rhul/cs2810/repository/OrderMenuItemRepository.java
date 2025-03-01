@@ -23,4 +23,5 @@ public interface OrderMenuItemRepository extends CrudRepository<OrderMenuItem, O
    */
   List<OrderMenuItem> findByOrder(Order order);
 
+  boolean existsByOrderAndOrderSubmittedFalse(Order order);
 }

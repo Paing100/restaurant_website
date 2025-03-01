@@ -14,23 +14,14 @@ function Order() {
     const [orderStatus, setOrderStatus] = useState('PENDING');
     const [showOrderInfo, setShowOrderInfo] = useState(false);
     const [expanded, setExpanded] = useState(false);
+    const [open, setOpen] = useState(false);
 
-    // Ensure cart.orderedItems exists before rendering
     const orderedItems = cart?.orderedItems || {};
 
-    const handlePageClick = () => {
-        fetchCart();
-        document.removeEventListener('click', handlePageClick);
-    };
-
-    document.addEventListener('click', handlePageClick);
-
-    // Decreases item quantity by one
     const decreaseItemQuantity = (itemId) => {
-        removeItemFromCart(itemId, false); // Always pass false for single item removal
+        removeItemFromCart(itemId, false);
     };
 
-    // Increases item quantity by one
     const increaseItemQuantity = (itemId) => {
         addItemToCart(itemId, 1);
     };
@@ -51,6 +42,7 @@ function Order() {
             setShowOrderInfo(true);
             setMessage(result.message);
             setSeverity('success');
+            fetchCart();
         } else {
             setMessage(result.message);
             setSeverity('error');
