@@ -8,7 +8,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, setCustomer, customer, addItemToCart } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart } = useContext(CartContext);
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
@@ -47,49 +47,26 @@ function Order() {
             return;
         }
 
-        if (!customer) {
-            console.error("Error: Customer is not logged in.");
-            setMessage("Error: Customer is not logged in.");
+        if (!customer || !customer.orderId) {
+            console.error("Error: Customer is not logged in or order ID is missing.");
+            setMessage("Error: Customer is not logged in or order ID is missing.");
             setSeverity('error');
             setOpen(true);
             return;
         }
 
         try {
-            // Update customer with current datetime
-            const currentDatetime = new Date().toISOString();
-            const response = await fetch(`http://localhost:8080/api/customers/update?name=${customer.name}&tableNum=${customer.tableNum}&datetime=${currentDatetime}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/hal+json'
-                },
-            });
-            const updatedCustomer = await response.json();
-            setCustomer(updatedCustomer);
-
-            const orderedItemsArray = Object.entries(orderedItems).map(([itemName, item]) => ({
-                itemName: itemName,
-                quantity: item.quantity
-            }));
-
-            const orderData = {
-                customer: updatedCustomer,
-                orderedItems: orderedItemsArray,
-            };
-
-            const orderResponse = await fetch('http://localhost:8080/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData),
+            const response = await fetch(`http://localhost:8080/api/order/${customer.orderId}/submitOrder`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
             });
 
-            if (!orderResponse.ok) {
-                throw new Error(`Server responded with status: ${orderResponse.status}`);
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
             }
 
-            const data = await orderResponse.json();
-            console.log('Order submitted successfully:', data);
-            setOrderStatus('PENDING');
+            console.log('Order submitted successfully');
+            setOrderStatus('SUBMITTED');
             setShowOrderInfo(true);
             setMessage('Order submitted successfully!');
             setSeverity('success');
@@ -102,6 +79,7 @@ function Order() {
             setOpen(true);
         }
     };
+
 
     const handleClose = () => {
         setOpen(false);
@@ -146,8 +124,8 @@ function Order() {
                         </Grid>
                         <Grid item xs={2}>
                             <Typography variant="body2" sx={{
-                                color: orderStatus === 'PENDING' ? 'orange' : 
-                                       orderStatus === 'COMPLETED' ? 'green' : 'white'
+                                color: orderStatus === 'PENDING' ? 'orange' :
+                                    orderStatus === 'COMPLETED' ? 'green' : 'white'
                             }}>
                                 {orderStatus}
                             </Typography>
@@ -159,8 +137,8 @@ function Order() {
                 </Box>
 
                 {/* Expanded Receipt View */}
-                <Box sx={{ 
-                    mt: 2, 
+                <Box sx={{
+                    mt: 2,
                     display: expanded ? 'block' : 'none',
                     overflowY: 'auto',
                     maxHeight: 'calc(80vh - 64px)'

@@ -1,5 +1,6 @@
 package rhul.cs2810.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,7 +58,11 @@ public class OrderService {
         item.setOrderSubmited(true);
       }
 
+      order.setOrderSubmitted(true);
+      order.setOrderPlaced(LocalDateTime.now());
+
       orderMenuItemRepository.saveAll(orderItems);
+      orderRepository.save(order);
     } else {
       throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
     }
