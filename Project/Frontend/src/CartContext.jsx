@@ -6,6 +6,7 @@ export const CartContext = createContext();
 export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState({ orderedItems: {}, totalPrice: 0 });
     const [customer, setCustomer] = useState(null);
+    const [tableNum, setTableNum] = useState('');
     const [loading, setLoading] = useState(true);
 
     // Fetch cart data from the backend
@@ -19,43 +20,58 @@ export const CartProvider = ({ children }) => {
             const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/getOrder`, {
                 method: 'GET',
                 headers: {
-                    'accept': 'application/hal+json',
+                    'Accept': 'application/json', // Changed from application/hal+json to standard JSON
                 },
             });
 
-            if (response.ok) {
-                const orderData = await response.json();
-                console.log('Order Data:', orderData);
-
-                // Map the orderMenuItems to include both quantity and price
-                const orderedItems = orderData.orderMenuItems.reduce((acc, item) => {
-                    acc[item.menuItem.name] = {
-                        itemId: item.menuItem.itemId,
-                        quantity: item.quantity,
-                        price: item.menuItem.price,
-                        imagePath: item.menuItem.imagePath // Include image path if needed
-                    };
-                    return acc;
-                }, {});
-
-                // Calculate total price from items
-                const totalPrice = orderData.orderMenuItems.reduce((total, item) =>
-                    total + (item.quantity * item.menuItem.price), 0
-                );
-
-                setCart({
-                    orderedItems: orderedItems,
-                    totalPrice: totalPrice
-                });
-
-                console.log('Updated Cart:', { orderedItems, totalPrice });
-            } else {
-                console.error('Error fetching order');
+            if (!response.ok) {
+                throw new Error(`Error: ${response.status} - ${response.statusText}`);
             }
+
+            const text = await response.text(); // Read response as text first
+
+            if (!text) {
+                throw new Error("Received empty response from server.");
+            }
+
+            const orderData = JSON.parse(text); // Parse only if response is not empty
+            console.log('Order Data:', orderData);
+
+            if (!orderData || !Array.isArray(orderData.orderMenuItems)) {
+                throw new Error("Invalid order data format.");
+            }
+
+            // Map the orderMenuItems to include quantity and price
+            const orderedItems = orderData.orderMenuItems.reduce((acc, item) => {
+                if (!item.menuItem) return acc; // Ensure menuItem exists
+
+                acc[item.menuItem.name] = {
+                    itemId: item.menuItem.itemId,
+                    quantity: item.quantity || 0,
+                    price: item.menuItem.price || 0,
+                    imagePath: item.menuItem.imagePath || '' // Include image path safely
+                };
+                return acc;
+            }, {});
+
+            // Calculate total price safely
+            const totalPrice = orderData.orderMenuItems.reduce((total, item) =>
+                total + ((item.quantity || 0) * (item.menuItem?.price || 0)), 0
+            );
+
+            setCart({
+                orderedItems: orderedItems,
+                totalPrice: totalPrice
+            });
+
+            console.log('Updated Cart:', { orderedItems, totalPrice });
+
         } catch (error) {
             console.error('Error fetching order:', error);
+            setCart({ orderedItems: {}, totalPrice: 0 }); // Set fallback cart to prevent crashes
         }
     };
+
 
     // Handle adding item to the cart
     const addItemToCart = async (itemId, quantity) => {
@@ -234,6 +250,8 @@ export const CartProvider = ({ children }) => {
                 cart,
                 customer,
                 setCustomer,
+                tableNum,
+                setTableNum,
                 addItemToCart,
                 removeItemFromCart,
                 fetchCart,

@@ -8,13 +8,15 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [orderStatus, setOrderStatus] = useState('PENDING');
     const [showOrderInfo, setShowOrderInfo] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [open, setOpen] = useState(false);
+    const [receipt, setReceipt] = useState([]);
+    const [receiptTotal, setReceiptTotal] = useState(0);
 
     const orderedItems = cart?.orderedItems || {};
 
@@ -42,6 +44,8 @@ function Order() {
             setShowOrderInfo(true);
             setMessage(result.message);
             setSeverity('success');
+            setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
+            setReceiptTotal(cart.totalPrice);
             fetchCart();
         } else {
             setMessage(result.message);
@@ -50,7 +54,7 @@ function Order() {
         setOpen(true);
     };
 
-    const handleClose = (event, reason) => {
+    const handleClose = (reason) => {
         if (reason === 'clickaway') {
             return;
         }
@@ -86,12 +90,12 @@ function Order() {
                         </Grid>
                         <Grid item xs={3}>
                             <Typography variant="body2">
-                                Table {customer?.tableNum || 'N/A'}
+                                Table {tableNum || 'N/A'}
                             </Typography>
                         </Grid>
                         <Grid item xs={3}>
                             <Typography variant="body2">
-                                £{(cart.totalPrice || 0).toFixed(2)}
+                                £{receiptTotal.toFixed(2)}
                             </Typography>
                         </Grid>
                         <Grid item xs={2}>
@@ -119,10 +123,10 @@ function Order() {
                         Order Receipt
                     </Typography>
                     <List>
-                        {Object.entries(orderedItems).map(([itemName, item]) => (
-                            <ListItem key={itemName} sx={{ py: 1 }}>
+                        {receipt.map((item) => (
+                            <ListItem key={item.itemName} sx={{ py: 1 }}>
                                 <ListItemText
-                                    primary={itemName}
+                                    primary={item.itemName}
                                     secondary={
                                         <Typography variant="body2" sx={{ color: '#aaa' }}>
                                             {item.quantity} x £{item.price.toFixed(2)}
@@ -142,7 +146,7 @@ function Order() {
                         </Grid>
                         <Grid item xs={6} sx={{ textAlign: 'right' }}>
                             <Typography variant="body1">
-                                £{(cart.totalPrice || 0).toFixed(2)}
+                                £{receiptTotal.toFixed(2)}
                             </Typography>
                         </Grid>
                     </Grid>

@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
 
 const CustomerModal = () => {
-    const { setCustomer, customer } = useContext(CartContext);
+    const { setCustomer, setTableNum, customer } = useContext(CartContext);
     const [name, setName] = useState('');
-    const [tableNum, setTableNum] = useState('');
+    const [tableNum, setTableNumState] = useState('');
     const [open, setOpen] = useState(true);
     const navigate = useNavigate();
     const nameInputRef = useRef(null);
@@ -29,11 +29,12 @@ const CustomerModal = () => {
                 const response = await fetch(`http://localhost:8080/api/customers/add?name=${name}&tableNum=${tableNum}`, {
                     method: 'POST',
                     headers: {
-                        'accept': 'application/hal+json'
+                        'accept': 'application/json'
                     },
                 });
                 const newCustomer = await response.json();
                 setCustomer(newCustomer);
+                setTableNum(tableNum); // Correctly using setTableNum from CartContext
                 setOpen(false);
             } catch (error) {
                 console.error('Error adding customer:', error);
@@ -46,11 +47,12 @@ const CustomerModal = () => {
             const response = await fetch(`http://localhost:8080/api/customers/add?name=staff&tableNum=1`, {
                 method: 'POST',
                 headers: {
-                    'accept': 'application/hal+json'
+                    'accept': 'application/json'
                 },
             });
             const newCustomer = await response.json();
             setCustomer(newCustomer);
+            setTableNum(1); // Correctly using setTableNum from CartContext
             setOpen(false);
             navigate('/login'); // Navigate to the staff login page
         } catch (error) {
@@ -73,7 +75,7 @@ const CustomerModal = () => {
                     p: 4,
                     borderRadius: 2,
                     '&:focus-visible': {
-                        outline: '2px solid rgba(60, 58, 58, 0.93)', // Change this to your desired outline style
+                        outline: '2px solid rgba(60, 58, 58, 0.93)',
                     }
                 }}>
                     <Typography variant="h6" component="h2" sx={{ color: 'white' }}>
@@ -114,7 +116,7 @@ const CustomerModal = () => {
                         fullWidth
                         margin="normal"
                         value={tableNum}
-                        onChange={(e) => setTableNum(e.target.value)}
+                        onChange={(e) => setTableNumState(e.target.value)}
                         sx={{
                             '& .MuiOutlinedInput-root': {
                                 '& fieldset': {
