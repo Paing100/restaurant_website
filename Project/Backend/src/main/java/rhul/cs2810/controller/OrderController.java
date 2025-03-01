@@ -80,7 +80,8 @@ public class OrderController {
    */
   @PostMapping("/order/{orderId}/submitOrder")
   public ResponseEntity<String> submitOrder(@PathVariable int orderId) {
-    Order order = orderService.getOrder(orderId);
+    Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
+    Order order = orderOptional.get();
     order.setOrderPlaced(LocalDateTime.now());
     orderService.submitOrder(orderId);
     return ResponseEntity.ok("Order submitted successfully");
@@ -97,6 +98,13 @@ public class OrderController {
     return ResponseEntity.ok(orders);
   }
 
+  /**
+   * Update the status of an order.
+   * 
+   * @param orderId of the order
+   * @param param of Map with orderStatus as a key and related value
+   * @return
+   */
   @PostMapping("/order/{orderId}/updateOrderStatus")
   public ResponseEntity<String> updateOrderStatus(@PathVariable int orderId,
       @RequestBody Map<String, String> param) {

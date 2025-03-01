@@ -93,6 +93,11 @@ public class OrderService {
     return (List<Order>) orderRepository.findAll();
   }
 
+  /**
+   * Saves the updated order status in the repository.
+   * 
+   * @param order
+   */
   public void saveUpdatedOrder(Order order) {
     orderRepository.save(order);
   }
