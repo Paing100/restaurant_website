@@ -8,8 +8,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart } = useContext(CartContext);
-    const [open, setOpen] = useState(false);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [orderStatus, setOrderStatus] = useState('PENDING');
@@ -36,9 +35,7 @@ function Order() {
         addItemToCart(itemId, 1);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async () => {
         if (!orderedItems || Object.keys(orderedItems).length === 0) {
             console.error("Error: Cart is empty. Cannot submit order.");
             setMessage("Error: Cart is empty. Cannot submit order.");
@@ -47,39 +44,19 @@ function Order() {
             return;
         }
 
-        if (!customer || !customer.orderId) {
-            console.error("Error: Customer is not logged in or order ID is missing.");
-            setMessage("Error: Customer is not logged in or order ID is missing.");
-            setSeverity('error');
-            setOpen(true);
-            return;
-        }
+        const result = await submitOrder();
 
-        try {
-            const response = await fetch(`http://localhost:8080/api/order/${customer.orderId}/submitOrder`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            if (!response.ok) {
-                throw new Error(`Server responded with status: ${response.status}`);
-            }
-
-            console.log('Order submitted successfully');
+        if (result.success) {
             setOrderStatus('SUBMITTED');
             setShowOrderInfo(true);
-            setMessage('Order submitted successfully!');
+            setMessage(result.message);
             setSeverity('success');
-            setOpen(true);
-            clearCart();
-        } catch (err) {
-            console.error('Error submitting order:', err.message);
-            setMessage(`Error submitting order: ${err.message}`);
+        } else {
+            setMessage(result.message);
             setSeverity('error');
-            setOpen(true);
         }
+        setOpen(true);
     };
-
 
     const handleClose = () => {
         setOpen(false);
@@ -228,31 +205,29 @@ function Order() {
             </List>
             <Divider />
             <Typography variant="h6" sx={{ marginTop: 2 }}>Total Price: £{(cart.totalPrice || 0).toFixed(2)}</Typography>
-            <form onSubmit={handleSubmit}>
-                <Grid container spacing={2} sx={{ marginTop: 2 }}>
-                    <Grid item xs={6}>
-                        <Box sx={{}}>
-                            <Button
-                                onClick={() => clearCart()}
-                                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-                                fullWidth
-                            >
-                                Clear Cart
-                            </Button>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={6}>
+            <Grid container spacing={2} sx={{ marginTop: 2 }}>
+                <Grid item xs={6}>
+                    <Box sx={{}}>
                         <Button
-                            type="submit"
-                            variant="contained"
+                            onClick={() => clearCart()}
                             sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                             fullWidth
                         >
-                            Submit Order
+                            Clear Cart
                         </Button>
-                    </Grid>
+                    </Box>
                 </Grid>
-            </form>
+                <Grid item xs={6}>
+                    <Button
+                        onClick={handleSubmit}
+                        variant="contained"
+                        sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                        fullWidth
+                    >
+                        Submit Order
+                    </Button>
+                </Grid>
+            </Grid>
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
                     {message}

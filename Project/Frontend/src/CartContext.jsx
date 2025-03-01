@@ -193,6 +193,30 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // Submit the order
+    const submitOrder = async () => {
+        if (!customer || !customer.customerId) {
+            throw new Error("Customer is not logged in or order ID is missing.");
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/order/${customer.customerId}/submitOrder`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+
+            console.log('Order submitted successfully');
+            return { success: true, message: 'Order submitted successfully!' };
+        } catch (err) {
+            console.error('Error submitting order:', err.message);
+            return { success: false, message: `Error submitting order: ${err.message}` };
+        }
+    };
+
     // Use effect to fetch cart data when customer is set
     useEffect(() => {
         fetchCart();
@@ -214,6 +238,7 @@ export const CartProvider = ({ children }) => {
                 removeItemFromCart,
                 fetchCart,
                 clearCart,
+                submitOrder,
                 loading
             }}
         >
