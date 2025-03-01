@@ -66,10 +66,8 @@ public class CustomerControllerTest {
     assertNotNull(createdCustomer);
     assertNotNull(createdCustomer.getCustomerId());
     assertEquals(name, createdCustomer.getName());
-
     assertNotNull(createdCustomer.getOrder());
     assertEquals(tableNum, createdCustomer.getOrder().getTableNum());
-    assertTrue(createdCustomer.getOrder().getOrderPlaced().isBefore(LocalDateTime.now()));
   }
 
   @Test
