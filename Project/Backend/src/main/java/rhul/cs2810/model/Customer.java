@@ -42,22 +42,47 @@ public class Customer {
     this.name = name;
   }
 
+  /**
+   * Gets the name of the customer.
+   * 
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the name of the customer.
+   *
+   * @param name of the customer
+   */
   public void setName(String name) {
     this.name = name;
   }
 
+  /**
+   * Gets the order that the customer submitted.
+   *
+   * @return the order
+   */
   public Order getOrder() {
     return order;
   }
 
+  /**
+   * Sets the order for the customer.
+   * 
+   * @param order of the customer
+   */
   public void setOrder(Order order) {
     this.order = order;
   }
 
+  /**
+   * Gets the customer id.
+   *
+   * @return the unique id of the customer
+   */
   public int getCustomerId() {
     return customerId;
   }
