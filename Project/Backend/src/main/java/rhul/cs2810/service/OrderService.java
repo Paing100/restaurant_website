@@ -48,15 +48,22 @@ public class OrderService {
 
   public void submitOrder(int orderId) {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
+
     if (orderOptional.isPresent()) {
       Order order = orderOptional.get();
-      order.setOrderSubmitted(true);
-      orderRepository.save(order);
+      List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
+
+      for (OrderMenuItem item : orderItems) {
+        item.setOrderSubmited(true);
+      }
+
+      orderMenuItemRepository.saveAll(orderItems);
+    } else {
+      throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
     }
   }
 
   public List<Order> getAllOrders() {
     return (List<Order>) orderRepository.findAll();
   }
-
 }

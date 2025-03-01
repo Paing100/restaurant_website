@@ -75,6 +75,9 @@ public class OrderMenuItem {
     this.quantity = quantity;
   }
 
+  public void setOrderSubmited(boolean orderSubmitted) {
+    this.orderSubmitted = orderSubmitted;
+  }
 
 
 }
