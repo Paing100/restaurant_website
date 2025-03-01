@@ -1,15 +1,18 @@
 package rhul.cs2810.service;
 
+<<<<<<<HEAD
 import java.util.List;
 import java.util.Optional;
 
+=======>>>>>>>3e265 af(#62 set orderStatus to submitted)
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderMenuItem;
-import rhul.cs2810.model.OrderMenuItemId;
+import rhul.cs2810.model.OrderMenuItemId;<<<<<<<HEAD=======
+import rhul.cs2810.model.OrderStatus;>>>>>>>3e265 af(#62 set orderStatus to submitted)
 import rhul.cs2810.repository.MenuItemRepository;
 import rhul.cs2810.repository.OrderMenuItemRepository;
 import rhul.cs2810.repository.OrderRepository;
