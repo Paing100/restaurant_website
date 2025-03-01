@@ -13,11 +13,14 @@ CREATE TABLE customer (
     name VARCHAR(255) NOT NULL
 );
 
+CREATE TYPE order_status AS ENUM ('CREATED', 'SUBMITTED', 'READY', 'IN_PROGRESS', 'DELIVERED');
+
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
     customer_id INT NOT NULL,
     table_num INT NOT NULL,
     order_placed TIMESTAMP,
+    status order_status NOT NULL,
     FOREIGN KEY (customer_id) REFERENCES customer(customer_id) ON DELETE CASCADE
 );
 

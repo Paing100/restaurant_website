@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,6 +45,10 @@ public class Order {
   @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonManagedReference
   private List<OrderMenuItem> orderMenuItems = new ArrayList<>();
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  private OrderStatus orderStatus;
 
   public Order() {}
 
@@ -97,6 +103,14 @@ public class Order {
   public void addItemToCart(MenuItem menuItem, int quantity) {
     OrderMenuItem orderMenuItem = new OrderMenuItem(this, menuItem, quantity);
     this.orderMenuItems.add(orderMenuItem);
+  }
+
+  public OrderStatus getOrderStatus() {
+    return orderStatus;
+  }
+
+  public void setOrderStatus(OrderStatus orderStatus) {
+    this.orderStatus = orderStatus;
   }
 
   /*
