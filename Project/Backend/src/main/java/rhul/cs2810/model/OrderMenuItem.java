@@ -103,10 +103,20 @@ public class OrderMenuItem {
     this.menuItem = menuItem;
   }
 
+  /**
+   * Gets the quantity of the order menu item.
+   * 
+   * @return the quantity
+   */
   public int getQuantity() {
     return quantity;
   }
 
+  /**
+   * Sets the quantity of the order menu item.
+   *
+   * @param quantity of the item
+   */
   public void setQuantity(int quantity) {
     this.quantity = quantity;
   }
