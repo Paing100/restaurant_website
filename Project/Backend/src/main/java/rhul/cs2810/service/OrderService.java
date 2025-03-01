@@ -14,6 +14,9 @@ import rhul.cs2810.repository.MenuItemRepository;
 import rhul.cs2810.repository.OrderMenuItemRepository;
 import rhul.cs2810.repository.OrderRepository;
 
+/**
+ * A class contains business logic of Order
+ */
 @Service
 public class OrderService {
 
@@ -26,10 +29,23 @@ public class OrderService {
   @Autowired
   private MenuItemRepository menuItemRepository;
 
+  /**
+   * Retrieves a specific order from the given id.
+   *
+   * @param orderId
+   * @return order matches the id
+   */
   public Order getOrder(int orderId) {
     return orderRepository.findById(orderId).orElse(null);
   }
 
+  /**
+   * Adds an item to order.
+   *
+   * @param orderId of the order
+   * @param itemId of the item
+   * @param quantity of the item
+   */
   public void addItemToOrder(int orderId, int itemId, int quantity) {
     Order order = orderRepository.findById(orderId).orElseThrow(
         () -> new IllegalArgumentException("Order with ID " + orderId + " not found."));
@@ -41,11 +57,22 @@ public class OrderService {
     orderMenuItemRepository.save(orderMenuItem);
   }
 
+  /**
+   * Removes an item from order.
+   *
+   * @param orderId of the order
+   * @param itemId of the item
+   */
   public void removeItemFromOrder(int orderId, int itemId) {
     OrderMenuItemId orderMenuItemId = new OrderMenuItemId(orderId, itemId);
     orderMenuItemRepository.deleteById(orderMenuItemId);
   }
 
+  /**
+   * Submits an order to the repository.
+   *
+   * @param orderId of the order
+   */
   public void submitOrder(int orderId) {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
     if (orderOptional.isPresent()) {
@@ -54,6 +81,11 @@ public class OrderService {
     }
   }
 
+  /**
+   * Retrieves all orders.
+   *
+   * @return a list of orders
+   */
   public List<Order> getAllOrders() {
     return (List<Order>) orderRepository.findAll();
   }
