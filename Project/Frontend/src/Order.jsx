@@ -8,7 +8,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCustomer } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [orderStatus, setOrderStatus] = useState('PENDING');
@@ -64,6 +64,17 @@ function Order() {
             setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
             setReceiptTotal(cart.totalPrice);
             setOrderTime(new Date());
+            const response = await fetch(`http://localhost:8080/api/customers/add?name=${customer.name}&tableNum=${tableNum}`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json'
+                },
+            });
+            if (response.ok) {
+                const newCustomer = await response.json();
+                setCustomer(newCustomer);
+                console.log("Customer added successfully");
+            }
             fetchCart();
         } else {
             setMessage(result.message);
