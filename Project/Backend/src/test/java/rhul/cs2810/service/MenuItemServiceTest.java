@@ -1,4 +1,4 @@
-package rhul.cs2810;
+package rhul.cs2810.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -15,7 +15,6 @@ import rhul.cs2810.model.Allergen;
 import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.repository.MenuItemRepository;
-import rhul.cs2810.service.MenuItemService;
 
 class MenuItemServiceTest {
 

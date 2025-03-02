@@ -1,4 +1,4 @@
-package rhul.cs2810;
+package rhul.cs2810.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,7 +31,6 @@ import rhul.cs2810.model.OrderMenuItemId;
 import rhul.cs2810.repository.MenuItemRepository;
 import rhul.cs2810.repository.OrderMenuItemRepository;
 import rhul.cs2810.repository.OrderRepository;
-import rhul.cs2810.service.OrderService;
 
 class OrderServiceTest {
 
