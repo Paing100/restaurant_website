@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert, IconButton, Paper, Slide } from '@mui/material';
 import { CartContext } from './CartContext';
 import AddIcon from '@mui/icons-material/Add';
@@ -17,8 +17,25 @@ function Order() {
     const [open, setOpen] = useState(false);
     const [receipt, setReceipt] = useState([]);
     const [receiptTotal, setReceiptTotal] = useState(0);
+    const [orderTime, setOrderTime] = useState(null);
+    const [elapsedTime, setElapsedTime] = useState('00:00:00');
+    const timerRef = useRef(null);
 
     const orderedItems = cart?.orderedItems || {};
+
+    useEffect(() => {
+        if (orderTime) {
+            timerRef.current = setInterval(() => {
+                const now = new Date();
+                const diff = now - orderTime;
+                const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, '0');
+                const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
+                setElapsedTime(`${hours}:${minutes}:${seconds}`);
+            }, 1000);
+        }
+        return () => clearInterval(timerRef.current);
+    }, [orderTime]);
 
     const decreaseItemQuantity = (itemId) => {
         removeItemFromCart(itemId, false);
@@ -40,12 +57,13 @@ function Order() {
         const result = await submitOrder();
 
         if (result.success) {
-            setOrderStatus('SUBMITTED');
+            setOrderStatus('In Progress');
             setShowOrderInfo(true);
             setMessage(result.message);
             setSeverity('success');
             setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
             setReceiptTotal(cart.totalPrice);
+            setOrderTime(new Date());
             fetchCart();
         } else {
             setMessage(result.message);
@@ -54,7 +72,7 @@ function Order() {
         setOpen(true);
     };
 
-    const handleClose = (reason) => {
+    const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
@@ -82,8 +100,8 @@ function Order() {
                 }}
             >
                 <Box sx={{ cursor: 'pointer' }} onClick={() => setExpanded(!expanded)}>
-                    <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={3}>
+                    <Grid container spacing={1} alignItems="center">
+                        <Grid item xs={2.5}>
                             <Typography variant="body2">
                                 {customer?.name || 'N/A'}
                             </Typography>
@@ -95,16 +113,26 @@ function Order() {
                         </Grid>
                         <Grid item xs={3}>
                             <Typography variant="body2">
-                                £{receiptTotal.toFixed(2)}
+                                {elapsedTime}
                             </Typography>
                         </Grid>
-                        <Grid item xs={2}>
-                            <Typography variant="body2" sx={{
-                                color: orderStatus === 'PENDING' ? 'orange' :
-                                    orderStatus === 'COMPLETED' ? 'green' : 'white'
-                            }}>
-                                {orderStatus}
-                            </Typography>
+                        <Grid item xs={2.5}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Box
+                                    sx={{
+                                        width: 20,
+                                        height: 20,
+                                        borderRadius: '50%',
+                                        backgroundColor: orderStatus === 'In Progress' ? 'green' : 'red',
+                                        border: '2px solid white',
+                                        boxShadow: orderStatus === 'In Progress' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' : '0 0 10px red, 0 0 20px red, 0 0 30px red',
+                                        marginRight: 2, // Increased marginRight to add more space
+                                    }}
+                                />
+                                <Typography variant="body2">
+                                    {orderStatus}
+                                </Typography>
+                            </Box>
                         </Grid>
                         <Grid item xs={1}>
                             {expanded ? <ExpandMoreIcon /> : <ExpandLessIcon />}
