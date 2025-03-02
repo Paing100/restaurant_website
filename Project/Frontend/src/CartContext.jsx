@@ -84,7 +84,7 @@ export const CartProvider = ({ children }) => {
             const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
             const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;
 
-            const response = await fetch(`http://localhost:8080/api/orders/1/addItems?itemId=${itemId}&quantity=${newQuantity}&orderSubmitted=false`, {
+            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}&orderSubmitted=false`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/hal+json',
