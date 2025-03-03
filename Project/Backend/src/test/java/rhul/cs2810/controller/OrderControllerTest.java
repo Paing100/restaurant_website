@@ -54,7 +54,9 @@ class OrderControllerTest {
 
   @Test
   void testAddItemToOrder() throws Exception {
-    mockMvc.perform(post("/api/orders/1/addItems").param("itemId", "101").param("quantity", "2"))
+    mockMvc
+        .perform(post("/api/orders/1/addItems").param("itemId", "101").param("quantity", "2")
+            .param("orderSubmitted", "false"))
         .andExpect(status().isOk()).andExpect(content().string("Item added to order"));
 
     verify(orderService, times(1)).addItemToOrder(1, 101, 2, false);

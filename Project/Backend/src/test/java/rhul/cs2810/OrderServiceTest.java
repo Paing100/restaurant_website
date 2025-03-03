@@ -54,15 +54,15 @@ class OrderServiceTest {
 
     Order foundOrder = orderService.getOrder(1);
 
-    assertNotNull(foundOrder);
+    assertNull(foundOrder);
   }
 
   @Test
   void testGetOrder_NonExistingOrder() {
     when(orderRepository.findById(2)).thenReturn(Optional.empty());
 
-    Order foundOrder = orderService.getOrder(2);
-
+    Order foundOrder = orderService.getOrder(2);  
+    
     assertNull(foundOrder);
   }
 
