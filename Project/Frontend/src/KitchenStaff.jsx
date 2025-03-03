@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Typography, Box } from "@mui/material";
+import { Typography, List, ListItem, ListItemText, Box } from "@mui/material";
 
 function KitchenStaff() {
   const userName = localStorage.getItem("userName");
@@ -26,7 +26,22 @@ function KitchenStaff() {
     <Box>
       <Typography variant="h3">Welcome {userName}!</Typography>
       <Typography variant="h4">{userRole} Dashboard</Typography>
-      <Typography variant="h5">Pending Orders: {orders.length}</Typography>
+
+      <Typography variant="h5" sx={{ mt: 2 }}>Pending Orders</Typography>
+      <List>
+        {orders.map(order => (
+          <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
+            <ListItemText
+              primary={`Order #${order.orderId} - Table ${order.tableNum}`}
+              secondary={order.orderMenuItems.map(item => (
+                <Typography key={item.orderMenuItemsId.itemId} variant="body2">
+                  {item.menuItem.name} x{item.quantity}
+                </Typography>
+              ))}
+            />
+          </ListItem>
+        ))}
+      </List>
     </Box>
   );
 }
