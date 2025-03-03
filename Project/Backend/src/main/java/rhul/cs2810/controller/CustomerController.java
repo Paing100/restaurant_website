@@ -1,13 +1,15 @@
 package rhul.cs2810.controller;
 
-import java.time.LocalDateTime;
-
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import rhul.cs2810.model.Customer;
 import rhul.cs2810.model.Order;
+import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.OrderRepository;
 
@@ -44,18 +46,18 @@ public class CustomerController {
       @RequestParam int tableNum) {
     // Create and save customer first
     Customer newCustomer = new Customer(name);
-    newCustomer = customerRepository.save(newCustomer); // Ensure it's persisted and has an ID
+    newCustomer = customerRepository.save(newCustomer);
 
     // Create order linked to the persisted customer
     Order order = new Order();
     order.setTableNum(tableNum);
-    order.setOrderPlaced(LocalDateTime.now());
     order.setCustomer(newCustomer);
-
-    newCustomer.setOrder(order);
+    order.setOrderStatus(OrderStatus.CREATED);
 
     // Save the order
     orderRepository.save(order);
+
+    newCustomer.setOrder(order);
 
     return ResponseEntity.ok(newCustomer);
   }

@@ -1,8 +1,12 @@
 package rhul.cs2810.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rhul.cs2810.model.Customer;
@@ -61,10 +66,8 @@ public class CustomerControllerTest {
     assertNotNull(createdCustomer);
     assertNotNull(createdCustomer.getCustomerId());
     assertEquals(name, createdCustomer.getName());
-
     assertNotNull(createdCustomer.getOrder());
     assertEquals(tableNum, createdCustomer.getOrder().getTableNum());
-    assertTrue(createdCustomer.getOrder().getOrderPlaced().isBefore(LocalDateTime.now()));
   }
 
   @Test
@@ -76,4 +79,5 @@ public class CustomerControllerTest {
         .andExpect(status().isOk()).andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(2));
   }
+
 }
