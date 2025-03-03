@@ -12,16 +12,6 @@ const CustomerModal = () => {
     const nameInputRef = useRef(null);
 
     useEffect(() => {
-        const storedCustomer = JSON.parse(localStorage.getItem('customer'));
-        const storedTableNum = localStorage.getItem('tableNum');
-        if (storedCustomer && storedTableNum) {
-            setCustomer(storedCustomer);
-            setTableNum(storedTableNum);
-            setOpen(false);
-        }
-    }, [setCustomer, setTableNum]);
-
-    useEffect(() => {
         if (customer) {
             setOpen(false);
         }
@@ -44,9 +34,7 @@ const CustomerModal = () => {
                 });
                 const newCustomer = await response.json();
                 setCustomer(newCustomer);
-                setTableNum(tableNum);
-                localStorage.setItem('customer', JSON.stringify(newCustomer));
-                localStorage.setItem('tableNum', tableNum);
+                setTableNum(tableNum); // Correctly using setTableNum from CartContext
                 setOpen(false);
             } catch (error) {
                 console.error('Error adding customer:', error);
@@ -64,127 +52,127 @@ const CustomerModal = () => {
             });
             const newCustomer = await response.json();
             setCustomer(newCustomer);
-            setTableNum(1);
-            localStorage.setItem('customer', JSON.stringify(newCustomer));
-            localStorage.setItem('tableNum', '1');
+            setTableNum(1); // Correctly using setTableNum from CartContext
             setOpen(false);
-            navigate('/login');
+            navigate('/login'); // Navigate to the staff login page
         } catch (error) {
             console.error('Error adding staff customer:', error);
         }
     };
 
     return (
-        <Modal open={open} onClose={() => { }}>
-            <Box sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                width: 400,
-                bgcolor: 'rgba(60, 58, 58, 0.93)',
-                color: 'white',
-                boxShadow: 24,
-                p: 4,
-                borderRadius: 2,
-                '&:focus-visible': {
-                    outline: '2px solid rgba(60, 58, 58, 0.93)',
-                }
-            }}>
-                <Typography variant="h6" component="h2" sx={{ color: 'white' }}>
-                    Enter Your Details
-                </Typography>
-                <TextField
-                    label="Name"
-                    fullWidth
-                    margin="normal"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    inputRef={nameInputRef}
-                    sx={{
-                        '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                                borderColor: 'white',
-                            },
-                            '&:hover fieldset': {
-                                borderColor: 'white',
-                            },
-                            '&.Mui-focused fieldset': {
-                                borderColor: 'white',
-                            },
-                        },
-                        '& .MuiInputLabel-root': {
-                            color: 'white',
-                        },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                            color: 'white',
-                        },
-                        '& .MuiInputBase-input': {
-                            color: 'white',
-                        },
-                    }}
-                />
-                <TextField
-                    label="Table Number"
-                    fullWidth
-                    margin="normal"
-                    value={tableNum}
-                    onChange={(e) => setTableNumState(e.target.value)}
-                    sx={{
-                        '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                                borderColor: 'white',
-                            },
-                            '&:hover fieldset': {
-                                borderColor: 'white',
-                            },
-                            '&.Mui-focused fieldset': {
-                                borderColor: 'white',
-                            },
-                        },
-                        '& .MuiInputLabel-root': {
-                            color: 'white',
-                        },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                            color: 'white',
-                        },
-                        '& .MuiInputBase-input': {
-                            color: 'white',
-                        },
-                    }}
-                />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, gap: 0.1 }}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmit}
+        <>
+            <Modal open={open} onClose={() => { }}>
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 400,
+                    bgcolor: 'rgba(60, 58, 58, 0.93)',
+                    color: 'white',
+                    boxShadow: 24,
+                    p: 4,
+                    borderRadius: 2,
+                    '&:focus-visible': {
+                        outline: '2px solid rgba(60, 58, 58, 0.93)',
+                    }
+                }}>
+                    <Typography variant="h6" component="h2" sx={{ color: 'white' }}>
+                        Enter Your Details
+                    </Typography>
+                    <TextField
+                        label="Name"
+                        fullWidth
+                        margin="normal"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        inputRef={nameInputRef}
                         sx={{
-                            backgroundColor: '#333',
-                            color: 'white',
-                            '&:hover': {
-                                backgroundColor: '#666',
+                            '& .MuiOutlinedInput-root': {
+                                '& fieldset': {
+                                    borderColor: 'white',
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: 'white',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: 'white',
+                                },
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'white',
+                            },
+                            '& .MuiInputBase-input': {
+                                color: 'white',
                             },
                         }}
-                    >
-                        Submit
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={handleStaffLogin}
+                    />
+                    <TextField
+                        label="Table Number"
+                        fullWidth
+                        margin="normal"
+                        value={tableNum}
+                        onChange={(e) => setTableNumState(e.target.value)}
                         sx={{
-                            backgroundColor: '#333',
-                            color: 'white',
-                            '&:hover': {
-                                backgroundColor: '#666',
+                            '& .MuiOutlinedInput-root': {
+                                '& fieldset': {
+                                    borderColor: 'white',
+                                },
+                                '&:hover fieldset': {
+                                    borderColor: 'white',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: 'white',
+                                },
+                            },
+                            '& .MuiInputLabel-root': {
+                                color: 'white',
+                            },
+                            '& .MuiInputLabel-root.Mui-focused': {
+                                color: 'white',
+                            },
+                            '& .MuiInputBase-input': {
+                                color: 'white',
                             },
                         }}
-                    >
-                        Staff Login
-                    </Button>
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, gap: 0.1 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleSubmit}
+                            sx={{
+                                backgroundColor: '#333',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#666',
+                                },
+                            }}
+                        >
+                            Submit
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={handleStaffLogin}
+                            sx={{
+                                backgroundColor: '#333',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#666',
+                                },
+                            }}
+                        >
+                            Staff Login
+                        </Button>
+                    </Box>
                 </Box>
-            </Box>
-        </Modal>
+            </Modal>
+        </>
     );
 };
 
