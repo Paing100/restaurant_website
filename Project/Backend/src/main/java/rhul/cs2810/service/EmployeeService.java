@@ -14,6 +14,7 @@ import rhul.cs2810.repository.EmployeeRepository;
  */
 @Service
 public class EmployeeService {
+
   @Autowired
   private EmployeeRepository employeeRepository;
 
@@ -23,7 +24,7 @@ public class EmployeeService {
   /**
    * A constructor with two parameters.
    *
-   * @param userRepository CRUD repository for Employee class
+   * @param userRepository        CRUD repository for Employee class
    * @param bCryptPasswordEncoder Encoder for the password
    */
   @Autowired
@@ -37,7 +38,7 @@ public class EmployeeService {
    * Authenticate an employee based on employeeId and password.
    *
    * @param employeeId the id of the employee
-   * @param password the password of the employee
+   * @param password   the password of the employee
    * @return Employee if employeeId matches. Otherwise, empty Optional
    */
   public Optional<Employee> authenticateUser(String employeeId, String password) {
@@ -63,7 +64,11 @@ public class EmployeeService {
     String passwString = employee.getPassword();
     String firstNameString = employee.getFirstName();
     String lastNameString = employee.getLastName();
-    String roleString = employee.getRole();
+    String roleString = employee.getRole().toUpperCase();
+    if (!roleString.equals("WAITER") && !roleString.equals("KITCHEN")) {
+      System.out.println("Invalid role assigned: " + roleString);
+      return false;
+    }
 
     if (idString != null && passwString != null) {
       Optional<Employee> existingUserOptional = employeeRepository.findByEmployeeId(idString);

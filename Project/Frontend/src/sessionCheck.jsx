@@ -16,7 +16,7 @@ function sessionCheck({children}) {
       if (role === "WAITER") {
         navigate("/waiter");
       } else if (role === "KITCHEN") {
-        navigate("/kitchen_staff");
+        navigate("/kitchen");
       }
     }
   }, [navigate]);

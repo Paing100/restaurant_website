@@ -31,7 +31,7 @@ function Login() {
         if (role === "WAITER") {
           navigate("/waiter");
         } else if (role === "KITCHEN") {
-          navigate("/kitchen_staff");
+          navigate("/kitchen");
         }
       }
     } catch (error) {
