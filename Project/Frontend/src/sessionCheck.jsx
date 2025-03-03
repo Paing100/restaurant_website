@@ -1,10 +1,11 @@
 /* eslint-disable */
-function sessionCheck({ children }) {
+function sessionCheck({children}) {
   const navigate = useNavigate();
 
   useEffect(() => {
     const sessionExpiration = localStorage.getItem("sessionExpiration");
     const currentTime = new Date().getTime();
+    const role = localStorage.getItem("userRole");
 
     if (sessionExpiration && sessionExpiration < currentTime) {
       localStorage.removeItem("userName");
@@ -12,7 +13,11 @@ function sessionCheck({ children }) {
       localStorage.removeItem("sessionExpiration");
       navigate("/login");
     } else if (localStorage.getItem("userName")) {
-      navigate("/waiter")
+      if (role === "WAITER") {
+        navigate("/waiter");
+      } else if (role === "KITCHEN") {
+        navigate("/kitchen_staff");
+      }
     }
   }, [navigate]);
 
