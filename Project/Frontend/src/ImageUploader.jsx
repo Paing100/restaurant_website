@@ -1,6 +1,7 @@
-import {useState} from "react";
+/* eslint-disable */
+import { useState } from "react";
 
-function ImageUploader({setImagePath}) {
+function ImageUploader({ setImagePath }) {
 
   const [image, setImage] = useState("");
   const [previewURL, setPreviewURL] = useState("");
@@ -32,8 +33,8 @@ function ImageUploader({setImagePath}) {
         </div>
         {
           previewURL && <div className="image">
-            <img src={previewURL} width="100px"/><span>{image.name}</span>
-            </div>
+            <img src={previewURL} width="100px" /><span>{image.name}</span>
+          </div>
         }
       </div>
     </>

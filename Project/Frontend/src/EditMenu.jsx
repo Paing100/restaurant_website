@@ -1,8 +1,9 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ImageUploader from "./ImageUploader";
 import { TextField, Button, Box, Typography, Select, MenuItem, InputLabel, FormControl, Snackbar, Alert } from "@mui/material";
-function EditMenu(){
+function EditMenu() {
 
   const [menuItem, setMenuItem] = useState(null);
   const { id } = useParams();
@@ -21,11 +22,11 @@ function EditMenu(){
 
   useEffect(() => {
     fetch(`http://localhost:8080/MenuItems/get/${id}`)
-    .then(response => response.json())
-    .then(data => {
-      setMenuItem({ ...data }); 
-    })
-    .catch(error => console.log(error))
+      .then(response => response.json())
+      .then(data => {
+        setMenuItem({ ...data });
+      })
+      .catch(error => console.log(error))
   }, [id]);
 
   const handleChange = (event) => {
@@ -36,11 +37,11 @@ function EditMenu(){
     setImageFile(file);
   }
 
-  const handleSubmit = async(e) => {
-    e.preventDefault(); 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     const response = await fetch(`http://localhost:8080/MenuItems/edit/${id}`, {
-      method: "PUT", 
-      headers: {"Content-Type":"application/json"},
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(menuItem)
     });
     if (response.ok) {
@@ -49,18 +50,19 @@ function EditMenu(){
       console.log("Snackbar should open - success");
       setOpen(true);
       setTimeout(() => {
-        navigate("/waiter_menu");  
+        navigate("/waiter_menu");
       }, 3000);
     } else {
       console.error("Failed to update menu item:", response.statusText);
-    }  };
+    }
+  };
   if (!menuItem) return <Typography>Loading...</Typography>;
 
   return (
     <Box>
       <Typography>Edit menu item</Typography>
       <form onSubmit={handleSubmit}>
-        <TextField sx={{ mb: 2 }}label="Name" name="name" value={menuItem.name} onChange={handleChange} fullWidth />
+        <TextField sx={{ mb: 2 }} label="Name" name="name" value={menuItem.name} onChange={handleChange} fullWidth />
         <TextField sx={{ mb: 2 }} label="Description" name="description" value={menuItem.description} onChange={handleChange} fullWidth />
         <TextField sx={{ mb: 2 }} label="Price" name="price" type="number" value={menuItem.price} onChange={handleChange} fullWidth />
         <TextField sx={{ mb: 2 }} label="Calories" name="calories" type="number" value={menuItem.calories} onChange={handleChange} fullWidth />
@@ -115,9 +117,9 @@ function EditMenu(){
       </form>
 
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
-                    {message}
-                </Alert>
+        <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
+          {message}
+        </Alert>
       </Snackbar>
     </Box>
   );

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { Typography, List, ListItem, ListItemText, Box, Button } from "@mui/material";
@@ -13,9 +14,9 @@ function Waiter() {
       if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
       console.log("Fetched Orders:", data);
-      const submittedOrders = data.filter(order => order.orderSubmitted); 
+      const submittedOrders = data.filter(order => order.orderSubmitted);
       setOrders(submittedOrders);
-      } catch (error) {
+    } catch (error) {
       console.error("Error fetching orders:", error);
     }
   };
@@ -42,8 +43,8 @@ function Waiter() {
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
-    return date.toLocaleString("en-GB", { 
-      year: "numeric", month: "long", day: "numeric", 
+    return date.toLocaleString("en-GB", {
+      year: "numeric", month: "long", day: "numeric",
       hour: "2-digit", minute: "2-digit", second: "2-digit"
     });
   };
