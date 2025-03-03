@@ -21,18 +21,21 @@ function Login() {
           "Content-Type": "application/json"
         }
       });
+
       if (response.status === 200) {
         const expirationTime = new Date().getTime() + 30 * 60 * 1000;
         localStorage.setItem("sessionExpiration", expirationTime);
 
         const {firstName, role} = response.data;
         localStorage.setItem("userName", firstName);
-        localStorage.setItem("userRole", role);
-        if (role === "WAITER") {
+        localStorage.setItem("userRole", role.toUpperCase());
+        const storedRole = localStorage.getItem("userRole");
+        if (storedRole === "WAITER") {
           navigate("/waiter");
-        } else if (role === "KITCHEN") {
+        } else if (storedRole === "KITCHEN") {
           navigate("/kitchen");
         }
+
       }
     } catch (error) {
       setMessage("Error: Could not connect to the server OR Wrong credentials"
