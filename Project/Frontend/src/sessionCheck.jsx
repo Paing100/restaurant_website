@@ -12,7 +12,8 @@ function sessionCheck({children}) {
       localStorage.removeItem("userRole");
       localStorage.removeItem("sessionExpiration");
       navigate("/login");
-    } else if (localStorage.getItem("userName")) {
+    } else if (localStorage.getItem("userName") && role) {
+
       if (role === "WAITER") {
         navigate("/waiter");
       } else if (role === "KITCHEN") {
