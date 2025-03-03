@@ -8,6 +8,7 @@ import Waiter from './Waiter';
 import Order from './Order';
 import { CartProvider, CartContext } from './CartContext';
 
+
 function AppContent() {
   return (
     <div className="app">

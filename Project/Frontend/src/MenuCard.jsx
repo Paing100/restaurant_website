@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField } from "@mui/material";
+import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField, Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
 import { useContext, useState, useEffect } from "react";
 import { CartContext } from "./CartContext";
@@ -8,15 +8,21 @@ import CustomerModal from "./CustomerModal";
 
 function MenuCard({ item, isWaiterView }) {
   const { addItemToCart, customer } = useContext(CartContext);
+  const [message, setMessage] = useState('');
+  const [severity, setSeverity] = useState('success');
   const [quantity, setQuantity] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [pendingAdd, setPendingAdd] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   // Watch for customer changes to complete pending add
   useEffect(() => {
     if (customer && pendingAdd) {
       addItemToCart(item.itemId, quantity);
       setPendingAdd(false);
+      setMessage("Item Added to Cart!");
+      setSeverity('success');
+      setOpenSnackbar(true);
     }
   }, [customer, pendingAdd, item.itemId, quantity, addItemToCart]);
 
@@ -27,6 +33,9 @@ function MenuCard({ item, isWaiterView }) {
       return;
     }
     addItemToCart(item.itemId, quantity);
+    setMessage("Item Added to Cart!");
+    setSeverity('success');
+    setOpenSnackbar(true);
   };
 
   const handleModalClose = () => {
@@ -34,6 +43,13 @@ function MenuCard({ item, isWaiterView }) {
     if (!customer) {
       setPendingAdd(false);
     }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   return (
@@ -118,6 +134,12 @@ function MenuCard({ item, isWaiterView }) {
       </Card>
 
       {showModal && <CustomerModal onClose={handleModalClose} />}
+
+      <Snackbar open={openSnackbar} autoHideDuration={2000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={severity} sx={{ width: '100%' }}>
+          {message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
