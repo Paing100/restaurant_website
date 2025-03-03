@@ -1,4 +1,4 @@
-package rhul.cs2810;
+package rhul.cs2810.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,7 +31,6 @@ import rhul.cs2810.model.OrderMenuItemId;
 import rhul.cs2810.repository.MenuItemRepository;
 import rhul.cs2810.repository.OrderMenuItemRepository;
 import rhul.cs2810.repository.OrderRepository;
-import rhul.cs2810.service.OrderService;
 
 class OrderServiceTest {
 
@@ -157,7 +156,13 @@ class OrderServiceTest {
     List<Order> listOrders = orderService.getAllOrders();
     assertEquals("Guacamole", orders.get(0).getOrderMenuItems().get(0).getMenuItem().getName());
     verify(orderRepository, times(1)).findAll();
+  }
 
+  @Test
+  void testSaveUpdatedOrder() {
+    Order order1 = new Order(1, LocalDateTime.now(), new Customer("Will"));
+    orderService.saveUpdatedOrder(order1);
+    verify(orderRepository, times(1)).save(order1);
   }
 
 }

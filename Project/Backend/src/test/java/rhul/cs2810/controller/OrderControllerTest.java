@@ -1,5 +1,7 @@
 package rhul.cs2810.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,14 +12,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.sun.net.httpserver.HttpsServer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +35,7 @@ import rhul.cs2810.service.OrderService;
 
 class OrderControllerTest {
 
+  @Mock
   private MockMvc mockMvc;
 
   @Mock
@@ -76,7 +85,14 @@ class OrderControllerTest {
 
   @Test
   void testSubmitOrder() throws Exception {
-    mockMvc.perform(post("/api/order/1/submitOrder")).andExpect(status().isOk())
+    Order mockOrder = new Order();
+    mockOrder.setOrderId(1);
+    when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(mockOrder);
+    doNothing().when(orderService).submitOrder(1);
+
+    mockMvc.perform(post("/api/order/{orderId}/submitOrder", mockOrder.getOrderId())
+        .param("orderId", "1"))
+      .andExpect(status().isOk())
         .andExpect(content().string("Order submitted successfully"));
 
     verify(orderService, times(1)).submitOrder(1);
@@ -88,6 +104,23 @@ class OrderControllerTest {
 
     verify(orderService, times(1)).getAllOrders();
 
+  }
+
+  @Test
+  void testUpdatedOrderStatus() throws Exception {
+    Order mockOrder = new Order();
+    mockOrder.setOrderId(1);
+    Map<String, String> map = new HashMap<>();
+    map.put("orderStatus", "CREATED");
+
+    when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(mockOrder);
+    doNothing().when(orderService).saveUpdatedOrder(mockOrder);
+    MvcResult result = mockMvc.perform(post("/api/order/{orderId}/updateOrderStatus", mockOrder.getOrderId())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(map)).accept(MediaType.APPLICATION_JSON))
+      .andReturn();
+    assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
+    verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
   }
 
 }
