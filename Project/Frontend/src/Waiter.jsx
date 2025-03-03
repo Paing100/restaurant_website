@@ -25,7 +25,6 @@ function Waiter() {
       if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
       setOrders(data);
-      console.log("All orders: " + JSON.stringify(data));
       } catch (error) {
       console.error("Error fetching orders:", error);
     }
@@ -52,21 +51,6 @@ function Waiter() {
       console.error("Error updating order status:", error);
     }
   };
-
-  // get the status of an order for categorizing 
-  const getOrderStatus = async(orderId) => {
-    const settings = {
-      method: "GET",
-      headers: {
-        "Conent-Type": "application/json"
-      }
-    }
-    try{
-      await fetch(`http://localhost:8080/api/order/${orderId}/getOrderStatus`, settings);
-    }catch(error){
-      console.error("Error retriving the order status of the orderid: ", orderId);
-    }
-  }
 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
