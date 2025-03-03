@@ -1,46 +1,50 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Typography, List, ListItem, ListItemText, Box, Button } from "@mui/material";
+import { Typography, List, ListItem, ListItemText, Box, Button, Tabs, Tab, Grid } from "@mui/material";
+import Orders from "./Orders";
 
 function Waiter() {
   const userName = localStorage.getItem("userName");
   const userRole = localStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
   const[delivered, setDelivered] = useState([]);
+  const [selectedTab, setSelectedTab] = useState(0);
 
+  const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
+
+  const statusMap = new Map([
+    ["To Confirm", "SUBMITTED"],
+    ["Ready To Deliver", "CONFIRMED"],
+    ["Delivered", "DELIVERED"]
+  ]);
+
+  // fetch all orders
   const fetchOrders = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/order/getAllOrders");
       if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
-      const submittedOrders = data.filter(order => order.orderStatus === 'SUBMITTED'); // only show SUBMITTED order in watier interface 
-      const deliveredOrders = data.filter(order => order.orderStatus === 'DELIVERED'); // only show DELIVERED order in watier interface 
-      console.log("Submitted Orders:", submittedOrders);
-      setOrders(submittedOrders);
-      setDelivered(deliveredOrders);
-      console.log("Delivered Orders:", deliveredOrders);
-
+      setOrders(data);
+      console.log("All orders: " + JSON.stringify(data));
       } catch (error) {
       console.error("Error fetching orders:", error);
     }
   };
 
+  // use effect for fetching all orders
   useEffect(() => {
     fetchOrders();
   }, []);
 
-  const markAsDelivered = async (orderId) => {
-    const updatedOrder = orders.find((order) => order.orderId === orderId);
+  // change the status an order 
+  const updateOrderStatus = async (orderId, newStatus) => {
   
-    setOrders((prevOrders) => prevOrders.filter((order) => order.orderId !== orderId));
-    setDelivered((prevDelivered) => [...prevDelivered, { ...updatedOrder, orderStatus: "DELIVERED" }]);
-    
     const settings = {
       method: "POST", 
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({"orderStatus": "DELIVERED"})
+      body: JSON.stringify({"orderStatus": newStatus})
     }
     try {
       await fetch(`http://localhost:8080/api/order/${orderId}/updateOrderStatus`, settings);
@@ -49,92 +53,86 @@ function Waiter() {
     }
   };
 
-  const formatDate = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleString("en-GB", { 
-      year: "numeric", month: "long", day: "numeric", 
-      hour: "2-digit", minute: "2-digit", second: "2-digit"
-    });
-  };
-
-  const formatElapsedTime = (orderPlaced) => {
-    const now = new Date();
-    const orderTime = new Date(orderPlaced);
-    const diffInMinutes = Math.floor((now - orderTime) / 60000);  // Difference in minutes
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute(s) ago`;
-    } else {
-      const hours = Math.floor(diffInMinutes / 60);
-      const minutes = diffInMinutes % 60;
-      return `${hours} hour(s) and ${minutes} minute(s) ago`;
+  // get the status of an order for categorizing 
+  const getOrderStatus = async(orderId) => {
+    const settings = {
+      method: "GET",
+      headers: {
+        "Conent-Type": "application/json"
+      }
     }
-  };
+    try{
+      await fetch(`http://localhost:8080/api/order/${orderId}/getOrderStatus`, settings);
+    }catch(error){
+      console.error("Error retriving the order status of the orderid: ", orderId);
+    }
+  }
+
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
+  }
+
+  const filteredOrders = orders.filter((order) => order.orderStatus === statusMap.get(categories[selectedTab]));
 
   return (
-    <Box>
-      <Typography variant="h3">Welcome {userName}!</Typography>
-      <Typography variant="h4">{userRole} Dashboard</Typography>
-      <Link to="/waiter_menu">
-        <Button>Edit Menu</Button>
-      </Link>
-
-      <Typography variant="h5" sx={{ mt: 2 }}>Active Orders</Typography>
-      <List>
-        {orders.filter(order => order.orderStatus === "SUBMITTED" && order.orderMenuItems.length > 0).map(order => (
-          <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
-            <ListItemText
-              primary={`Order #${order.orderId} - Table ${order.tableNum}`}
-              secondary={
-                <>
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    Ordered At: {formatDate(order.orderPlaced)}
-                  </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: "bold", color: 'gray' }}>
-                    Time in Progress: {formatElapsedTime(order.orderPlaced)}
-                  </Typography>
-                  {order.orderMenuItems.map(item => (
-                    <Typography key={item.orderMenuItemsId.itemId} variant="body2">
-                      {item.menuItem.name} x{item.quantity} (£{(item.menuItem.price * item.quantity).toFixed(2)})
-                    </Typography>
-                  ))}
-                </>
-              }
-            />
-            <Button variant="contained" color="success" onClick={() => markAsDelivered(order.orderId)}>
-              Mark as Delivered
-            </Button>
-          </ListItem>
-        ))}
-      </List>
-
-       <Typography variant="h5" sx={{ mt: 2 }}>Delivered Orders</Typography>
-      <List>
-        {delivered.filter(order => order.orderStatus === "DELIVERED" && order.orderMenuItems.length > 0).map(order => (
-          <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
-            <ListItemText
-              primary={`Order #${order.orderId} - Table ${order.tableNum}`}
-              secondary={
-                <>
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                    Ordered At: {formatDate(order.orderPlaced)}
-                  </Typography>
-                  {order.orderMenuItems.map(item => (
-                    <Typography key={item.orderMenuItemsId.itemId} variant="body2">
-                      {item.menuItem.name} x{item.quantity} (£{(item.menuItem.price * item.quantity).toFixed(2)})
-                    </Typography>
-                  ))}
-                </>
-              }
-            />
-            <Button variant="contained" color="secondary" disabled>
-              Delivered
-            </Button>
-          </ListItem>
-        ))}
-      </List> 
-
-    </Box>
+    <>
+      <Box>
+        <Typography variant="h3">Welcome {userName}!</Typography>
+        <Typography variant="h4">{userRole} Dashboard</Typography>
+        <Link to="/waiter_menu">
+          <Button>Edit Menu</Button>
+        </Link>
+        <Tabs
+          value={selectedTab}
+          onChange={handleTabChange}
+          centered
+          textColor="inherit"
+          TabIndicatorProps={{ style: { backgroundColor: '#5762d5' } }}
+          sx={{
+            '& .MuiTab-root': {
+              color: 'white',
+            },
+            '& .Mui-selected': {
+              color: '#5762d5',
+            },
+          }}
+        >
+          {categories.map((category, index) => (
+            <Tab key={index} label={category} />
+          ))}
+        </Tabs>
+        
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            {filteredOrders.length > 0 ? (
+              <List>
+                {filteredOrders.map((order) => (
+                  <Orders
+                    key={order.orderId}
+                    order={order}
+                    buttonName={
+                      selectedTab === 0 ? "Confirm Order" :
+                      selectedTab === 1 ? "Deliver" : undefined
+                    }
+                    onButtonClick={() => {
+                      const newStatus = 
+                        selectedTab === 0 ? "CONFIRMED" :
+                        selectedTab === 1 ? "DELIVERED" : "";
+                      updateOrderStatus(order.orderId, newStatus);
+                    }}
+                  />
+                ))}
+              </List>
+            ) : (
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                No orders in {categories[selectedTab]}
+              </Typography>
+            )}
+          </Grid>
+        </Grid>
+      </Box>
+    </>
   );
 }
-
+  
 export default Waiter;
