@@ -251,6 +251,7 @@ export const CartProvider = ({ children }) => {
                 cart,
                 customer,
                 tableNum,
+                setCart, 
                 setCustomer,
                 setTableNum,
                 addItemToCart,
