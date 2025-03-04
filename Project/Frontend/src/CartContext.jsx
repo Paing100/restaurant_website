@@ -84,7 +84,7 @@ export const CartProvider = ({ children }) => {
             const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
             const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;
 
-            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}&orderSubmitted=false`, {
+            const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/hal+json',
@@ -226,7 +226,7 @@ export const CartProvider = ({ children }) => {
                 throw new Error(`Server responded with status: ${response.status}`);
             }
 
-            console.log('Order submitted successfully');
+            console.log('Order submitted successfully');            
             return { success: true, message: 'Order submitted successfully!' };
         } catch (err) {
             console.error('Error submitting order:', err.message);
@@ -250,8 +250,8 @@ export const CartProvider = ({ children }) => {
             value={{
                 cart,
                 customer,
-                setCustomer,
                 tableNum,
+                setCustomer,
                 setTableNum,
                 addItemToCart,
                 removeItemFromCart,
