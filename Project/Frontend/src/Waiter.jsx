@@ -10,6 +10,10 @@ function Waiter() {
   const[delivered, setDelivered] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0);
 
+  // use orderId to trigger use Effect, but if the same order is clicked again for other purpose
+  // use effect doesn't work anymore 
+  const[orderId, setOrderId] = useState([]);
+
   const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
 
   const statusMap = new Map([
@@ -32,8 +36,9 @@ function Waiter() {
 
   // use effect for fetching all orders
   useEffect(() => {
+    console.log("USE EFFECT RAN!");
     fetchOrders();
-  }, []);
+  }, [orderId]);
 
   // change the status an order 
   const updateOrderStatus = async (orderId, newStatus) => {
@@ -103,6 +108,8 @@ function Waiter() {
                         selectedTab === 0 ? "CONFIRMED" :
                         selectedTab === 1 ? "DELIVERED" : "";
                       updateOrderStatus(order.orderId, newStatus);
+                      setOrderId(order.orderId);
+
                     }}
                   />
                 ))}
