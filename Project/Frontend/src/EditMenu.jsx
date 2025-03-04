@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /* eslint-disable */
+=======
+>>>>>>> origin
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ImageUploader from "./ImageUploader";
 import { TextField, Button, Box, Typography, Select, MenuItem, InputLabel, FormControl, Snackbar, Alert } from "@mui/material";
+<<<<<<< HEAD
 function EditMenu() {
+=======
+function EditMenu(){
+>>>>>>> origin
 
   const [menuItem, setMenuItem] = useState(null);
   const { id } = useParams();
@@ -11,7 +18,10 @@ function EditMenu() {
   const [severity, setSeverity] = useState('success');
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+<<<<<<< HEAD
   const [imageFile, setImageFile] = useState('');
+=======
+>>>>>>> origin
 
   const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
   const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETERIAN", "VEGAN", "HALAL"];
@@ -22,17 +32,26 @@ function EditMenu() {
 
   useEffect(() => {
     fetch(`http://localhost:8080/MenuItems/get/${id}`)
+<<<<<<< HEAD
       .then(response => response.json())
       .then(data => {
         setMenuItem({ ...data });
       })
       .catch(error => console.log(error))
+=======
+    .then(response => response.json())
+    .then(data => {
+      setMenuItem({ ...data }); 
+    })
+    .catch(error => console.log(error))
+>>>>>>> origin
   }, [id]);
 
   const handleChange = (event) => {
     setMenuItem({ ...menuItem, [event.target.name]: event.target.value });
   };
 
+<<<<<<< HEAD
   const handleImageUpload = (file) => {
     setImageFile(file);
   }
@@ -42,6 +61,16 @@ function EditMenu() {
     const response = await fetch(`http://localhost:8080/MenuItems/edit/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+=======
+  const handleImageUpload = () => {
+  }
+
+  const handleSubmit = async(e) => {
+    e.preventDefault(); 
+    const response = await fetch(`http://localhost:8080/MenuItems/edit/${id}`, {
+      method: "PUT", 
+      headers: {"Content-Type":"application/json"},
+>>>>>>> origin
       body: JSON.stringify(menuItem)
     });
     if (response.ok) {
@@ -50,19 +79,31 @@ function EditMenu() {
       console.log("Snackbar should open - success");
       setOpen(true);
       setTimeout(() => {
+<<<<<<< HEAD
         navigate("/waiter_menu");
       }, 3000);
     } else {
       console.error("Failed to update menu item:", response.statusText);
     }
   };
+=======
+        navigate("/waiter_menu");  
+      }, 3000);
+    } else {
+      console.error("Failed to update menu item:", response.statusText);
+    }  };
+>>>>>>> origin
   if (!menuItem) return <Typography>Loading...</Typography>;
 
   return (
     <Box>
       <Typography>Edit menu item</Typography>
       <form onSubmit={handleSubmit}>
+<<<<<<< HEAD
         <TextField sx={{ mb: 2 }} label="Name" name="name" value={menuItem.name} onChange={handleChange} fullWidth />
+=======
+        <TextField sx={{ mb: 2 }}label="Name" name="name" value={menuItem.name} onChange={handleChange} fullWidth />
+>>>>>>> origin
         <TextField sx={{ mb: 2 }} label="Description" name="description" value={menuItem.description} onChange={handleChange} fullWidth />
         <TextField sx={{ mb: 2 }} label="Price" name="price" type="number" value={menuItem.price} onChange={handleChange} fullWidth />
         <TextField sx={{ mb: 2 }} label="Calories" name="calories" type="number" value={menuItem.calories} onChange={handleChange} fullWidth />
@@ -117,9 +158,15 @@ function EditMenu() {
       </form>
 
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+<<<<<<< HEAD
         <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
           {message}
         </Alert>
+=======
+                <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+>>>>>>> origin
       </Snackbar>
     </Box>
   );

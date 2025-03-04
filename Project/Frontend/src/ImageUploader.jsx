@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 /* eslint-disable */
 import { useState } from "react";
 
 function ImageUploader({ setImagePath }) {
+=======
+import {useState} from "react";
+import PropTypes from 'prop-types';
+
+function ImageUploader({setImagePath}) {
+>>>>>>> origin
 
   const [image, setImage] = useState("");
   const [previewURL, setPreviewURL] = useState("");
@@ -33,13 +40,24 @@ function ImageUploader({ setImagePath }) {
         </div>
         {
           previewURL && <div className="image">
+<<<<<<< HEAD
             <img src={previewURL} width="100px" /><span>{image.name}</span>
           </div>
+=======
+            <img src={previewURL} width="100px"/><span>{image.name}</span>
+            </div>
+>>>>>>> origin
         }
       </div>
     </>
   );
 }
 
+<<<<<<< HEAD
+=======
+ImageUploader.propTypes = {
+  setImagePath: PropTypes.string.isReuqired
+};
+>>>>>>> origin
 
 export default ImageUploader; 

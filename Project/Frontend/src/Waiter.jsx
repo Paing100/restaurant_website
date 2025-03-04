@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Link } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { Typography, List, ListItem, ListItemText, Box, Button } from "@mui/material";
@@ -7,15 +6,23 @@ function Waiter() {
   const userName = localStorage.getItem("userName");
   const userRole = localStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
+  const [delivered, setDelivered] = useState([]);
 
   const fetchOrders = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/order/getAllOrders");
       if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
-      console.log("Fetched Orders:", data);
-      const submittedOrders = data.filter(order => order.orderSubmitted);
+      
+      const submittedOrders = data.filter(order => order.orderStatus === 'SUBMITTED');
+      const deliveredOrders = data.filter(order => order.orderStatus === 'DELIVERED');
+      
       setOrders(submittedOrders);
+      setDelivered(deliveredOrders);
+      
+      console.log("Submitted Orders:", submittedOrders);
+      console.log("Delivered Orders:", deliveredOrders);
+      
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
@@ -26,16 +33,20 @@ function Waiter() {
   }, []);
 
   const markAsDelivered = async (orderId) => {
-    setOrders((prevOrders) =>
-      prevOrders.map((order) =>
-        order.orderId === orderId ? { ...order, delivered: true } : order
-      )
-    );
-
+    const updatedOrder = orders.find((order) => order.orderId === orderId);
+  
+    setOrders((prevOrders) => prevOrders.filter((order) => order.orderId !== orderId));
+    setDelivered((prevDelivered) => [...prevDelivered, { ...updatedOrder, orderStatus: "DELIVERED" }]);
+    
+    const settings = {
+      method: "POST", 
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({"orderStatus": "DELIVERED"})
+    }
     try {
-      await fetch(`http://localhost:8080/Order/markDelivered/${orderId}`, {
-        method: "POST",
-      });
+      await fetch(`http://localhost:8080/api/order/${orderId}/updateOrderStatus`, settings);
     } catch (error) {
       console.error("Error updating order status:", error);
     }
@@ -43,8 +54,8 @@ function Waiter() {
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
-    return date.toLocaleString("en-GB", {
-      year: "numeric", month: "long", day: "numeric",
+    return date.toLocaleString("en-GB", { 
+      year: "numeric", month: "long", day: "numeric", 
       hour: "2-digit", minute: "2-digit", second: "2-digit"
     });
   };
@@ -72,7 +83,7 @@ function Waiter() {
 
       <Typography variant="h5" sx={{ mt: 2 }}>Active Orders</Typography>
       <List>
-        {orders.filter(order => !order.delivered && order.orderMenuItems.length > 0).map(order => (
+        {orders.filter(order => order.orderStatus === "SUBMITTED" && order.orderMenuItems.length > 0).map(order => (
           <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
             <ListItemText
               primary={`Order #${order.orderId} - Table ${order.tableNum}`}
@@ -101,7 +112,7 @@ function Waiter() {
 
       <Typography variant="h5" sx={{ mt: 2 }}>Delivered Orders</Typography>
       <List>
-        {orders.filter(order => order.delivered && order.orderMenuItems.length > 0).map(order => (
+        {delivered.filter(order => order.orderStatus === "DELIVERED" && order.orderMenuItems.length > 0).map(order => (
           <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
             <ListItemText
               primary={`Order #${order.orderId} - Table ${order.tableNum}`}
@@ -124,7 +135,6 @@ function Waiter() {
           </ListItem>
         ))}
       </List>
-
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-package rhul.cs2810;
+package rhul.cs2810.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,7 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
-import rhul.cs2810.service.EmployeeService;
 
 public class EmployeeServiceTest {
 
@@ -115,6 +114,13 @@ public class EmployeeServiceTest {
     boolean secondRegistered = mockEmployeeService.registerUser(mockEmployee);
     assertTrue(secondRegistered);
   }
+
+  @Test
+  void testRegisterUserNullCredentials() {
+    Employee mockEmployee = new Employee();
+    assertFalse(mockEmployeeService.registerUser(mockEmployee));
+  }
+
 }
 
 
