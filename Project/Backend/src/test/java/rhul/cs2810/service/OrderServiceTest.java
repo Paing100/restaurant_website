@@ -62,7 +62,7 @@ class OrderServiceTest {
 
     Order foundOrder = orderService.getOrder(1);
 
-    assertNull(foundOrder);
+    assertNotNull(foundOrder);
   }
 
   @Test
