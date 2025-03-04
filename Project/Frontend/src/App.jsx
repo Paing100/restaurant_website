@@ -5,15 +5,9 @@ import Menu from './Menu';
 import Login from './Login';
 import Waiter from './Waiter';
 import Order from './Order';
-<<<<<<< HEAD
-import { CartProvider } from './CartContext';
-
-=======
 import { CartProvider, CartContext } from './CartContext';
-import CustomerModal from './CustomerModal';
 import MenuWaiter from './MenuWaiter'; 
 import EditMenu from './EditMenu'
->>>>>>> origin
 
 function AppContent() {
   return (
