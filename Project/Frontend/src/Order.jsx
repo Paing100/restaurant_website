@@ -122,7 +122,7 @@ const OrderInfoPopup = React.memo(({
 ));
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCustomer, setCart } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [orderStatus, setOrderStatus] = useState('PENDING');
@@ -185,12 +185,21 @@ function Order() {
             //     },
             // });
             // if (response.ok) {
+            //     console.log("RESPONSE: " + response);
             //     const newCustomer = await response.json();
             //     setCustomer(newCustomer);
+            //     console.log("ITEMS: " + orderedItems);
             //     console.log("Customer added successfully");
             // }
+
             {console.log("THIS IS RUN!!")}
-            fetchCart();
+            setCart({ ...cart, orderedItems: [] });
+            
+            fetchCart().then(() => {
+                setCart({ ...cart, orderedItems: [], totalPrice: 0 });
+            });
+            console.log("CART: " + cart)
+
         } else {
             setMessage(result.message);
             setSeverity('error');
