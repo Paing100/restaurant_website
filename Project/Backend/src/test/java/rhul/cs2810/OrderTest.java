@@ -88,7 +88,7 @@ public class OrderTest {
   @Test
   void testGetAndSetOrderMenuItems() {
     Order orderTest = new Order();
-    OrderMenuItem orderMenuItem = new OrderMenuItem(order, veganItem, 2, false);
+    OrderMenuItem orderMenuItem = new OrderMenuItem(order, veganItem, 2);
     List<OrderMenuItem> orderMenuItems = new ArrayList<>();
     orderMenuItems.add(orderMenuItem);
     orderTest.setOrderMenuItems(orderMenuItems);

@@ -25,7 +25,7 @@ class OrderMenuItemTest {
     menuItem.setItemId(101);
     menuItem.setName("Test Item");
 
-    orderMenuItem = new OrderMenuItem(order, menuItem, 3, false);
+    orderMenuItem = new OrderMenuItem(order, menuItem, 3);
   }
 
   @Test
