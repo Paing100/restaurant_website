@@ -39,7 +39,6 @@ public class OrderService {
    */
   public Order getOrder(int orderId) {
     return orderRepository.findById(orderId)
-        .filter(order -> orderMenuItemRepository.existsByOrderAndOrderSubmittedFalse(order))
         .orElse(null);
   }
 

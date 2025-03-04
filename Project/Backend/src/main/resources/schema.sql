@@ -39,7 +39,6 @@ CREATE TABLE order_menu_items (
     order_id INT,
     item_id INT,
     quantity INT NOT NULL,
-    order_submitted BOOLEAN NOT NULL,
     PRIMARY KEY (order_id, item_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (item_id) REFERENCES menu_item(item_id) ON DELETE CASCADE

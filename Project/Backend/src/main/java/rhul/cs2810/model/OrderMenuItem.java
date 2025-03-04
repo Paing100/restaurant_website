@@ -33,9 +33,6 @@ public class OrderMenuItem {
   @Column(name = "quantity", nullable = false)
   private int quantity;
 
-  @Column(name = "order_submitted", nullable = false)
-  private boolean orderSubmitted = false;
-
   public OrderMenuItem() {}
 
   /**
@@ -122,10 +119,6 @@ public class OrderMenuItem {
    */
   public void setQuantity(int quantity) {
     this.quantity = quantity;
-  }
-
-  public void setOrderSubmited(boolean orderSubmitted) {
-    this.orderSubmitted = orderSubmitted;
   }
 
 }
