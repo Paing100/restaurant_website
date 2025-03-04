@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Typography, List, ListItem, ListItemText, Box, Button } from "@mui/material";
 
 function Waiter() {

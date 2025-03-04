@@ -158,7 +158,7 @@ export const CartProvider = ({ children }) => {
                 } else {
                     // If quantity > 1, decrease by 1
                     const newQuantity = currentItem.quantity - 1;
-                    const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}&orderSubmitted=false`, {
+                    const response = await fetch(`http://localhost:8080/api/orders/${customer.customerId}/addItems?itemId=${itemId}&quantity=${newQuantity}`, {
                         method: 'POST',
                         headers: {
                             'accept': 'application/hal+json',

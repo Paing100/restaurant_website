@@ -6,7 +6,6 @@ import { CartContext } from "./CartContext";
 import { Link } from "react-router-dom";
 import CustomerModal from "./CustomerModal";
 
-
 function MenuCard({ item, isWaiterView }) {
   const { addItemToCart, customer } = useContext(CartContext);
   const [message, setMessage] = useState('');

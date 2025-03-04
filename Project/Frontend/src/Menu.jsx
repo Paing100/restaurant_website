@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { useState, useEffect } from "react";
 import { Grid, Box, Tabs, Tab, Typography } from "@mui/material";
 import MenuCard from './MenuCard.jsx'
@@ -51,7 +50,6 @@ function Menu({ isWaiterView }) {
         setMenuItems([]);
       });
   };
-
 
   return (
     <>
