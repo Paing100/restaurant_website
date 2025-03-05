@@ -11,6 +11,8 @@ function EditMenu(){
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
 
+  // const [imageFile, setImageFile] = useState('');
+
   const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
   const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETERIAN", "VEGAN", "HALAL"];
 
@@ -32,6 +34,7 @@ function EditMenu(){
   };
 
   const handleImageUpload = () => {
+    //setImageFile(file);
   }
 
   const handleSubmit = async(e) => {
@@ -51,7 +54,8 @@ function EditMenu(){
       }, 3000);
     } else {
       console.error("Failed to update menu item:", response.statusText);
-    }  };
+    }  
+  };
   if (!menuItem) return <Typography>Loading...</Typography>;
 
   return (

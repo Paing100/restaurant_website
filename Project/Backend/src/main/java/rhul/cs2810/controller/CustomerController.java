@@ -53,11 +53,10 @@ public class CustomerController {
     order.setTableNum(tableNum);
     order.setCustomer(newCustomer);
     order.setOrderStatus(OrderStatus.CREATED);
+    newCustomer.setOrder(order);
 
     // Save the order
     orderRepository.save(order);
-
-    newCustomer.setOrder(order);
 
     return ResponseEntity.ok(newCustomer);
   }

@@ -1,6 +1,8 @@
 package rhul.cs2810.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 import org.junit.jupiter.api.AfterEach;
@@ -21,6 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
 import rhul.cs2810.service.EmployeeService;
+
+import java.util.Optional;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -60,7 +64,7 @@ public class LoginControllerTest {
   @Test
   void testRegister() throws JsonProcessingException, Exception {
     MvcResult mvcResult = mockMvc
-        .perform(MockMvcRequestBuilders.post("/auth/register")
+        .perform(post("/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(employee)).accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.message").value("Register Successful"))
@@ -84,7 +88,7 @@ public class LoginControllerTest {
     loginEmployee.setEmployeeId("1019");
     loginEmployee.setPassword("string");
     MvcResult mvcResult = mockMvc
-        .perform(MockMvcRequestBuilders.post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+        .perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(loginEmployee))
             .accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.message").value("Login Successful!"))
@@ -92,5 +96,26 @@ public class LoginControllerTest {
         .andExpect(jsonPath("$.role").value("Waiter")).andReturn();
   }
 
+  @Test
+  void testLoginNoEmployee() throws Exception {
+    Employee newEmployee = new Employee();
+    MvcResult result = mockMvc.perform(post("/auth/login").contentType(MediaType.APPLICATION_JSON)
+      .content(objectMapper.writeValueAsString(newEmployee))
+      .accept(MediaType.APPLICATION_JSON))
+      .andReturn();
+
+    assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());
+  }
+
+  @Test
+  void testRegisterUnsuccessful() throws Exception {
+    Employee newEmployee = new Employee();
+    MvcResult result = mockMvc.perform(post("/auth/register").contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(newEmployee))
+        .accept(MediaType.APPLICATION_JSON))
+      .andReturn();
+
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+  }
 
 }
