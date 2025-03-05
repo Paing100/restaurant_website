@@ -8,7 +8,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PropTypes from "prop-types";
 
-const OrderInfoPopup = React.memo(({ 
+const OrderInfoPopup = React.memo(({
     showOrderInfo,
     expanded,
     setExpanded,
@@ -134,8 +134,8 @@ OrderInfoPopup.propTypes = {
     orderStatus: PropTypes.string.isRequired,
     receipt: PropTypes.arrayOf(
         PropTypes.shape({
-            itemName: PropTypes.string.isRequired, 
-            quantity: PropTypes.number.isRequired, 
+            itemName: PropTypes.string.isRequired,
+            quantity: PropTypes.number.isRequired,
             price: PropTypes.number.isRequired,
         })
     ),
@@ -199,23 +199,23 @@ function Order() {
             setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
             setReceiptTotal(cart.totalPrice);
             setOrderTime(new Date());
-            // const response = await fetch(`http://localhost:8080/api/customers/add?name=${customer.name}&tableNum=${tableNum}`, {
-            //     method: 'POST',
-            //     headers: {
-            //         'accept': 'application/json'
-            //     },
-            // });
-            // if (response.ok) {
-            //     console.log("RESPONSE: " + response);
-            //     const newCustomer = await response.json();
-            //     setCustomer(newCustomer);
-            //     console.log("ITEMS: " + orderedItems);
-            //     console.log("Customer added successfully");
-            // }
-            
-            await fetchCart(); 
+            const response = await fetch(`http://localhost:8080/api/customers/add?name=${customer.name}&tableNum=${tableNum}`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json'
+                },
+            });
+            if (response.ok) {
+                console.log("RESPONSE: " + response);
+                const newCustomer = await response.json();
+                setCustomer(newCustomer);
+                console.log("ITEMS: " + orderedItems);
+                console.log("Customer added successfully");
+            }
+
+            await fetchCart();
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
-            
+
             console.log("CART: " + cart)
 
         } else {
@@ -309,7 +309,7 @@ function Order() {
                     {message}
                 </Alert>
             </Snackbar>
-            <OrderInfoPopup 
+            <OrderInfoPopup
                 showOrderInfo={showOrderInfo}
                 expanded={expanded}
                 setExpanded={setExpanded}
