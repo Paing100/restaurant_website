@@ -37,7 +37,8 @@ public class OrderService {
    * @return order matches the id
    */
   public Order getOrder(int orderId) {
-    return orderRepository.findById(orderId).orElse(null);
+    return orderRepository.findById(orderId)
+        .orElse(null);
   }
 
   /**
@@ -73,7 +74,6 @@ public class OrderService {
    * Submits an order to the repository.
    *
    * @param orderId of the order
-   * @throws Exception
    */
   public void submitOrder(int orderId) {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
@@ -95,7 +95,7 @@ public class OrderService {
 
   /**
    * Saves the updated order status in the repository.
-   * 
+   *
    * @param order
    */
   public void saveUpdatedOrder(Order order) {

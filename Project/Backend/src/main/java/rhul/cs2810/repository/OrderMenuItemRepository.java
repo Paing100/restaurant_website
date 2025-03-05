@@ -9,19 +9,17 @@ import rhul.cs2810.model.MenuItem;
 
 
 
-
 import java.util.List;
 
 
 public interface OrderMenuItemRepository extends CrudRepository<OrderMenuItem, OrderMenuItemId> {
 
 
-   /**
-    * Finds all OrderMenuItems associated with a specific order.
-    *
-    * @param order the order to search for
-    * @return a list of OrderMenuItems
-    */
-   List<OrderMenuItem> findByOrder(Order order);
-
+  /**
+   * Finds all OrderMenuItems associated with a specific order.
+   *
+   * @param order the order to search for
+   * @return a list of OrderMenuItems
+   */
+  List<OrderMenuItem> findByOrder(Order order);
 }

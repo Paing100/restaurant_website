@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ImageUploader from "./ImageUploader";
@@ -10,6 +11,8 @@ function EditMenu(){
   const [severity, setSeverity] = useState('success');
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+
+  const [imageFile, setImageFile] = useState('');
 
   const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
   const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETERIAN", "VEGAN", "HALAL"];
@@ -31,7 +34,8 @@ function EditMenu(){
     setMenuItem({ ...menuItem, [event.target.name]: event.target.value });
   };
 
-  const handleImageUpload = () => {
+  const handleImageUpload = (file) => {
+    setImageFile(file);
   }
 
   const handleSubmit = async(e) => {
@@ -51,7 +55,8 @@ function EditMenu(){
       }, 3000);
     } else {
       console.error("Failed to update menu item:", response.statusText);
-    }  };
+    }  
+  };
   if (!menuItem) return <Typography>Loading...</Typography>;
 
   return (

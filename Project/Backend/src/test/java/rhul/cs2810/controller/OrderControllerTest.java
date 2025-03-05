@@ -70,7 +70,7 @@ class OrderControllerTest {
   @Test
   void testAddItemToOrder() throws Exception {
     mockMvc.perform(post("/api/orders/1/addItems").param("itemId", "101").param("quantity", "2"))
-        .andExpect(status().isOk()).andExpect(content().string("Item added to order"));
+      .andExpect(status().isOk()).andExpect(content().string("Item added to order"));
 
     verify(orderService, times(1)).addItemToOrder(1, 101, 2);
   }
@@ -78,7 +78,7 @@ class OrderControllerTest {
   @Test
   void testRemoveItemFromOrder() throws Exception {
     mockMvc.perform(delete("/api/orders/1/removeItems").param("itemId", "101"))
-        .andExpect(status().isOk()).andExpect(content().string("Item removed from order"));
+      .andExpect(status().isOk()).andExpect(content().string("Item removed from order"));
 
     verify(orderService, times(1)).removeItemFromOrder(1, 101);
   }
@@ -93,7 +93,7 @@ class OrderControllerTest {
     mockMvc.perform(post("/api/order/{orderId}/submitOrder", mockOrder.getOrderId())
         .param("orderId", "1"))
       .andExpect(status().isOk())
-        .andExpect(content().string("Order submitted successfully"));
+      .andExpect(content().string("Order submitted successfully"));
 
     verify(orderService, times(1)).submitOrder(1);
   }

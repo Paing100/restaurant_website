@@ -42,7 +42,6 @@ function Waiter() {
 
   // change the status an order 
   const updateOrderStatus = async (orderId, newStatus) => {
-  
     const settings = {
       method: "POST", 
       headers: {
@@ -109,7 +108,6 @@ function Waiter() {
                         selectedTab === 1 ? "DELIVERED" : "";
                       updateOrderStatus(order.orderId, newStatus);
                       setOrderId(order.orderId);
-
                     }}
                   />
                 ))}
@@ -123,6 +121,7 @@ function Waiter() {
         </Grid>
       </Box>
     </>
+
   );
 }
   
