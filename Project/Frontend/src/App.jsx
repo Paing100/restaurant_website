@@ -6,8 +6,9 @@ import Login from './Login';
 import Waiter from './Waiter';
 import Order from './Order';
 import { CartProvider } from './CartContext';
-import MenuWaiter from './MenuWaiter'; 
-import EditMenu from './EditMenu'
+import MenuWaiter from './MenuWaiter';
+import EditMenu from './EditMenu';
+import KitchenStaff from "./KitchenStaff";
 
 function AppContent() {
   return (
@@ -22,6 +23,7 @@ function AppContent() {
           <Route path="/waiter" element={<sessionCheck><Waiter /></sessionCheck>} />
           <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>}/>
           <Route path="/waiter_edit_menu/:id" element={<sessionCheck><EditMenu></EditMenu></sessionCheck>}/>
+          <Route path="/kitchen" element={<sessionCheck><KitchenStaff /></sessionCheck>} />
         </Routes>
       </div>
     </div>

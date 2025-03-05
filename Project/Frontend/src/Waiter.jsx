@@ -17,7 +17,7 @@ function Waiter() {
 
   const statusMap = new Map([
     ["To Confirm", "SUBMITTED"],
-    ["Ready To Deliver", "CONFIRMED"],
+    ["Ready To Deliver", "READY"],
     ["Delivered", "DELIVERED"]
   ]);
 

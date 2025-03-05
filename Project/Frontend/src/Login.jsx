@@ -27,8 +27,14 @@ function Login() {
 
         const { firstName, role } = response.data;
         localStorage.setItem("userName", firstName);
-        localStorage.setItem("userRole", role);
-        navigate("/waiter");
+        localStorage.setItem("userRole", role.toUpperCase());
+        const storedRole = localStorage.getItem("userRole");
+        if (storedRole === "WAITER") {
+          navigate("/waiter");
+        } else if (storedRole === "KITCHEN") {
+          navigate("/kitchen");
+        }
+
       }
     } catch (error) {
       setMessage("Error: Could not connect to the server OR Wrong credentials" + error);
