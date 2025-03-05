@@ -6,7 +6,7 @@ import CustomerModal from "./CustomerModal"; // Import the modal
 
 function NavBar() {
   const navigate = useNavigate();
-  const { customer, logout } = useContext(CartContext); // Use logout from context
+  const { customer, logout } = useContext(CartContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCartClick = () => {
@@ -42,7 +42,18 @@ function NavBar() {
                 Staff Login
               </Button>
             ) : (
-              <Button variant="text" sx={{ color: "#f44336" }} onClick={logout}>
+              <Button
+                variant="outlined" // Use outlined variant
+                sx={{
+                  color: "#f44336",
+                  borderColor: "#f44336", // Red border
+                  borderWidth: "2px", // Small border
+                  "&:hover": {
+                    backgroundColor: "rgba(244, 67, 54, 0.1)", // Light red hover effect
+                  },
+                }}
+                onClick={logout}
+              >
                 Logout
               </Button>
             )}
