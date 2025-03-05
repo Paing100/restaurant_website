@@ -50,7 +50,7 @@ public class LoginControllerTest {
     employee.setPassword("string");
     employee.setFirstName("Williams");
     employee.setLastName("James");
-    employee.setRole("Waiter");
+    employee.setRole("WAITER");
     employeeService.registerUser(employee);
     employeeRepository.save(employee);
   }

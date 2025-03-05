@@ -64,11 +64,12 @@ public class EmployeeService {
     String passwString = employee.getPassword();
     String firstNameString = employee.getFirstName();
     String lastNameString = employee.getLastName();
-    String roleString = employee.getRole().toUpperCase();
+    String roleString = employee.getRole();
     if (roleString == null || roleString.trim().isEmpty()) {
-      throw new IllegalArgumentException("Role cannot be null or empty.");
+        roleString = "WAITER"; // Default role if missing
+    } else {
+        roleString = roleString.toUpperCase();
     }
-    roleString = roleString.toUpperCase();
 
     if (idString != null && passwString != null) {
       Optional<Employee> existingUserOptional = employeeRepository.findByEmployeeId(idString);
