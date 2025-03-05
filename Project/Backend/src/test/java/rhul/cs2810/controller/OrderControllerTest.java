@@ -123,4 +123,20 @@ class OrderControllerTest {
     verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
   }
 
+  @Test
+  void testUpdatedOrderStatusNotFound() throws Exception {
+    Order mockOrder = new Order();
+    mockOrder.setOrderId(1);
+    Map<String, String> map = new HashMap<>();
+    map.put("orderStatus", "CREATED");
+
+    when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(null);
+    MvcResult result = mockMvc.perform(post("/api/order/{orderId}/updateOrderStatus", mockOrder.getOrderId())
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(objectMapper.writeValueAsString(map)).accept(MediaType.APPLICATION_JSON))
+      .andReturn();
+    assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+    verify(orderService, times(1)).getOrder(mockOrder.getOrderId());
+  }
+
 }
