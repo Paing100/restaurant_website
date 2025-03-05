@@ -5,13 +5,12 @@ import Menu from './Menu';
 import Login from './Login';
 import Waiter from './Waiter';
 import Order from './Order';
-import { CartProvider, CartContext } from './CartContext';
+import { CartProvider } from './CartContext';
 import MenuWaiter from './MenuWaiter';
 import EditMenu from './EditMenu';
 import KitchenStaff from "./KitchenStaff";
 
 function AppContent() {
-
   return (
     <div className="app">
       <NavBar />
