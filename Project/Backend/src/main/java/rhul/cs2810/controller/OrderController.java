@@ -125,5 +125,17 @@ public class OrderController {
     return ResponseEntity.ok("Order Status changed to " + order.getOrderStatus());
   }
 
+//  @GetMapping("/order/{orderId}/getOrderStatus")
+//  public ResponseEntity<OrderStatus> getOrderStatus(@PathVariable int orderId){
+//    Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
+//
+//    if (!orderOptional.isPresent()){
+//      // do something
+//    }
+//
+//    Order order = orderOptional.get();
+//    OrderStatus status = order.getOrderStatus();
+//    return ResponseEntity.ok(status);
+//  }
 
 }

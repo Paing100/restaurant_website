@@ -1,9 +1,10 @@
 import Menu from './Menu.jsx'
 
-function MenuWaiter(){
+function MenuWaiter() {
 
   return (
-    <Menu isWaiterView={true}></Menu>  
+    <Menu isWaiterView={true}></Menu>
+
   );
 }
 
