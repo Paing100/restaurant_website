@@ -1,18 +1,17 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Typography, List, ListItem, ListItemText, Box, Button, Tabs, Tab, Grid } from "@mui/material";
+import { Typography, List, Box, Button, Tabs, Tab, Grid } from "@mui/material";
 import Orders from "./Orders";
 
 function Waiter() {
   const userName = localStorage.getItem("userName");
   const userRole = localStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
-  const[delivered, setDelivered] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0);
 
   // use orderId to trigger use Effect, but if the same order is clicked again for other purpose
   // use effect doesn't work anymore 
-  const[orderId, setOrderId] = useState([]);
+  const[orderStatus, setOrderStatus] = useState({orderId:"", orderStatus:""});
 
   const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
 
@@ -38,7 +37,7 @@ function Waiter() {
   useEffect(() => {
     console.log("USE EFFECT RAN!");
     fetchOrders();
-  }, [orderId]);
+  }, [orderStatus]);
 
   // change the status an order 
   const updateOrderStatus = async (orderId, newStatus) => {
@@ -100,14 +99,15 @@ function Waiter() {
                     order={order}
                     buttonName={
                       selectedTab === 0 ? "Confirm Order" :
-                      selectedTab === 1 ? "Deliver" : undefined
-                    }
+                      selectedTab === 1 ? "Deliver" : 
+                      selectedTab === 2 ? "No Button" : 
+                    ""}
                     onButtonClick={() => {
                       const newStatus = 
                         selectedTab === 0 ? "CONFIRMED" :
                         selectedTab === 1 ? "DELIVERED" : "";
                       updateOrderStatus(order.orderId, newStatus);
-                      setOrderId(order.orderId);
+                      setOrderStatus({orderId: order.orderId, orderStatus: order.orderStatus});
                     }}
                   />
                 ))}

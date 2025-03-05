@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { createContext, useEffect, useState } from 'react';
+import PropTypes from "prop-types"
 
 export const CartContext = createContext();
 
@@ -252,7 +253,6 @@ export const CartProvider = ({ children }) => {
                 customer,
                 tableNum,
                 setCart, 
-                setCustomer,
                 setTableNum,
                 addItemToCart,
                 removeItemFromCart,

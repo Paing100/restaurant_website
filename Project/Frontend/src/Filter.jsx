@@ -1,9 +1,8 @@
-/* eslint-disable */
 import { Select, MenuItem, FormControl, InputLabel, Button, Box } from "@mui/material";
 import PropTypes from "prop-types";
 import { useState } from "react";
 
-function Filter({ selectedFilter, onFilterChange }) {
+function Filter({ onFilterChange }) {
   const [selectedDietary, setSelectedDietary] = useState([]);
   const [selectedAllergens, setSelectedAllergens] = useState([]);
 
@@ -83,7 +82,6 @@ function Filter({ selectedFilter, onFilterChange }) {
 }
 
 Filter.propTypes = {
-  selectedFilter: PropTypes.func.isRequired,
   onFilterChange: PropTypes.func.isRequired,
 };
 

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField, Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
 import { useContext, useState, useEffect } from "react";
@@ -160,6 +159,7 @@ MenuCard.propTypes = {
     calories: PropTypes.number.isRequired,
     allergens: PropTypes.arrayOf(PropTypes.string).isRequired,
     dietaryRestrictions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    available: PropTypes.bool.isRequired,
   }).isRequired,
   isWaiterView: PropTypes.bool.isRequired,
 };

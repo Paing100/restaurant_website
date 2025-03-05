@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PropTypes from "prop-types";
 
 const OrderInfoPopup = React.memo(({ 
     showOrderInfo,
@@ -121,8 +122,28 @@ const OrderInfoPopup = React.memo(({
     </Slide>
 ));
 
+OrderInfoPopup.propTypes = {
+    showOrderInfo: PropTypes.bool.isRequired,
+    expanded: PropTypes.bool.isRequired,
+    setExpanded: PropTypes.func.isRequired,
+    customer: PropTypes.shape({
+        name: PropTypes.string
+    }),
+    tableNum: PropTypes.number,
+    elapsedTime: PropTypes.string.isRequired,
+    orderStatus: PropTypes.string.isRequired,
+    receipt: PropTypes.arrayOf(
+        PropTypes.shape({
+            itemName: PropTypes.string.isRequired, 
+            quantity: PropTypes.number.isRequired, 
+            price: PropTypes.number.isRequired,
+        })
+    ),
+    receiptTotal: PropTypes.number.isReuqired,
+}
+
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCustomer, setCart } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCart } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [orderStatus, setOrderStatus] = useState('PENDING');
@@ -191,13 +212,10 @@ function Order() {
             //     console.log("ITEMS: " + orderedItems);
             //     console.log("Customer added successfully");
             // }
-
-            {console.log("THIS IS RUN!!")}
-            setCart({ ...cart, orderedItems: [] });
             
-            fetchCart().then(() => {
-                setCart({ ...cart, orderedItems: [], totalPrice: 0 });
-            });
+            await fetchCart(); 
+            setCart({ ...cart, orderedItems: [], totalPrice: 0 });
+            
             console.log("CART: " + cart)
 
         } else {

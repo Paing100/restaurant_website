@@ -1,8 +1,7 @@
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Typography, List, ListItem, ListItemText, Box, Button, Tabs, Tab, Grid } from "@mui/material";
+import { Typography, ListItem, ListItemText, Button } from "@mui/material";
+import PropTypes from "prop-types";
 
-function Orders({order, buttonName, onButtonClick}) {
+function Orders({ order, buttonName, onButtonClick }) {
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
@@ -46,12 +45,22 @@ function Orders({order, buttonName, onButtonClick}) {
                     </>
                   }
                 />
-                <Button variant="contained" color="success" onClick={() => onButtonClick(order.orderId)}>
-                  {buttonName}
-                </Button>
+                { buttonName !== "No Button" && 
+                  (
+                  <Button variant="contained" color="success" onClick={() => onButtonClick(order.orderId)}>
+                    {buttonName}
+                  </Button>
+                  )
+                }
               </ListItem>
     </>
   )
+}
+
+Orders.propTypes = {
+  order: PropTypes.object.isRequired, 
+  buttonName: PropTypes.string.isRequired, 
+  onButtonClick: PropTypes.func.isRequired
 }
 
 export default Orders; 
