@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -94,7 +95,6 @@ class OrderServiceTest {
 
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2));
-
     assertEquals("Order with ID 1 not found.", exception.getMessage());
   }
 
@@ -105,8 +105,8 @@ class OrderServiceTest {
     when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
     when(menuItemRepository.findById(100)).thenReturn(Optional.empty());
 
-    Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2));
+    Exception exception = assertThrows(IllegalArgumentException.class,
+        () -> orderService.addItemToOrder(1, 100, 2));
 
     assertEquals("Menu item with ID 100 not found.", exception.getMessage());
   }
@@ -128,6 +128,7 @@ class OrderServiceTest {
 
     orderService.submitOrder(1);
 
+    //assertTrue(mockOrder.isOrderSubmitted());
     verify(orderRepository, times(1)).save(mockOrder);
   }
 

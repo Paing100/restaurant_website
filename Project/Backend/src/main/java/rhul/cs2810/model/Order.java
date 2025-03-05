@@ -121,9 +121,9 @@ public class Order {
    * getClass() != o.getClass()) return false; Order order = (Order) o; return orderId ==
    * order.orderId && tableNum == order.tableNum && Objects.equals(orderPlaced, order.orderPlaced);
    * }
-   * 
+   *
    * @Override public int hashCode() { return Objects.hash(orderId, tableNum, orderPlaced); }
-   * 
+   *
    */
 
 }

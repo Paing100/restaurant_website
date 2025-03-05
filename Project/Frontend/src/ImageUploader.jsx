@@ -1,7 +1,7 @@
 import {useState} from "react";
 import PropTypes from 'prop-types';
 
-function ImageUploader({setImagePath}) {
+function ImageUploader({ setImagePath }) {
 
   const [image, setImage] = useState("");
   const [previewURL, setPreviewURL] = useState("");
