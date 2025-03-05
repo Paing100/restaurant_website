@@ -69,7 +69,7 @@ public class LoginControllerTest {
             .content(objectMapper.writeValueAsString(employee)).accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.message").value("Register Successful"))
         .andExpect(jsonPath("$.firstName").value("Williams"))
-        .andExpect(jsonPath("$.role").value("Waiter"))
+        .andExpect(jsonPath("$.role").value("WAITER"))
         .andExpect(jsonPath("$.employeeId").value("1019")).andReturn();
 
     Employee testedEmployee =
@@ -93,7 +93,7 @@ public class LoginControllerTest {
             .accept(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.message").value("Login Successful!"))
         .andExpect(jsonPath("$.firstName").value("Williams"))
-        .andExpect(jsonPath("$.role").value("Waiter")).andReturn();
+        .andExpect(jsonPath("$.role").value("WAITER")).andReturn();
   }
 
   @Test

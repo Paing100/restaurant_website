@@ -65,10 +65,10 @@ public class EmployeeService {
     String firstNameString = employee.getFirstName();
     String lastNameString = employee.getLastName();
     String roleString = employee.getRole().toUpperCase();
-    if (!roleString.equals("WAITER") && !roleString.equals("KITCHEN")) {
-      System.out.println("Invalid role assigned: " + roleString);
-      return false;
+    if (roleString == null || roleString.trim().isEmpty()) {
+      throw new IllegalArgumentException("Role cannot be null or empty.");
     }
+    roleString = roleString.toUpperCase();
 
     if (idString != null && passwString != null) {
       Optional<Employee> existingUserOptional = employeeRepository.findByEmployeeId(idString);
