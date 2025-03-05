@@ -15,7 +15,7 @@ function KitchenStaff() {
       }
       const data = await response.json();
       const pendingOrders = data.filter(
-          order => order.orderStatus === "SUBMITTED");
+          order => order.orderStatus === "CONFIRMED");
       setOrders(pendingOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
