@@ -30,8 +30,8 @@ public class EmployeeTest {
 
   @Test
   void testGetAndSetRole() {
-    employee.setRole("Waiter");
-    assertEquals("Waiter", employee.getRole());
+    employee.setRole("WAITER");
+    assertEquals("WAITER", employee.getRole());
   }
 
   @Test

@@ -130,7 +130,11 @@ public class Employee {
    * @param role of the employee
    */
   public void setRole(String role) {
-    this.role = role;
+    if (role == null || role.trim().isEmpty()) {
+        this.role = "WAITER"; // Default to WAITER if null
+    } else {
+        this.role = role.toUpperCase();
+    }
   }
 
 }
