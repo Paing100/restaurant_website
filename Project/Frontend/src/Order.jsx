@@ -146,13 +146,35 @@ function Order() {
     const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCart, setCustomer } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
-    const [orderStatus, setOrderStatus] = useState('PENDING');
-    const [showOrderInfo, setShowOrderInfo] = useState(false);
-    const [expanded, setExpanded] = useState(false);
+    const [showOrderInfo, setShowOrderInfo] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).show : false;
+    });
+    const [expanded, setExpanded] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).expanded : false;
+    });
+    const [orderStatus, setOrderStatus] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).status : 'PENDING';
+    });
+    const [receipt, setReceipt] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).receipt : [];
+    });
+    const [receiptTotal, setReceiptTotal] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).total : 0;
+    });
+    const [orderTime, setOrderTime] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? new Date(JSON.parse(savedOrderInfo).orderTime) : null;
+    });
+    const [storedTableNum, setStoredTableNum] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).tableNum : null;
+    });
     const [open, setOpen] = useState(false);
-    const [receipt, setReceipt] = useState([]);
-    const [receiptTotal, setReceiptTotal] = useState(0);
-    const [orderTime, setOrderTime] = useState(null);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
     const timerRef = useRef(null);
 
@@ -171,6 +193,19 @@ function Order() {
         }
         return () => clearInterval(timerRef.current);
     }, [orderTime]);
+
+    useEffect(() => {
+        const orderInfo = {
+            show: showOrderInfo,
+            expanded: expanded,
+            status: orderStatus,
+            receipt: receipt,
+            total: receiptTotal,
+            orderTime: orderTime?.toISOString(),
+            tableNum: tableNum || storedTableNum
+        };
+        localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
+    }, [showOrderInfo, expanded, orderStatus, receipt, receiptTotal, orderTime, tableNum, storedTableNum]);
 
     const decreaseItemQuantity = (itemId) => {
         removeItemFromCart(itemId, false);
@@ -221,6 +256,18 @@ function Order() {
             setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
             setReceiptTotal(cart.totalPrice);
             setOrderTime(new Date());
+
+            const orderInfo = {
+                show: true,
+                expanded: false,
+                status: 'In Progress',
+                receipt: Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })),
+                total: cart.totalPrice,
+                orderTime: new Date().toISOString(),
+                tableNum: tableNum
+            };
+            localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
+            setStoredTableNum(tableNum);
 
             await fetchCart();
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
@@ -323,7 +370,7 @@ function Order() {
                 expanded={expanded}
                 setExpanded={setExpanded}
                 customer={customer}
-                tableNum={tableNum}
+                tableNum={tableNum || storedTableNum} // Use stored table number as fallback
                 elapsedTime={elapsedTime}
                 orderStatus={orderStatus}
                 receipt={receipt}

@@ -27,6 +27,7 @@ export const CartProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('customer');
+        localStorage.removeItem('orderInfo');
         setCustomer(null);
         setTableNum('');
         setCart({ orderedItems: {}, totalPrice: 0 });
