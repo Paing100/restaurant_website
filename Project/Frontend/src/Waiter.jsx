@@ -37,6 +37,8 @@ function Waiter() {
   useEffect(() => {
     console.log("USE EFFECT RAN!");
     fetchOrders();
+    const interval = setInterval(fetchOrders, 2000); 
+    return () => clearInterval(interval);
   }, [orderStatus]);
 
   // change the status an order 

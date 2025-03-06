@@ -24,6 +24,9 @@ function KitchenStaff() {
 
   useEffect(() => {
     fetchOrders();
+    // call fetchOrder every 2 seconds
+    const interval = setInterval(fetchOrders, 2000); 
+    return () => clearInterval(interval);
   }, []);
 
   const markAsReady = async (orderId) => {
