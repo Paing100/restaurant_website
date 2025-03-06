@@ -69,7 +69,9 @@ VALUES
 ((SELECT item_id FROM menu_item WHERE name = 'Tres Leches Cake'), (SELECT name FROM allergens WHERE name = 'EGG'));
 
 INSERT INTO employee(employeeId, firstName, lastName, role, password) VALUES
-('string', 'James', 'Webb', 'Waiter', '$2a$10$LitqTTiD0K8RnMs.Xk2iBuotCwoost79uN877IgN9odaSTDvlBRW.')
+('string', 'James', 'Webb', 'Waiter', '$2a$10$LitqTTiD0K8RnMs.Xk2iBuotCwoost79uN877IgN9odaSTDvlBRW.'),
+('hello', 'Kevin', 'Peter', 'Kitchen', '$2a$10$fGBmegHQwe3P.z5bitsSO.dzbyXIpehKbK7jUvQX2yL6ZOuqqZBQS')
+
 
 
 

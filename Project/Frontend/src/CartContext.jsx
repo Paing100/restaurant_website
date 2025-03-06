@@ -216,17 +216,14 @@ export const CartProvider = ({ children }) => {
         if (!customer || !customer.customerId) {
             throw new Error("Customer is not logged in or order ID is missing.");
         }
-
         try {
             const response = await fetch(`http://localhost:8080/api/order/${customer.customerId}/submitOrder`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
-
             if (!response.ok) {
                 throw new Error(`Server responded with status: ${response.status}`);
             }
-
             console.log('Order submitted successfully');            
             return { success: true, message: 'Order submitted successfully!' };
         } catch (err) {
