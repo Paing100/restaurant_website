@@ -143,7 +143,7 @@ OrderInfoPopup.propTypes = {
 }
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCart } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCart, setCustomer } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [orderStatus, setOrderStatus] = useState('PENDING');
@@ -200,7 +200,7 @@ function Order() {
 
             if (customerResponse.ok) {
                 const newCustomer = await customerResponse.json();
-                setCustomer(newCustomer); // Make sure setCustomer is defined in the context
+                setCustomer(newCustomer);
                 localStorage.setItem('customer', JSON.stringify(newCustomer));
                 console.log("New customer added:", newCustomer);
             } else {
