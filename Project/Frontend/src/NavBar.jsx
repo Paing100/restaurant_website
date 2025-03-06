@@ -17,6 +17,11 @@ function NavBar() {
     navigate("/order");
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <>
       <AppBar position="static" sx={{ backgroundColor: "#333", width: "100%" }}>
@@ -52,7 +57,7 @@ function NavBar() {
                     backgroundColor: "rgba(244, 67, 54, 0.1)", // Light red hover effect
                   },
                 }}
-                onClick={logout}
+                onClick={handleLogout}
               >
                 Logout
               </Button>

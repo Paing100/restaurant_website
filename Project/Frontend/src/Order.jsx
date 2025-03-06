@@ -189,6 +189,28 @@ function Order() {
             return;
         }
 
+        // Create a new customer before submitting the order
+        try {
+            const customerResponse = await fetch(`http://localhost:8080/api/customers/add?name=${customer.name}&tableNum=${tableNum}`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json'
+                },
+            });
+
+            if (customerResponse.ok) {
+                const newCustomer = await customerResponse.json();
+                setCustomer(newCustomer); // Make sure setCustomer is defined in the context
+                localStorage.setItem('customer', JSON.stringify(newCustomer));
+                console.log("New customer added:", newCustomer);
+            } else {
+                console.error("Failed to create a new customer.");
+            }
+        } catch (error) {
+            console.error("Error while creating customer:", error);
+        }
+
+        // Now submit the order
         const result = await submitOrder();
 
         if (result.success) {
@@ -199,31 +221,18 @@ function Order() {
             setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
             setReceiptTotal(cart.totalPrice);
             setOrderTime(new Date());
-            const response = await fetch(`http://localhost:8080/api/customers/add?name=${customer.name}&tableNum=${tableNum}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-            if (response.ok) {
-                console.log("RESPONSE: " + response);
-                const newCustomer = await response.json();
-                setCustomer(newCustomer);
-                console.log("ITEMS: " + orderedItems);
-                console.log("Customer added successfully");
-            }
 
             await fetchCart();
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
 
-            console.log("CART: " + cart)
-
+            console.log("Cart cleared after order submission.");
         } else {
             setMessage(result.message);
             setSeverity('error');
         }
         setOpen(true);
     };
+
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
