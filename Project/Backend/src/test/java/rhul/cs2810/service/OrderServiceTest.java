@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,13 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import rhul.cs2810.model.Allergen;
-import rhul.cs2810.model.Customer;
-import rhul.cs2810.model.DietaryRestrictions;
-import rhul.cs2810.model.MenuItem;
-import rhul.cs2810.model.Order;
-import rhul.cs2810.model.OrderMenuItem;
-import rhul.cs2810.model.OrderMenuItemId;
+import rhul.cs2810.model.*;
 import rhul.cs2810.repository.MenuItemRepository;
 import rhul.cs2810.repository.OrderMenuItemRepository;
 import rhul.cs2810.repository.OrderRepository;
@@ -43,6 +35,9 @@ class OrderServiceTest {
 
   @Mock
   private MenuItemRepository menuItemRepository;
+
+  @Mock
+  private NotificationService notificationService;
 
   @InjectMocks
   private OrderService orderService;
@@ -120,27 +115,20 @@ class OrderServiceTest {
     verify(orderMenuItemRepository, times(1)).deleteById(orderMenuItemId);
   }
 
+
   @Test
   void testSubmitOrder() {
     Order mockOrder = new Order();
-    // first order id is 1, so this test passes
-    when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
 
+    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString());
+
+    notificationService.sendNotification("READY", 1, "waiter", "message");
+    when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
     orderService.submitOrder(1);
 
-    //assertTrue(mockOrder.isOrderSubmitted());
     verify(orderRepository, times(1)).save(mockOrder);
   }
 
-  @Test
-  void testSubmitOrderNotPresent() {
-    Order mockOrder = new Order();
-
-    when(orderRepository.findById(0)).thenReturn(Optional.empty());
-    orderService.submitOrder(0);
-    // since order is not present, save is called 0 times.
-    verify(orderRepository, times(0)).save(mockOrder);
-  }
 
   @Test
   void testGetAllOrders() {

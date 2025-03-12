@@ -1,7 +1,7 @@
 import { Typography, ListItem, ListItemText, Button } from "@mui/material";
 import PropTypes from "prop-types";
 
-function Orders({ order, buttonName, onButtonClick }) {
+function Orders({ order, buttonName, onButtonClick, fetchOrders }) {
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
@@ -24,6 +24,17 @@ function Orders({ order, buttonName, onButtonClick }) {
     }
   };
 
+  const handleCancelOrder = async(orderId) => {
+      const response = await fetch(`http://localhost:8080/api/order/${orderId}/cancelOrder`,{
+        method: "DELETE", 
+        headers: {"Content-Type":"application/json"}
+      });
+      if (response.ok){
+        console.log("Order deleted successfully");
+        fetchOrders();
+      }
+  }
+
   return (
     <>
               <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
@@ -45,6 +56,14 @@ function Orders({ order, buttonName, onButtonClick }) {
                     </>
                   }
                 />
+                {
+                  buttonName === "Confirm Order" && 
+                  (
+                    <Button onClick={() => handleCancelOrder(order.orderId)}>
+                      Cancel
+                    </Button>
+                  )
+                }
                 { buttonName !== "No Button" && 
                   (
                   <Button variant="contained" color="success" onClick={() => onButtonClick(order.orderId)}>
@@ -60,7 +79,8 @@ function Orders({ order, buttonName, onButtonClick }) {
 Orders.propTypes = {
   order: PropTypes.object.isRequired, 
   buttonName: PropTypes.string.isRequired, 
-  onButtonClick: PropTypes.func.isRequired
+  onButtonClick: PropTypes.func.isRequired,
+  fetchOrders: PropTypes.func.fetchOrders 
 }
 
 export default Orders; 

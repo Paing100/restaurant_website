@@ -12,6 +12,7 @@ import KitchenStaff from "./KitchenStaff";
 
 function AppContent() {
   return (
+    <>
     <div className="app">
       <NavBar />
       <div className="content">
@@ -27,6 +28,7 @@ function AppContent() {
         </Routes>
       </div>
     </div>
+    </>
   );
 }
 

@@ -1,10 +1,54 @@
-import {useEffect, useState} from "react";
+import {useEffect, useState, useRef} from "react";
 import {Typography, List, ListItem, ListItemText, Box, Button} from "@mui/material";
 
 function KitchenStaff() {
   const userName = localStorage.getItem("userName");
   const userRole = localStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
+  const [notification, setNotification] = useState([]);
+  const ws = useRef(null);
+
+  useEffect(() => {
+    if (!ws.current){
+      ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+
+      ws.current.onopen = () => {
+        console.log('WebSocket connected');
+      };
+
+      ws.current.onclose = () => {
+        console.log('WebSocket closed. Attempting to reconnect...');
+        setTimeout(() => {
+          ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
+        }, 3000);
+      };
+
+      ws.current.onmessage = (event) => {
+        let message;
+        try {
+          message = JSON.parse(event.data);
+          if (message.recipient === "kitchen") {
+            setNotification(message.message);
+          }
+        } catch (error) {
+          message = event.data;
+          console.log(error);
+        }
+        fetchOrders();
+        }
+
+
+    }
+
+    return () => {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        console.log("Closing WebSocket on cleanup");
+        ws.current.close();
+      }
+    };
+  }, []);
+
+
 
   const fetchOrders = async () => {
     try {
@@ -39,16 +83,45 @@ function KitchenStaff() {
       body: JSON.stringify({"orderStatus": "READY"}),
     };
 
+    const notificationMessage = {
+          type: "READY", 
+          orderId: orderId, 
+          recipient: "waiter",
+          message: `#${orderId} is ready to be delivered`
+    };
+
     try {
       await fetch(
           `http://localhost:8080/api/order/${orderId}/updateOrderStatus`,
           settings);
+          console.log('WebSocket State:', ws.current.readyState);
+
+        const sendMessage = await fetch('http://localhost:8080/api/notification/send',{
+          method:"POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(notificationMessage),
+        });
+
+        if (!sendMessage.ok) {
+          throw new Error("Failed to send message via /send API");
+        }
+
+        if (ws.current && ws.current.readyState === WebSocket.OPEN){
+          const message = JSON.stringify(
+            notificationMessage
+          );
+          ws.current.send(message);
+          console.log("SEND FROM KITCHEN " + JSON.stringify(message))
+        }
+      
     } catch (error) {
       console.error("Error updating order status:", error);
     }
   };
 
   return (
+    <>
+      <h1>{notification}</h1>
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
@@ -75,6 +148,7 @@ function KitchenStaff() {
           ))}
         </List>
       </Box>
+    </>
   );
 }
 

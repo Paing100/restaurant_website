@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Typography, List, Box, Button, Tabs, Tab, Grid } from "@mui/material";
+import { useEffect, useState, useRef } from "react";
+import { Typography, List, Box, Button, Tabs, Tab, Grid, Snackbar, Alert } from "@mui/material";
 import Orders from "./Orders";
 
 function Waiter() {
@@ -8,6 +8,10 @@ function Waiter() {
   const userRole = localStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0);
+  const [notification, setNotification] = useState("");
+  const ws = useRef(null);
+  const [open, setOpen] = useState(false);
+  
 
   // use orderId to trigger use Effect, but if the same order is clicked again for other purpose
   // use effect doesn't work anymore 
@@ -37,8 +41,38 @@ function Waiter() {
   useEffect(() => {
     console.log("USE EFFECT RAN!");
     fetchOrders();
-    const interval = setInterval(fetchOrders, 2000); 
-    return () => clearInterval(interval);
+    if (!ws.current){
+      ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+
+      ws.current.onopen = () => {
+        console.log('WebSocket connected', ws.current.readyState);
+      };
+
+      ws.current.onclose = () => {
+        console.log("Websocket session is closed");
+      }
+
+      ws.current.onmessage = (event) => {
+        let message;
+        console.log("Event" + event.data);
+        try {
+          message = JSON.parse(event.data);
+          if (message.recipient === "waiter" && message.type === "READY"){
+            setOpen(true);
+            setNotification(message.message);
+          }
+        } catch (error) {
+          message = event.data;
+          console.log(error);
+        }
+        fetchOrders();
+        }
+      }
+
+    if (ws.current) {
+      console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
+    }
+    
   }, [orderStatus]);
 
   // change the status an order 
@@ -63,8 +97,17 @@ function Waiter() {
 
   const filteredOrders = orders.filter((order) => order.orderStatus === statusMap.get(categories[selectedTab]));
 
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+        return;
+    }
+    setOpen(false);
+};
+
   return (
     <>
+    <h1>{notification}</h1>
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
@@ -111,6 +154,7 @@ function Waiter() {
                       updateOrderStatus(order.orderId, newStatus);
                       setOrderStatus({orderId: order.orderId, orderStatus: order.orderStatus});
                     }}
+                    fetchOrders={fetchOrders}
                   />
                 ))}
               </List>
@@ -122,9 +166,12 @@ function Waiter() {
           </Grid>
         </Grid>
       </Box>
+            <Snackbar open={open} onClose={handleClose}>
+                <Alert onClose={handleClose} severity={"success"} sx={{ width: '100%' }}>
+                    {notification}
+                </Alert>
+            </Snackbar>
     </>
-
   );
 }
-  
 export default Waiter;
