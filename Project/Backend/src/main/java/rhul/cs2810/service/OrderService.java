@@ -1,16 +1,14 @@
 package rhul.cs2810.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import rhul.cs2810.model.MenuItem;
-import rhul.cs2810.model.Order;
-import rhul.cs2810.model.OrderMenuItem;
-import rhul.cs2810.model.OrderMenuItemId;
-import rhul.cs2810.model.OrderStatus;
+import org.springframework.transaction.annotation.Transactional;
+import rhul.cs2810.model.*;
 import rhul.cs2810.repository.MenuItemRepository;
 import rhul.cs2810.repository.OrderMenuItemRepository;
 import rhul.cs2810.repository.OrderRepository;
@@ -30,6 +28,10 @@ public class OrderService {
   @Autowired
   private MenuItemRepository menuItemRepository;
 
+  @Autowired
+  // somehow java is complaining about notificationService not being initialized so I initialized it
+  private NotificationService notificationService = new NotificationService(new WebSocketHandler());
+
   /**
    * Retrieves a specific order from the given id.
    *
@@ -37,8 +39,7 @@ public class OrderService {
    * @return order matches the id
    */
   public Order getOrder(int orderId) {
-    return orderRepository.findById(orderId)
-        .orElse(null);
+    return orderRepository.findById(orderId).orElse(null);
   }
 
   /**
@@ -81,6 +82,8 @@ public class OrderService {
       Order order = orderOptional.get();
       order.setOrderStatus(OrderStatus.SUBMITTED);
       orderRepository.save(order);
+      notificationService.sendNotification("ORDER_SUBMIT", orderId, "waiter", orderId + " has submitted!");
+
     }
   }
 
@@ -100,6 +103,14 @@ public class OrderService {
    */
   public void saveUpdatedOrder(Order order) {
     orderRepository.save(order);
+  }
+
+  public List<OrderMenuItem> getOrderedItems(int orderId){
+    Optional<Order> optionalOrder = orderRepository.findById(orderId);
+    if (optionalOrder.isPresent()) {
+      return optionalOrder.get().getOrderMenuItems();
+    }
+    return List.of();
   }
 
 }

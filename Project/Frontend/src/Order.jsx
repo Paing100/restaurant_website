@@ -213,6 +213,7 @@ function Order() {
             //     console.log("Customer added successfully");
             // }
             
+            
             await fetchCart(); 
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
             
