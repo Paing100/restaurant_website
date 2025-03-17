@@ -56,7 +56,7 @@ public class OrderService {
     MenuItem item = menuItemRepository.findById(itemId).orElseThrow(
         () -> new IllegalArgumentException("Menu item with ID " + itemId + " not found."));
 
-    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity);
+    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity, false);
     orderMenuItemRepository.save(orderMenuItem);
   }
 
@@ -78,14 +78,22 @@ public class OrderService {
    */
   public void submitOrder(int orderId) {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
+
     if (orderOptional.isPresent()) {
       Order order = orderOptional.get();
       order.setOrderStatus(OrderStatus.SUBMITTED);
       orderRepository.save(order);
-      notificationService.sendNotification("ORDER_SUBMIT", orderId, "waiter", orderId + " has submitted!");
 
+      List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
+      for (OrderMenuItem item : orderItems) {
+        item.setOrderSubmited(true);
+      }
+      orderMenuItemRepository.saveAll(orderItems);
+    } else {
+      throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
     }
   }
+
 
   /**
    * Retrieves all orders.

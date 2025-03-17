@@ -87,15 +87,14 @@ public class OrderController {
 
   @Transactional
   @DeleteMapping("/order/{orderId}/cancelOrder")
-  public ResponseEntity<String> cancelOrder(@PathVariable int orderId){
+  public ResponseEntity<String> cancelOrder(@PathVariable int orderId) {
     Query query = entityManager.createNativeQuery("DELETE FROM orders WHERE order_id = :orderId");
     query.setParameter("orderId", orderId);
     int rowDeleted = query.executeUpdate();
 
-    if (rowDeleted > 0){
+    if (rowDeleted > 0) {
       return ResponseEntity.ok("Order deleted successfully");
-    }
-    else{
+    } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
     }
   }
@@ -115,8 +114,7 @@ public class OrderController {
       order.setOrderPlaced(LocalDateTime.now());
       orderService.submitOrder(orderId);
       message = "Order submitted successfully";
-    }
-    else{
+    } else {
       message = "NOT SUCCESSFUL";
     }
     return ResponseEntity.ok(message);
@@ -157,12 +155,48 @@ public class OrderController {
     OrderStatus orderStatus = OrderStatus.valueOf(status);
     order.setOrderStatus(orderStatus);
     orderService.saveUpdatedOrder(order);
-    if (param.get("orderStatus").equals("READY")){
-      notificationService.sendNotification("READY", orderId, "waiter", orderId + " is ready to be delivered");
-    }
-    else {
-      notificationService.sendNotification(param.get("orderStatus"), orderId, "kitchen", orderId + " has change the status");
+    if (param.get("orderStatus").equals("READY")) {
+      notificationService.sendNotification("READY", orderId, "waiter",
+          orderId + " is ready to be delivered");
+    } else {
+      notificationService.sendNotification(param.get("orderStatus"), orderId, "kitchen",
+          orderId + " has change the status");
     }
     return ResponseEntity.ok("Order Status changed to " + order.getOrderStatus());
+  }
+
+  // @GetMapping("/order/{orderId}/getOrderStatus")
+  // public ResponseEntity<OrderStatus> getOrderStatus(@PathVariable int orderId){
+  // Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
+  //
+  // if (!orderOptional.isPresent()){
+  // // do something
+  // }
+  //
+  // Order order = orderOptional.get();
+  // OrderStatus status = order.getOrderStatus();
+  // return ResponseEntity.ok(status);
+  // }
+
+
+  /**
+   * Update the status of order paid for.
+   * 
+   * @param orderId of the order
+   * @return
+   */
+  @PostMapping("/order/{orderId}/markAsPaid")
+  public ResponseEntity<String> markOrderAsPaid(@PathVariable int orderId) {
+    Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
+
+    if (!orderOptional.isPresent()) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found!");
+    }
+
+    Order order = orderOptional.get();
+    order.setOrderPaid(true);
+    orderService.saveUpdatedOrder(order);
+
+    return ResponseEntity.ok("Order marked as paid successfully");
   }
 }

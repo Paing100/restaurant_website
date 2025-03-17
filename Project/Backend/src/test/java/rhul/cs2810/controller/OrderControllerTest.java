@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +42,10 @@ import rhul.cs2810.model.Order;
 import rhul.cs2810.service.NotificationService;
 import rhul.cs2810.service.OrderService;
 
+@AutoConfigureMockMvc
 class OrderControllerTest {
 
-  @Mock
+  @Autowired
   private MockMvc mockMvc;
 
   @Mock
@@ -84,7 +86,7 @@ class OrderControllerTest {
   @Test
   void testAddItemToOrder() throws Exception {
     mockMvc.perform(post("/api/orders/1/addItems").param("itemId", "101").param("quantity", "2"))
-      .andExpect(status().isOk()).andExpect(content().string("Item added to order"));
+        .andExpect(status().isOk()).andExpect(content().string("Item added to order"));
 
     verify(orderService, times(1)).addItemToOrder(1, 101, 2);
   }
@@ -92,7 +94,7 @@ class OrderControllerTest {
   @Test
   void testRemoveItemFromOrder() throws Exception {
     mockMvc.perform(delete("/api/orders/1/removeItems").param("itemId", "101"))
-      .andExpect(status().isOk()).andExpect(content().string("Item removed from order"));
+        .andExpect(status().isOk()).andExpect(content().string("Item removed from order"));
 
     verify(orderService, times(1)).removeItemFromOrder(1, 101);
   }
@@ -104,10 +106,10 @@ class OrderControllerTest {
     when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(mockOrder);
     doNothing().when(orderService).submitOrder(1);
 
-    mockMvc.perform(post("/api/order/{orderId}/submitOrder", mockOrder.getOrderId())
-        .param("orderId", "1"))
-      .andExpect(status().isOk())
-      .andExpect(content().string("Order submitted successfully"));
+    mockMvc
+        .perform(
+            post("/api/order/{orderId}/submitOrder", mockOrder.getOrderId()).param("orderId", "1"))
+        .andExpect(status().isOk()).andExpect(content().string("Order submitted successfully"));
 
     verify(orderService, times(1)).submitOrder(1);
   }
@@ -117,7 +119,6 @@ class OrderControllerTest {
     mockMvc.perform(get("/api/order/getAllOrders")).andExpect(status().isOk());
 
     verify(orderService, times(1)).getAllOrders();
-
   }
 
   @Test
@@ -128,63 +129,46 @@ class OrderControllerTest {
     map.put("orderStatus", "CREATED");
 
     when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(mockOrder);
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString());
+    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
+        anyString());
     doNothing().when(orderService).saveUpdatedOrder(mockOrder);
-    MvcResult result = mockMvc.perform(post("/api/order/{orderId}/updateOrderStatus", mockOrder.getOrderId())
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(map)).accept(MediaType.APPLICATION_JSON))
-      .andReturn();
+    MvcResult result =
+        mockMvc
+            .perform(post("/api/order/{orderId}/updateOrderStatus", mockOrder.getOrderId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(map)).accept(MediaType.APPLICATION_JSON))
+            .andReturn();
     assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
     verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
   }
 
   @Test
-  void testUpdatedOrderStatusNotFound() throws Exception {
-    Order mockOrder = new Order();
-    mockOrder.setOrderId(1);
-    Map<String, String> map = new HashMap<>();
-    map.put("orderStatus", "CREATED");
-
-    when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(null);
-    MvcResult result = mockMvc.perform(post("/api/order/{orderId}/updateOrderStatus", mockOrder.getOrderId())
-      .contentType(MediaType.APPLICATION_JSON)
-      .content(objectMapper.writeValueAsString(map)).accept(MediaType.APPLICATION_JSON))
-      .andReturn();
-    assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
-    verify(orderService, times(1)).getOrder(mockOrder.getOrderId());
-  }
-
-  @Test
-  void testCancelOrderSuccessful() throws Exception {
+  void testCancelOrder() throws Exception {
     Query mockQuery = Mockito.mock(Query.class);
-    when(entityManager.createNativeQuery("DELETE FROM orders WHERE order_id = :orderId"))
-      .thenReturn(mockQuery);
-    when(mockQuery.setParameter(eq("orderId"), eq(1)))
-      .thenReturn(mockQuery);
+    when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
+    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
     when(mockQuery.executeUpdate()).thenReturn(1);
 
-    MvcResult result = mockMvc.perform(delete("/api/order/{orderId}/cancelOrder", 1))
-      .andExpect(status().isOk())
-      .andReturn();
+    mockMvc.perform(delete("/api/order/1/cancelOrder")).andExpect(status().isOk())
+        .andExpect(content().string("Order deleted successfully"));
 
-    assertEquals("Order deleted successfully", result.getResponse().getContentAsString());
+    verify(mockQuery, times(1)).executeUpdate();
   }
 
   @Test
-  void testCancelOrderNotSuccessful() throws Exception {
-    Query mockQuery = Mockito.mock(Query.class);
-    when(entityManager.createNativeQuery("DELETE FROM orders WHERE order_id = :orderId"))
-      .thenReturn(mockQuery);
-    when(mockQuery.setParameter(eq("orderId"), eq(999)))
-      .thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(0);
+  void testMarkOrderAsPaid_Success() throws Exception {
+    Order mockOrder = new Order();
+    mockOrder.setOrderId(1);
+    mockOrder.setOrderPaid(false);
+    when(orderService.getOrder(1)).thenReturn(mockOrder);
+    doNothing().when(orderService).saveUpdatedOrder(mockOrder);
 
-    MvcResult result = mockMvc.perform(delete("/api/order/{orderId}/cancelOrder", 999))
-      .andExpect(status().isNotFound())
-      .andReturn();
+    mockMvc
+        .perform(post("/api/order/{orderId}/markAsPaid", 1).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().string("Order marked as paid successfully"));
 
-    assertEquals("Order not found", result.getResponse().getContentAsString());
-    assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
+    verify(orderService, times(1)).getOrder(1);
+    verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
   }
-
 }

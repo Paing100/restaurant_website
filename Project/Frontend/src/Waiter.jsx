@@ -4,8 +4,8 @@ import { Typography, List, Box, Button, Tabs, Tab, Grid, Snackbar, Alert } from 
 import Orders from "./Orders";
 
 function Waiter() {
-  const userName = localStorage.getItem("userName");
-  const userRole = localStorage.getItem("userRole");
+  const userName = sessionStorage.getItem("userName");
+  const userRole = sessionStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0);
   const [notification, setNotification] = useState("");
@@ -57,7 +57,7 @@ function Waiter() {
         console.log("Event" + event.data);
         try {
           message = JSON.parse(event.data);
-          if (message.recipient === "waiter" && message.type === "READY"){
+          if ((message.recipient === "waiter" && message.type === "READY") || message.type === "ORDER_SUBMITTED"){
             setOpen(true);
             setNotification(message.message);
           }

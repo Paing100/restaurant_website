@@ -2,8 +2,8 @@ import {useEffect, useState, useRef} from "react";
 import {Typography, List, ListItem, ListItemText, Box, Button} from "@mui/material";
 
 function KitchenStaff() {
-  const userName = localStorage.getItem("userName");
-  const userRole = localStorage.getItem("userRole");
+  const userName = sessionStorage.getItem("userName");
+  const userRole = sessionStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
   const [notification, setNotification] = useState([]);
   const ws = useRef(null);

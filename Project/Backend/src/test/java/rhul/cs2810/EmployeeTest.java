@@ -48,9 +48,12 @@ public class EmployeeTest {
 
   @Test
   void testNonEmptyConstructor() {
-    Employee emp = new Employee("101", "123");
+    Employee emp = new Employee("101", "123", "John", "Duran", "KITCHEN");
     assertEquals("101", emp.getEmployeeId());
     assertEquals("123", emp.getPassword());
+    assertEquals("John", emp.getFirstName());
+    assertEquals("Duran", emp.getLastName());
+    assertEquals("KITCHEN", emp.getRole());
   }
 
 }

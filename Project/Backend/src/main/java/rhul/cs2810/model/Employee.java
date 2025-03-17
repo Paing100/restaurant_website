@@ -38,9 +38,12 @@ public class Employee {
    * @param employeeId the unique id of the employee
    * @param password the password of the employee to login
    */
-  public Employee(String employeeId, String password) {
+  public Employee(String employeeId, String password, String firstName, String lastName, String role) {
     this.employeeId = employeeId;
     this.password = password;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.role = role;
   }
 
   /**

@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Toolbar, AppBar, Stack, Button, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "./CartContext";
@@ -6,8 +6,16 @@ import CustomerModal from "./CustomerModal"; // Import the modal
 
 function NavBar() {
   const navigate = useNavigate();
-  const { customer } = useContext(CartContext);
+  const { customer, logout } = useContext(CartContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const role = sessionStorage.getItem("userRole");
+    if (role) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const handleCartClick = () => {
     if (!customer) {
@@ -15,6 +23,15 @@ function NavBar() {
       return;
     }
     navigate("/order");
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("userRole");
+    sessionStorage.removeItem("sessionExpiration");
+    setIsLoggedIn(false);
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -37,9 +54,26 @@ function NavBar() {
             <Button variant="text" sx={{ color: "#ccc" }} onClick={handleCartClick}>
               Cart
             </Button>
-            <Button variant="text" sx={{ color: "#ccc" }} component={Link} to="/login">
-              Staff Login
-            </Button>
+            {!customer && !isLoggedIn ? (
+              <Button variant="text" sx={{ color: "#ccc" }} component={Link} to="/login">
+                Staff Login
+              </Button>
+            ) : (
+              <Button
+                variant="outlined" // Use outlined variant
+                sx={{
+                  color: "#f44336",
+                  borderColor: "#f44336", // Red border
+                  borderWidth: "2px", // Small border
+                  "&:hover": {
+                    backgroundColor: "rgba(244, 67, 54, 0.1)", // Light red hover effect
+                  },
+                }}
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
+            )}
           </Stack>
         </Toolbar>
       </AppBar>

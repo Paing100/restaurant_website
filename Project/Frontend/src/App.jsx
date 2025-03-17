@@ -5,6 +5,7 @@ import Menu from './Menu';
 import Login from './Login';
 import Waiter from './Waiter';
 import Order from './Order';
+import AllOrders from './AllOrders'; // Corrected import
 import { CartProvider } from './CartContext';
 import MenuWaiter from './MenuWaiter';
 import EditMenu from './EditMenu';
@@ -20,10 +21,11 @@ function AppContent() {
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<Menu />} />
           <Route path="/order" element={<Order />} />
+          <Route path="/allorders" element={<AllOrders />} /> {/* Corrected route */}
           <Route path="/login" element={<Login />} />
           <Route path="/waiter" element={<sessionCheck><Waiter /></sessionCheck>} />
-          <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>}/>
-          <Route path="/waiter_edit_menu/:id" element={<sessionCheck><EditMenu></EditMenu></sessionCheck>}/>
+          <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>} />
+          <Route path="/waiter_edit_menu/:id" element={<sessionCheck><EditMenu></EditMenu></sessionCheck>} />
           <Route path="/kitchen" element={<sessionCheck><KitchenStaff /></sessionCheck>} />
         </Routes>
       </div>

@@ -1,16 +1,16 @@
 /* eslint-disable */
-function sessionCheck({children}) {
+function sessionCheck({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const sessionExpiration = localStorage.getItem("sessionExpiration");
+    const sessionExpiration = sessionStorage.getItem("sessionExpiration");
     const currentTime = new Date().getTime();
-    const role = localStorage.getItem("userRole");
+    const role = sessionStorage.getItem("userRole");
 
     if (sessionExpiration && sessionExpiration < currentTime) {
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("sessionExpiration");
+      sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("userRole");
+      sessionStorage.removeItem("sessionExpiration");
       navigate("/login");
     } else if (role) {
       if (role === "WAITER") {

@@ -7,8 +7,10 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PropTypes from "prop-types";
+import PaymentModal from './PaymentModal';
+import { Link } from 'react-router-dom';
 
-const OrderInfoPopup = React.memo(({ 
+const OrderInfoPopup = React.memo(({
     showOrderInfo,
     expanded,
     setExpanded,
@@ -87,7 +89,7 @@ const OrderInfoPopup = React.memo(({
                 maxHeight: 'calc(80vh - 64px)'
             }}>
                 <Typography variant="h6" sx={{ mb: 2, borderBottom: '1px solid #555', pb: 1 }}>
-                    Order Receipt
+                    Latest Order Receipt
                 </Typography>
                 <List>
                     {receipt.map((item) => (
@@ -118,6 +120,11 @@ const OrderInfoPopup = React.memo(({
                     </Grid>
                 </Grid>
             </Box>
+            <Box sx={{ textAlign: 'center', marginTop: 3 }}>
+                <Link to="/allOrders" style={{ textDecoration: 'underline', color: '#5762d5' }}>
+                    View All Orders
+                </Link>
+            </Box>
         </Paper>
     </Slide>
 ));
@@ -134,26 +141,53 @@ OrderInfoPopup.propTypes = {
     orderStatus: PropTypes.string.isRequired,
     receipt: PropTypes.arrayOf(
         PropTypes.shape({
-            itemName: PropTypes.string.isRequired, 
-            quantity: PropTypes.number.isRequired, 
+            itemName: PropTypes.string.isRequired,
+            quantity: PropTypes.number.isRequired,
             price: PropTypes.number.isRequired,
         })
     ),
-    receiptTotal: PropTypes.number.isReuqired,
+    receiptTotal: PropTypes.number.isRequired,
 }
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCart } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCart, setCustomer } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
-    const [orderStatus, setOrderStatus] = useState('PENDING');
-    const [showOrderInfo, setShowOrderInfo] = useState(false);
-    const [expanded, setExpanded] = useState(false);
+    const [showOrderInfo, setShowOrderInfo] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).show : false;
+    });
+    const [expanded, setExpanded] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).expanded : false;
+    });
+    const [orderStatus, setOrderStatus] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).status : 'PENDING';
+    });
+    const [receipt, setReceipt] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).receipt : [];
+    });
+    const [receiptTotal, setReceiptTotal] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).total : 0;
+    });
+    const [orderTime, setOrderTime] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? new Date(JSON.parse(savedOrderInfo).orderTime) : null;
+    });
+    const [storedTableNum, setStoredTableNum] = useState(() => {
+        const savedOrderInfo = localStorage.getItem('orderInfo');
+        return savedOrderInfo ? JSON.parse(savedOrderInfo).tableNum : null;
+    });
     const [open, setOpen] = useState(false);
-    const [receipt, setReceipt] = useState([]);
-    const [receiptTotal, setReceiptTotal] = useState(0);
-    const [orderTime, setOrderTime] = useState(null);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
+    const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+    const [orderCount, setOrderCount] = useState(() => {
+        const savedOrderCount = localStorage.getItem('orderCount');
+        return savedOrderCount ? parseInt(savedOrderCount, 10) : 0;
+    });
     const timerRef = useRef(null);
 
     const orderedItems = cart?.orderedItems || {};
@@ -172,6 +206,19 @@ function Order() {
         return () => clearInterval(timerRef.current);
     }, [orderTime]);
 
+    useEffect(() => {
+        const orderInfo = {
+            show: showOrderInfo,
+            expanded: expanded,
+            status: orderStatus,
+            receipt: receipt,
+            total: receiptTotal,
+            orderTime: orderTime ? orderTime.toISOString() : null,
+            tableNum: tableNum || storedTableNum
+        };
+        localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
+    }, [showOrderInfo, expanded, orderStatus, receipt, receiptTotal, orderTime, tableNum, storedTableNum]);
+
     const decreaseItemQuantity = (itemId) => {
         removeItemFromCart(itemId, false);
     };
@@ -180,7 +227,62 @@ function Order() {
         addItemToCart(itemId, 1);
     };
 
-    const handleSubmit = async () => {
+    const handlePaymentSuccess = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/newOrder?tableNum=${tableNum}`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json'
+                },
+            });
+
+            if (response.ok) {
+                const newOrder = await response.json();
+                setCustomer({ ...customer, orderId: newOrder.orderId });
+            } else {
+                console.error("Error while creating new order:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error while creating new order:", error);
+        }
+
+        // Now submit the order
+        const result = await submitOrder();
+        if (result.success) {
+            setOrderCount(orderCount => orderCount + 1);
+            setOrderStatus('In Progress');
+            setShowOrderInfo(true);
+            setMessage(result.message);
+            setSeverity('success');
+            setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
+            setReceiptTotal(cart.totalPrice);
+            setOrderTime(new Date());
+
+            const orderInfo = {
+                show: true,
+                expanded: false,
+                status: 'In Progress',
+                receipt: Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })),
+                total: cart.totalPrice,
+                orderTime: new Date().toISOString(),
+                tableNum: tableNum
+            };
+            localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
+            setStoredTableNum(tableNum);
+
+            await fetchCart();
+            setCart({ ...cart, orderedItems: [], totalPrice: 0 });
+
+            console.log("Cart cleared after order submission.");
+
+        } else {
+            setMessage(result.message);
+            setSeverity('error');
+        }
+        setOpen(true);
+    };
+
+    const handleSubmit = () => {
         if (!orderedItems || Object.keys(orderedItems).length === 0) {
             console.error("Error: Cart is empty. Cannot submit order.");
             setMessage("Error: Cart is empty. Cannot submit order.");
@@ -189,41 +291,7 @@ function Order() {
             return;
         }
 
-        const result = await submitOrder();
-
-        if (result.success) {
-            setOrderStatus('In Progress');
-            setShowOrderInfo(true);
-            setMessage(result.message);
-            setSeverity('success');
-            setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
-            setReceiptTotal(cart.totalPrice);
-            setOrderTime(new Date());
-            // const response = await fetch(`http://localhost:8080/api/customers/add?name=${customer.name}&tableNum=${tableNum}`, {
-            //     method: 'POST',
-            //     headers: {
-            //         'accept': 'application/json'
-            //     },
-            // });
-            // if (response.ok) {
-            //     console.log("RESPONSE: " + response);
-            //     const newCustomer = await response.json();
-            //     setCustomer(newCustomer);
-            //     console.log("ITEMS: " + orderedItems);
-            //     console.log("Customer added successfully");
-            // }
-            
-            
-            await fetchCart(); 
-            setCart({ ...cart, orderedItems: [], totalPrice: 0 });
-            
-            console.log("CART: " + cart)
-
-        } else {
-            setMessage(result.message);
-            setSeverity('error');
-        }
-        setOpen(true);
+        setPaymentModalOpen(true);
     };
 
     const handleClose = (event, reason) => {
@@ -235,6 +303,12 @@ function Order() {
 
     return (
         <Box sx={{ padding: 3, paddingBottom: showOrderInfo ? 8 : 3 }}>
+            <Button
+                onClick={() => window.history.back()}
+                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' }, marginBottom: 2 }}
+            >
+                ← Back
+            </Button>
             <Typography sx={{ padding: '15px' }} variant="h4">Place Your Order</Typography>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List>
@@ -310,16 +384,23 @@ function Order() {
                     {message}
                 </Alert>
             </Snackbar>
-            <OrderInfoPopup 
+            <OrderInfoPopup
                 showOrderInfo={showOrderInfo}
                 expanded={expanded}
                 setExpanded={setExpanded}
                 customer={customer}
-                tableNum={tableNum}
+                tableNum={tableNum || storedTableNum}
                 elapsedTime={elapsedTime}
                 orderStatus={orderStatus}
                 receipt={receipt}
                 receiptTotal={receiptTotal}
+            />
+            <PaymentModal
+                open={paymentModalOpen}
+                onClose={() => setPaymentModalOpen(false)}
+                totalPrice={cart.totalPrice}
+                onPaymentSuccess={handlePaymentSuccess}
+                orderId={customer?.orderId}
             />
         </Box>
     );
