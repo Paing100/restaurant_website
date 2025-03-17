@@ -100,8 +100,8 @@ class OrderServiceTest {
     when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
     when(menuItemRepository.findById(100)).thenReturn(Optional.empty());
 
-    Exception exception = assertThrows(IllegalArgumentException.class,
-        () -> orderService.addItemToOrder(1, 100, 2));
+    Exception exception =
+        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2));
 
     assertEquals("Menu item with ID 100 not found.", exception.getMessage());
   }

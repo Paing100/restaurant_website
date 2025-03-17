@@ -23,12 +23,12 @@ function Login() {
       });
       if (response.status === 200) {
         const expirationTime = new Date().getTime() + 30 * 60 * 1000;
-        localStorage.setItem("sessionExpiration", expirationTime);
+        sessionStorage.setItem("sessionExpiration", expirationTime);
 
         const { firstName, role } = response.data;
-        localStorage.setItem("userName", firstName);
-        localStorage.setItem("userRole", role.toUpperCase());
-        const storedRole = localStorage.getItem("userRole");
+        sessionStorage.setItem("userName", firstName);
+        sessionStorage.setItem("userRole", role.toUpperCase());
+        const storedRole = sessionStorage.getItem("userRole");
         if (storedRole === "WAITER") {
           navigate("/waiter");
         } else if (storedRole === "KITCHEN") {

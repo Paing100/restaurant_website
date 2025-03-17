@@ -16,9 +16,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.Objects;
 
 /**
  * Represents an Order class to handle customers orders.
@@ -26,12 +27,13 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "orders")
 public class Order {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "order_id")
   private int orderId;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
   @JsonBackReference
   private Customer customer;
@@ -50,6 +52,9 @@ public class Order {
   @Column(name = "status", nullable = false)
   private OrderStatus orderStatus;
 
+  @Column(name = "order_paid", nullable = false)
+  private boolean orderPaid;
+
   public Order() {}
 
   public Order(int tableNum, LocalDateTime orderPlaced, Customer customer) {
@@ -60,6 +65,10 @@ public class Order {
 
   public int getOrderId() {
     return orderId;
+  }
+
+  public void setOrderId(int orderId) {
+    this.orderId = orderId;
   }
 
   public Customer getCustomer() {
@@ -101,7 +110,7 @@ public class Order {
    * @param quantity the quantity of the item
    */
   public void addItemToCart(MenuItem menuItem, int quantity) {
-    OrderMenuItem orderMenuItem = new OrderMenuItem(this, menuItem, quantity);
+    OrderMenuItem orderMenuItem = new OrderMenuItem(this, menuItem, quantity, false);
     this.orderMenuItems.add(orderMenuItem);
   }
 
@@ -113,17 +122,26 @@ public class Order {
     this.orderStatus = orderStatus;
   }
 
-  public void setOrderId(int orderId){
-    this.orderId = orderId;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Order order = (Order) o;
+    return orderId == order.orderId && tableNum == order.tableNum
+        && Objects.equals(orderPlaced, order.orderPlaced);
   }
-  /*
-   * @Override public boolean equals(Object o) { if (this == o) return true; if (o == null ||
-   * getClass() != o.getClass()) return false; Order order = (Order) o; return orderId ==
-   * order.orderId && tableNum == order.tableNum && Objects.equals(orderPlaced, order.orderPlaced);
-   * }
-   *
-   * @Override public int hashCode() { return Objects.hash(orderId, tableNum, orderPlaced); }
-   *
-   */
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(orderId, tableNum, orderPlaced);
+  }
+
+  public void setOrderPaid(boolean orderPaid) {
+    this.orderPaid = orderPaid;
+  }
 
 }

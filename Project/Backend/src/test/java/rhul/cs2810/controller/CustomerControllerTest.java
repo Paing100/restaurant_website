@@ -23,6 +23,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rhul.cs2810.model.Customer;
+import rhul.cs2810.model.Order;
+import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.OrderRepository;
 
@@ -66,8 +68,9 @@ public class CustomerControllerTest {
     assertNotNull(createdCustomer);
     assertNotNull(createdCustomer.getCustomerId());
     assertEquals(name, createdCustomer.getName());
-    assertNotNull(createdCustomer.getOrder());
-    assertEquals(tableNum, createdCustomer.getOrder().getTableNum());
+    assertNotNull(createdCustomer.getOrders());
+    assertTrue(
+        createdCustomer.getOrders().stream().anyMatch(order -> tableNum == order.getTableNum()));
   }
 
   @Test
@@ -78,6 +81,29 @@ public class CustomerControllerTest {
     mockMvc.perform(get("/api/customers/all").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk()).andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(2));
+  }
+
+  @Test
+  void createNewOrderTest() throws Exception {
+    // First, create and save a customer
+    Customer customer = new Customer("John Doe");
+    customer = customerRepository.save(customer); // Ensure customer exists
+
+    int tableNum = 5;
+
+    // Perform the request to create a new order
+    MvcResult result = mockMvc
+        .perform(post("/api/customers/{customerId}/newOrder", customer.getCustomerId())
+            .param("tableNum", String.valueOf(tableNum)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andReturn();
+
+    // Parse response
+    Order createdOrder =
+        objectMapper.readValue(result.getResponse().getContentAsString(), Order.class);
+
+    // Assertions
+    assertNotNull(createdOrder);
+    assertNotNull(createdOrder.getOrderId()); // CREATED
   }
 
 }

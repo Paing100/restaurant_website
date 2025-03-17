@@ -1,7 +1,7 @@
 package rhul.cs2810;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,10 +29,11 @@ public class CustomerTest {
   @Test
   void testGetAndSetOrder() {
     Order order = new Order(1, LocalDateTime.now(), customer);
-    customer.setOrder(order);
+    customer.addOrder(order);
     assertEquals(order.getCustomer(), customer);
-    assertEquals(order.getOrderId(), customer.getOrder().getOrderId());
-    assertEquals(order.getOrderPlaced(), customer.getOrder().getOrderPlaced());
+    assertTrue(customer.getOrders().stream().anyMatch(o -> order.getOrderId() == o.getOrderId()));
+    assertTrue(
+        customer.getOrders().stream().anyMatch(o -> order.getOrderPlaced() == o.getOrderPlaced()));
     assertEquals(order.getCustomer().getCustomerId(), customer.getCustomerId());
   }
 

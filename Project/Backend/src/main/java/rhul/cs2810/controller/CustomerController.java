@@ -1,17 +1,15 @@
 package rhul.cs2810.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import rhul.cs2810.model.Customer;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.OrderRepository;
+
+import java.util.Optional;
 
 /**
  * A Controller for Customers.
@@ -53,12 +51,42 @@ public class CustomerController {
     order.setTableNum(tableNum);
     order.setCustomer(newCustomer);
     order.setOrderStatus(OrderStatus.CREATED);
-    newCustomer.setOrder(order);
+    newCustomer.addOrder(order);
 
     // Save the order
     orderRepository.save(order);
 
     return ResponseEntity.ok(newCustomer);
+  }
+
+  /**
+   * Creates a new order for an existing customer.
+   *
+   * @param customerId the ID of the customer
+   * @param tableNum the table number for the new order
+   * @return the newly created order
+   */
+  @PostMapping("/{customerId}/newOrder")
+  public ResponseEntity<Order> createNewOrder(@PathVariable int customerId,
+      @RequestParam int tableNum) {
+    Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+    if (customerOptional.isEmpty()) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    Customer customer = customerOptional.get();
+
+    // Create a new order for the existing customer
+    Order newOrder = new Order();
+    newOrder.setTableNum(tableNum);
+    newOrder.setCustomer(customer);
+    newOrder.setOrderStatus(OrderStatus.CREATED);
+
+    // Save the new order
+    Order savedOrder = orderRepository.save(newOrder);
+
+    return ResponseEntity.ok(savedOrder);
   }
 
   /**
@@ -68,7 +96,7 @@ public class CustomerController {
    */
   @GetMapping("/all")
   public ResponseEntity<Iterable<Customer>> getAllCustomers() {
-    Iterable<Customer> customers = (Iterable<Customer>) customerRepository.findAll();
+    Iterable<Customer> customers = customerRepository.findAll();
     return ResponseEntity.ok(customers);
   }
 }

@@ -33,6 +33,9 @@ public class OrderMenuItem {
   @Column(name = "quantity", nullable = false)
   private int quantity;
 
+  @Column(name = "orderSubmitted", nullable = false)
+  private boolean orderSubmitted;
+
   public OrderMenuItem() {}
 
   /**
@@ -42,11 +45,12 @@ public class OrderMenuItem {
    * @param menuItem of the order
    * @param quantity of the item
    */
-  public OrderMenuItem(Order order, MenuItem menuItem, int quantity) {
+  public OrderMenuItem(Order order, MenuItem menuItem, int quantity, boolean orderSubmitted) {
     this.orderMenuItemsId = new OrderMenuItemId(order.getOrderId(), menuItem.getItemId());
     this.order = order;
     this.menuItem = menuItem;
     this.quantity = quantity;
+    this.orderSubmitted = orderSubmitted;
   }
 
   /**
@@ -120,5 +124,10 @@ public class OrderMenuItem {
   public void setQuantity(int quantity) {
     this.quantity = quantity;
   }
+
+  public void setOrderSubmited(boolean orderSubmitted) {
+    this.orderSubmitted = orderSubmitted;
+  }
+
 
 }
