@@ -114,6 +114,10 @@ public class OrderController {
       order.setOrderPlaced(LocalDateTime.now());
       orderService.submitOrder(orderId);
       message = "Order submitted successfully";
+      if (notificationService != null) {
+        notificationService.sendNotification("ORDER_SUBMIT", orderId, "waiter",
+          orderId + " is submitted");
+      }
     } else {
       message = "NOT SUCCESSFUL";
     }

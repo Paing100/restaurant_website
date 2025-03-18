@@ -41,39 +41,40 @@ function Waiter() {
   useEffect(() => {
     console.log("USE EFFECT RAN!");
     fetchOrders();
-    if (!ws.current){
-      ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+    if (!ws.current) {
+        ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
 
-      ws.current.onopen = () => {
-        console.log('WebSocket connected', ws.current.readyState);
-      };
+        ws.current.onopen = () => {
+            console.log('WebSocket connected', ws.current.readyState);
+        };
 
-      ws.current.onclose = () => {
-        console.log("Websocket session is closed");
-      }
+        ws.current.onclose = () => {
+            console.log("Websocket session is closed");
+        };
 
-      ws.current.onmessage = (event) => {
-        let message;
-        console.log("Event" + event.data);
-        try {
-          message = JSON.parse(event.data);
-          if ((message.recipient === "waiter" && message.type === "READY") || message.type === "ORDER_SUBMITTED"){
-            setOpen(true);
-            setNotification(message.message);
-          }
-        } catch (error) {
-          message = event.data;
-          console.log(error);
-        }
-        fetchOrders();
-        }
-      }
-
-    if (ws.current) {
-      console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
+        ws.current.onmessage = (event) => {
+            let message;
+            console.log("Event" + event.data);
+            setOrderStatus({orderId: event.data.orderId, orderStatus: event.data.orderStatus}); 
+            fetchOrders();
+            try {
+                message = JSON.parse(event.data);
+                if ((message.recipient === "waiter" && message.type === "READY") || message.type === "ORDER_SUBMIT") {
+                    setOpen(true);
+                    setNotification(message.message);
+                    fetchOrders(); 
+                }
+            } catch (error) {
+                message = event.data;
+                console.log(error);
+            }
+        };
     }
-    
-  }, [orderStatus]);
+    if (ws.current) {
+        console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
+        fetchOrders();  
+    }
+}, [orderStatus]);
 
   // change the status an order 
   const updateOrderStatus = async (orderId, newStatus) => {
@@ -86,6 +87,7 @@ function Waiter() {
     }
     try {
       await fetch(`http://localhost:8080/api/order/${orderId}/updateOrderStatus`, settings);
+      await fetchOrders();
     } catch (error) {
       console.error("Error updating order status:", error);
     }
@@ -107,7 +109,6 @@ function Waiter() {
 
   return (
     <>
-    <h1>{notification}</h1>
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
