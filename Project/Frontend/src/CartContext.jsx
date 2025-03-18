@@ -242,7 +242,7 @@ const submitOrder = async () => {
         // Send WebSocket message
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
             const message = JSON.stringify({
-                type: 'ORDER_SUBMITTED',
+                type: 'ORDER_SUBMIT',
                 customerId: customer.customerId,
                 message: 'A new order has been submitted'
             });

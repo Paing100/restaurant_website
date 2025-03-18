@@ -5,7 +5,6 @@ function KitchenStaff() {
   const userName = sessionStorage.getItem("userName");
   const userRole = sessionStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
-  const [notification, setNotification] = useState([]);
   const ws = useRef(null);
 
   useEffect(() => {
@@ -23,21 +22,9 @@ function KitchenStaff() {
         }, 3000);
       };
 
-      ws.current.onmessage = (event) => {
-        let message;
-        try {
-          message = JSON.parse(event.data);
-          if (message.recipient === "kitchen") {
-            setNotification(message.message);
-          }
-        } catch (error) {
-          message = event.data;
-          console.log(error);
-        }
+      ws.current.onmessage = () => {
         fetchOrders();
-        }
-
-
+      }
     }
 
     return () => {
@@ -65,13 +52,6 @@ function KitchenStaff() {
       console.error("Error fetching orders:", error);
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-    // call fetchOrder every 2 seconds
-    const interval = setInterval(fetchOrders, 2000); 
-    return () => clearInterval(interval);
-  }, []);
 
   const markAsReady = async (orderId) => {
     setOrders(
@@ -121,7 +101,6 @@ function KitchenStaff() {
 
   return (
     <>
-      <h1>{notification}</h1>
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
