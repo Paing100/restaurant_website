@@ -61,7 +61,7 @@ export const CartProvider = ({ children }) => {
 
     const fetchCart = async () => {
         if (!customer) {
-            console.error('Customer is not set');
+            console.error('Customer or order ID is not set');
             return;
         }
         try {
@@ -104,6 +104,21 @@ export const CartProvider = ({ children }) => {
         }
 
         try {
+            // First check the order status
+            const orderResponse = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!orderResponse.ok) {
+                throw new Error('Failed to fetch order status');
+            }
+
+            const orderData = await orderResponse.json();
+            if (orderData.orderStatus !== 'CREATED') {
+                throw new Error('Cannot modify a submitted order');
+            }
+
             const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
             const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;
 
@@ -114,23 +129,23 @@ export const CartProvider = ({ children }) => {
                 },
             });
 
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error adding item to cart:', errorText);
+                throw new Error(`Failed to add item to cart: ${response.status}`);
+            }
 
-            if (response.ok) {
-                console.log(response);
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    const updatedCart = await response.json();
-                    setCart(updatedCart); // Update the cart with new data
-                } else {
-                    fetchCart();
-                    console.log('Item added to order');
-                    console.log(customer);
-                }
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const updatedCart = await response.json();
+                setCart(updatedCart);
             } else {
-                console.error('Error adding item to cart');
+                await fetchCart();
+                console.log('Item added to order');
             }
         } catch (error) {
             console.error('Error adding item to cart:', error);
+            throw error;
         }
     };
 
@@ -230,7 +245,7 @@ const submitOrder = async () => {
         throw new Error("Customer is not logged in or order ID is missing.");
     }
     try {
-        const response = await fetch(`http://localhost:8080/api/order/${customer.customerId}/submitOrder`, {
+        const response = await fetch(`http://localhost:8080/api/order/${customer.orderId}/submitOrder`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -238,12 +253,13 @@ const submitOrder = async () => {
             throw new Error(`Server responded with status: ${response.status}`);
         }
         console.log('Order submitted successfully');
-
+        
         // Send WebSocket message
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
             const message = JSON.stringify({
                 type: 'ORDER_SUBMIT',
                 customerId: customer.customerId,
+                orderId: customer.orderId,
                 message: 'A new order has been submitted'
             });
             ws.current.send(message);
@@ -256,6 +272,50 @@ const submitOrder = async () => {
         return { success: false, message: `Error submitting order: ${err.message}` };
     }
 };
+
+    const createNewOrder = async () => {
+        if (!customer || !customer.customerId) {
+            throw new Error("Customer is not logged in or customer ID is missing.");
+        }
+
+        // Check if current cart is empty
+        const currentOrder = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+        });
+
+        if (!currentOrder.ok) {
+            throw new Error('Failed to fetch current order');
+        }
+
+        const orderData = await currentOrder.json();
+        if (orderData.orderStatus === 'CREATED' && (!orderData.orderMenuItems || orderData.orderMenuItems.length === 0)) {
+            return { success: false, message: 'Cannot create a new order while current cart is empty' };
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/newOrder?tableNum=${tableNum}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to create new order: ${response.status}`);
+            }
+
+            const newOrderData = await response.json();
+            setCustomer(prevCustomer => ({
+                ...prevCustomer,
+                orderId: newOrderData.orderId
+            }));
+            // Clear the cart for the new order
+            setCart({ orderedItems: {} });
+            return { success: true, message: 'New order created successfully!' };
+        } catch (err) {
+            console.error('Error creating new order:', err.message);
+            return { success: false, message: `Error creating new order: ${err.message}` };
+        }
+    };
 
     useEffect(() => {
         if (customer) fetchCart();
@@ -279,6 +339,7 @@ const submitOrder = async () => {
                 removeItemFromCart,
                 clearCart,
                 submitOrder,
+                createNewOrder,
                 logout,
                 loading
             }}

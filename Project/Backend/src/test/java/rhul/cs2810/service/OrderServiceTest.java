@@ -107,12 +107,53 @@ class OrderServiceTest {
   }
 
   @Test
-  void testRemoveItemFromOrder() {
-    OrderMenuItemId orderMenuItemId = new OrderMenuItemId(1, 100);
+  void removeItemFromOrder_success() {
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.CREATED);
+    int orderId = 1;
+    int itemId = 100;
 
-    orderService.removeItemFromOrder(1, 100);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
-    verify(orderMenuItemRepository, times(1)).deleteById(orderMenuItemId);
+    orderService.removeItemFromOrder(orderId, itemId);
+
+    verify(orderMenuItemRepository, times(1)).deleteById(new OrderMenuItemId(orderId, itemId));
+  }
+
+  @Test
+  void removeItemFromOrder_orderNotFound() {
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.CREATED);
+    int orderId = 1;
+    int itemId = 100;
+
+    when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+    Exception exception = assertThrows(IllegalArgumentException.class,
+        () -> orderService.removeItemFromOrder(orderId, itemId));
+
+    assertEquals("Order with ID 1 not found.", exception.getMessage());
+    verify(orderMenuItemRepository, never()).deleteById(any());
+  }
+
+  @Test
+  void removeItemFromOrder_orderSubmitted() {
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.CREATED);
+    int orderId = 1;
+    int itemId = 100;
+
+    order.setOrderStatus(OrderStatus.SUBMITTED);
+    when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+    Exception exception = assertThrows(IllegalStateException.class,
+        () -> orderService.removeItemFromOrder(orderId, itemId));
+
+    assertEquals("Cannot modify a submitted order.", exception.getMessage());
+    verify(orderMenuItemRepository, never()).deleteById(any());
   }
 
 
@@ -154,4 +195,97 @@ class OrderServiceTest {
     verify(orderRepository, times(1)).save(order1);
   }
 
+  @Test
+  void testSubmitOrder_OrderNotFound() {
+    when(orderRepository.findById(1)).thenReturn(Optional.empty());
+    
+    Exception exception = assertThrows(IllegalArgumentException.class, 
+        () -> orderService.submitOrder(1));
+    assertEquals("Order with ID 1 not found.", exception.getMessage());
+    
+    verify(orderRepository, never()).save(any(Order.class));
+    verify(orderMenuItemRepository, never()).saveAll(anyList());
+  }
+
+  @Test
+  void testSubmitOrder_UpdatesOrderItemsStatus() {
+    Order mockOrder = new Order();
+    List<OrderMenuItem> orderItems = new ArrayList<>();
+    OrderMenuItem item1 = new OrderMenuItem();
+    OrderMenuItem item2 = new OrderMenuItem();
+    orderItems.add(item1);
+    orderItems.add(item2);
+    
+    when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
+    when(orderMenuItemRepository.findByOrder(mockOrder)).thenReturn(orderItems);
+    
+    orderService.submitOrder(1);
+    
+    assertTrue(item1.isOrderSubmitted());
+    assertTrue(item2.isOrderSubmitted());
+    assertEquals(OrderStatus.SUBMITTED, mockOrder.getOrderStatus());
+    verify(orderMenuItemRepository).saveAll(orderItems);
+  }
+
+  @Test
+  void testGetOrderedItems_OrderExists() {
+    Order mockOrder = new Order();
+    List<OrderMenuItem> expectedItems = new ArrayList<>();
+    expectedItems.add(new OrderMenuItem());
+    mockOrder.setOrderMenuItems(expectedItems);
+    
+    when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
+    
+    List<OrderMenuItem> result = orderService.getOrderedItems(1);
+    
+    assertEquals(expectedItems, result);
+    verify(orderRepository).findById(1);
+  }
+
+  @Test
+  void testGetOrderedItems_OrderNotFound() {
+    when(orderRepository.findById(1)).thenReturn(Optional.empty());
+    
+    List<OrderMenuItem> result = orderService.getOrderedItems(1);
+    
+    assertTrue(result.isEmpty());
+    verify(orderRepository).findById(1);
+  }
+
+  @Test
+  void testAddItemToOrder_WithExistingItems() {
+    Order mockOrder = new Order();
+    MenuItem mockItem = new MenuItem();
+    mockItem.setItemId(100);
+    OrderMenuItem existingOrderItem = new OrderMenuItem(mockOrder, mockItem, 1, false);
+    List<OrderMenuItem> existingItems = new ArrayList<>();
+    existingItems.add(existingOrderItem);
+    mockOrder.setOrderMenuItems(existingItems);
+    
+    when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
+    when(menuItemRepository.findById(100)).thenReturn(Optional.of(mockItem));
+    
+    orderService.addItemToOrder(1, 100, 2);
+    
+    verify(orderMenuItemRepository).save(any(OrderMenuItem.class));
+  }
+
+  @Test
+  void testGetAllOrders_EmptyList() {
+    when(orderRepository.findAll()).thenReturn(new ArrayList<>());
+    
+    List<Order> result = orderService.getAllOrders();
+    
+    assertTrue(result.isEmpty());
+    verify(orderRepository).findAll();
+  }
+
+  @Test
+  void testSaveUpdatedOrder_NullOrder() {
+    Order nullOrder = null;
+    assertThrows(IllegalArgumentException.class, 
+        () -> orderService.saveUpdatedOrder(nullOrder));
+    
+    verify(orderRepository, never()).save(any(Order.class));
+  }
 }

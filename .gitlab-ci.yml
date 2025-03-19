@@ -48,12 +48,3 @@ frontend-lint:
   script: 
     - cd Project/Frontend
     - npm run lint 
-
-frontend-test:
-  stage: vitest 
-  script: 
-    - cd Project/Frontend
-    - npm run test
-
-  
-

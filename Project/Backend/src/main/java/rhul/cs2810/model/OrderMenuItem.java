@@ -125,9 +125,12 @@ public class OrderMenuItem {
     this.quantity = quantity;
   }
 
-  public void setOrderSubmited(boolean orderSubmitted) {
-    this.orderSubmitted = orderSubmitted;
+  public boolean isOrderSubmitted() {
+    return orderSubmitted;
   }
 
+  public void setOrderSubmitted(boolean orderSubmitted) {
+    this.orderSubmitted = orderSubmitted;
+  }
 
 }

@@ -55,12 +55,17 @@ public class Order {
   @Column(name = "order_paid", nullable = false)
   private boolean orderPaid;
 
-  public Order() {}
+  public Order() {
+    this.orderStatus = OrderStatus.CREATED;
+    this.orderPaid = false;
+  }
 
   public Order(int tableNum, LocalDateTime orderPlaced, Customer customer) {
     this.customer = customer;
     this.orderPlaced = LocalDateTime.now();
     this.tableNum = tableNum;
+    this.orderStatus = OrderStatus.CREATED;
+    this.orderPaid = false;
   }
 
   public int getOrderId() {

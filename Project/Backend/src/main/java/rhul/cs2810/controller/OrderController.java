@@ -112,6 +112,7 @@ public class OrderController {
     if (orderOptional.isPresent()) {
       Order order = orderOptional.get();
       order.setOrderPlaced(LocalDateTime.now());
+      orderService.saveUpdatedOrder(order);
       orderService.submitOrder(orderId);
       message = "Order submitted successfully";
       if (notificationService != null) {

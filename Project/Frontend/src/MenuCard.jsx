@@ -4,15 +4,17 @@ import { useContext, useState, useEffect } from "react";
 import { CartContext } from "./CartContext";
 import { Link } from "react-router-dom";
 import CustomerModal from "./CustomerModal";
+import NewOrderModal from "./NewOrderModal";
 
 function MenuCard({ item, isWaiterView }) {
-  const { addItemToCart, customer } = useContext(CartContext);
+  const { addItemToCart, customer, createNewOrder } = useContext(CartContext);
   const [message, setMessage] = useState('');
   const [severity, setSeverity] = useState('success');
   const [quantity, setQuantity] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [pendingAdd, setPendingAdd] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [showNewOrderModal, setShowNewOrderModal] = useState(false);
 
   // Watch for customer changes to complete pending add
   useEffect(() => {
@@ -25,16 +27,45 @@ function MenuCard({ item, isWaiterView }) {
     }
   }, [customer, pendingAdd, item.itemId, quantity, addItemToCart]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!customer) {
       setShowModal(true);
       setPendingAdd(true);
       return;
     }
-    addItemToCart(item.itemId, quantity);
-    setMessage("Item Added to Cart!");
-    setSeverity('success');
-    setOpenSnackbar(true);
+
+    try {
+      // Check if the current order is submitted
+      const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch order status');
+      }
+
+      const orderData = await response.json();
+      const isOrderSubmitted = orderData.orderStatus === 'SUBMITTED';
+
+      if (isOrderSubmitted) {
+        // Show the new order confirmation modal
+        setShowNewOrderModal(true);
+        setPendingAdd(true);
+        return;
+      }
+
+      // If order is not submitted, add item directly
+      addItemToCart(item.itemId, quantity);
+      setMessage("Item Added to Cart!");
+      setSeverity('success');
+      setOpenSnackbar(true);
+    } catch (error) {
+      console.error('Error checking order status:', error);
+      setMessage("Error adding item to cart");
+      setSeverity('error');
+      setOpenSnackbar(true);
+    }
   };
 
   const handleModalClose = () => {
@@ -137,6 +168,29 @@ function MenuCard({ item, isWaiterView }) {
       </Card>
 
       {showModal && <CustomerModal onClose={handleModalClose} />}
+      {showNewOrderModal && (
+        <NewOrderModal
+          open={showNewOrderModal}
+          onClose={() => {
+            setShowNewOrderModal(false);
+            setPendingAdd(false);
+          }}
+          onConfirm={async () => {
+            const result = await createNewOrder();
+            if (result.success) {
+              await addItemToCart(item.itemId, quantity);
+              setMessage("Item Added to Cart!");
+              setSeverity('success');
+            } else {
+              setMessage("Error creating new order");
+              setSeverity('error');
+            }
+            setShowNewOrderModal(false);
+            setPendingAdd(false);
+            setOpenSnackbar(true);
+          }}
+        />
+      )}
 
       <Snackbar open={openSnackbar} autoHideDuration={2000} onClose={handleSnackbarClose}>
         <Alert onClose={handleSnackbarClose} severity={severity} sx={{ width: '100%' }}>
