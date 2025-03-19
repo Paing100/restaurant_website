@@ -9,6 +9,7 @@ import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.OrderRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -98,5 +99,18 @@ public class CustomerController {
   public ResponseEntity<Iterable<Customer>> getAllCustomers() {
     Iterable<Customer> customers = customerRepository.findAll();
     return ResponseEntity.ok(customers);
+  }
+
+  @GetMapping("/{customerId}/orders")
+  public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable int customerId) {
+    Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+    if (customerOptional.isEmpty()) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    Customer customer = customerOptional.get();
+    List<Order> orders = customer.getOrders();
+    return ResponseEntity.ok(orders);
   }
 }

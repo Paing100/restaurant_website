@@ -8,6 +8,8 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PropTypes from "prop-types";
 import PaymentModal from './PaymentModal';
+import NewOrderModal from './NewOrderModal';
+
 import { Link } from 'react-router-dom';
 
 const OrderInfoPopup = React.memo(({
@@ -150,7 +152,7 @@ OrderInfoPopup.propTypes = {
 }
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, tableNum, setCart, setCustomer } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [showOrderInfo, setShowOrderInfo] = useState(() => {
@@ -188,6 +190,7 @@ function Order() {
         const savedOrderCount = localStorage.getItem('orderCount');
         return savedOrderCount ? parseInt(savedOrderCount, 10) : 0;
     });
+    const [newOrderModalOpen, setNewOrderModalOpen] = useState(false);
     const timerRef = useRef(null);
 
     const orderedItems = cart?.orderedItems || {};
@@ -228,24 +231,6 @@ function Order() {
     };
 
     const handlePaymentSuccess = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/newOrder?tableNum=${tableNum}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-
-            if (response.ok) {
-                const newOrder = await response.json();
-                setCustomer({ ...customer, orderId: newOrder.orderId });
-            } else {
-                console.error("Error while creating new order:", response.statusText);
-            }
-        } catch (error) {
-            console.error("Error while creating new order:", error);
-        }
-
         // Now submit the order
         const result = await submitOrder();
         if (result.success) {
@@ -274,7 +259,19 @@ function Order() {
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
 
             console.log("Cart cleared after order submission.");
+        } else {
+            setMessage(result.message);
+            setSeverity('error');
+        }
+        setOpen(true);
+    };
 
+    const handleNewOrderConfirm = async () => {
+        const result = await createNewOrder();
+        if (result.success) {
+            setMessage(result.message);
+            setSeverity('success');
+            setNewOrderModalOpen(false);
         } else {
             setMessage(result.message);
             setSeverity('error');
@@ -309,7 +306,18 @@ function Order() {
             >
                 ← Back
             </Button>
-            <Typography sx={{ padding: '15px' }} variant="h4">Place Your Order</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px' }}>
+                <Typography variant="h4">Place Your Order</Typography>
+                {orderCount > 0 && cart.orderedItems && Object.keys(cart.orderedItems).length === 0 && (
+                    <Button
+                        onClick={() => setNewOrderModalOpen(true)}
+                        variant="contained"
+                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
+                    >
+                        New Order
+                    </Button>
+                )}
+            </Box>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List>
                 {Object.entries(orderedItems).map(([itemName, item]) => {
@@ -372,7 +380,7 @@ function Order() {
                     <Button
                         onClick={handleSubmit}
                         variant="contained"
-                        sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
                         fullWidth
                     >
                         Submit Order
@@ -401,6 +409,11 @@ function Order() {
                 totalPrice={cart.totalPrice}
                 onPaymentSuccess={handlePaymentSuccess}
                 orderId={customer?.orderId}
+            />
+            <NewOrderModal
+                open={newOrderModalOpen}
+                onClose={() => setNewOrderModalOpen(false)}
+                onConfirm={handleNewOrderConfirm}
             />
         </Box>
     );
