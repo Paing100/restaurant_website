@@ -308,15 +308,6 @@ function Order() {
             </Button>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px' }}>
                 <Typography variant="h4">Place Your Order</Typography>
-                {orderCount > 0 && cart.orderedItems && Object.keys(cart.orderedItems).length === 0 && (
-                    <Button
-                        onClick={() => setNewOrderModalOpen(true)}
-                        variant="contained"
-                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
-                    >
-                        New Order
-                    </Button>
-                )}
             </Box>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List>
