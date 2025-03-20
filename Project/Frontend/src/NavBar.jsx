@@ -31,7 +31,7 @@ function NavBar() {
     sessionStorage.removeItem("sessionExpiration");
     setIsLoggedIn(false);
     logout();
-    navigate("/home");
+    navigate("/");
   };
 
   return (
