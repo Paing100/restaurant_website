@@ -1,5 +1,6 @@
 package rhul.cs2810.service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class EmployeeService {
   /**
    * A constructor with two parameters.
    *
-   * @param userRepository        CRUD repository for Employee class
+   * @param employeeRepository CRUD repository for Employee class
    * @param bCryptPasswordEncoder Encoder for the password
    */
   @Autowired
@@ -60,41 +61,50 @@ public class EmployeeService {
    * @return true if all details are present or false if not
    */
   public boolean registerUser(Employee employee) {
-    String idString = employee.getEmployeeId();
-    String passwString = employee.getPassword();
-    String firstNameString = employee.getFirstName();
-    String lastNameString = employee.getLastName();
-    String roleString = employee.getRole();
-    if (roleString == null || roleString.trim().isEmpty()) {
-        roleString = "WAITER"; // Default role if missing
-    } else {
-        roleString = roleString.toUpperCase();
+
+    if (employee == null || employee.getEmployeeId() == null || employee.getPassword() == null){
+      return false;
     }
 
-    if (idString != null && passwString != null) {
-      Optional<Employee> existingUserOptional = employeeRepository.findByEmployeeId(idString);
-      if (existingUserOptional.isPresent()) {
-        Employee existingEmployee = existingUserOptional.get();
-        String encodedPasswordString = bCryptPasswordEncoder.encode(passwString);
-        existingEmployee.setPassword(encodedPasswordString);
-        employeeRepository.save(existingEmployee);
-        System.out.println("Password Overriden");
-        return true;
-      }
-      String encodedPasswordString = bCryptPasswordEncoder.encode(passwString);
-      employee.setPassword(encodedPasswordString);
-      employee.setFirstName(firstNameString);
-      employee.setLastName(lastNameString);
-      employee.setRole(roleString);
-      try {
-        employeeRepository.save(employee);
-        return true;
-      } catch (Exception e) {
-        return false;
-      }
+    String roleString = validateRole(employee.getRole());
+    employee.setRole(roleString);
+    
+    Optional<Employee> existingUserOptional = employeeRepository.findByEmployeeId(employee.getEmployeeId());
+    if (existingUserOptional.isPresent()) {
+      Employee existingEmployee = existingUserOptional.get();
+      updateExistingEmployee(existingEmployee, employee);
+      System.out.println("Password Overriden");
     }
-    return false;
-
+    else{
+      saveNewEmployee(employee);
+    }
+    return true;
   }
 
+  private String validateRole(String role){
+    if (role == null || role.trim().isEmpty()) {
+      return "WAITER";
+    }
+    return role.trim().toUpperCase();
+  }
+
+  private void updateExistingEmployee(Employee existingEmployee, Employee newEmployee){
+    String encodedPasswordString = bCryptPasswordEncoder.encode(newEmployee.getPassword());
+    existingEmployee.setPassword(encodedPasswordString);
+    existingEmployee.setEmployeeId(newEmployee.getEmployeeId());
+    existingEmployee.setFirstName(newEmployee.getFirstName());
+    existingEmployee.setLastName(newEmployee.getLastName());
+    existingEmployee.setRole(newEmployee.getRole());
+    employeeRepository.save(existingEmployee);
+  }
+
+  private void saveNewEmployee(Employee employee){
+    String encodedPasswordString = bCryptPasswordEncoder.encode(employee.getPassword());
+    employee.setPassword(encodedPasswordString);
+    employee.setFirstName(employee.getFirstName());
+    employee.setLastName(employee.getLastName());
+    employee.setEmployeeId(employee.getEmployeeId());
+    employee.setRole(employee.getRole());
+    employeeRepository.save(employee);
+  }
 }

@@ -76,6 +76,9 @@ function Manager() {
         <Link to="/employeeData">
           <Button variant="contained" sx={{ marginLeft: 1 }}>Employee Data</Button>
         </Link>
+        <Link to="/register">
+          <Button variant="contained">Register Staff</Button>
+        </Link>
       </Box>
 
       <Tabs 

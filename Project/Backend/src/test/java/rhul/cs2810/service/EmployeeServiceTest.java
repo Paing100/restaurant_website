@@ -84,14 +84,13 @@ public class EmployeeServiceTest {
     mockEmployee.setLastName("W");
     mockEmployee.setRole("Waiter");
 
-    boolean registered = mockEmployeeService.registerUser(mockEmployee);
-
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.empty());
     when(mockBCryptPasswordEncoder.encode(mockEmployee.getPassword())).thenReturn("123");
 
+    boolean registered = mockEmployeeService.registerUser(mockEmployee);
+
     assertTrue(registered);
     assertEquals(mockBCryptPasswordEncoder.encode("123"), mockEmployee.getPassword());
-
   }
 
   @Test
