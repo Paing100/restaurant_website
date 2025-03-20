@@ -70,6 +70,8 @@ VALUES
 
 INSERT INTO employee(employeeId, firstName, lastName, role, password) VALUES
 ('string', 'James', 'Webb', 'Waiter', '$2a$10$LitqTTiD0K8RnMs.Xk2iBuotCwoost79uN877IgN9odaSTDvlBRW.'),
-('hello', 'Kevin', 'Peter', 'Kitchen', '$2a$10$hv5co/45PJF6LrA7vYUmye1E7lGnD6pJwJEUh0mqt8ufl306LEFTq')
+('hello', 'Kevin', 'Peter', 'Kitchen', '$2a$10$hv5co/45PJF6LrA7vYUmye1E7lGnD6pJwJEUh0mqt8ufl306LEFTq'),
+('manager', 'Max', 'B', 'Manager', '$2a$10$CuIe.MemzYqL7GCFP2vOkeeP5PHphuU.yjhcmj7kPFH5/.aiyQ4Te');
+
 
 

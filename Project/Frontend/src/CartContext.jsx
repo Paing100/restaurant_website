@@ -11,6 +11,7 @@ export const CartProvider = ({ children }) => {
     const [tableNum, setTableNum] = useState('');
     const [loading, setLoading] = useState(true);
     const ws = useRef(null);
+
     // Establish WebSocket connection
     useEffect(() => {
         ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
@@ -252,6 +253,7 @@ const submitOrder = async () => {
         if (!response.ok) {
             throw new Error(`Server responded with status: ${response.status}`);
         }
+        localStorage.setItem('sales', JSON.stringify(cart.totalPrice));
         console.log('Order submitted successfully');
         
         // Send WebSocket message

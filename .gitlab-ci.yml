@@ -15,7 +15,9 @@ cache:
 backend-build:
   stage: build-backend
   script:
+    - rm -f .m2/repository/net/bytebuddy/byte-buddy/1.14.19/byte-buddy-1.14.19.jar
     - cd Project/Backend
+    - mvn dependency:purge-local-repository -DreResolve=false -DactTransitively=false -DmanualInclude=net.bytebuddy:byte-buddy
     - mvn compile
 
 backend-test:
