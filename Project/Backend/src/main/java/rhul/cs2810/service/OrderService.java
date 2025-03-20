@@ -52,10 +52,15 @@ public class OrderService {
   public void addItemToOrder(int orderId, int itemId, int quantity) {
     Order order = orderRepository.findById(orderId).orElseThrow(
         () -> new IllegalArgumentException("Order with ID " + orderId + " not found."));
-    
+
     if (order.getOrderStatus() != OrderStatus.CREATED) {
-        throw new IllegalStateException("Cannot modify a submitted order.");
+      throw new IllegalStateException("Cannot modify a submitted order.");
     }
+
+    /*
+     * if (order.getOrderStatus() != OrderStatus.CREATED) { throw new
+     * IllegalStateException("Cannot modify a submitted order."); }
+     */
 
     MenuItem item = menuItemRepository.findById(itemId).orElseThrow(
         () -> new IllegalArgumentException("Menu item with ID " + itemId + " not found."));
@@ -74,13 +79,13 @@ public class OrderService {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
 
     if (orderOptional.isEmpty()) {
-        throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
+      throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
     }
 
     Order order = orderOptional.get();
 
     if (order.getOrderStatus() != OrderStatus.CREATED) {
-        throw new IllegalStateException("Cannot modify a submitted order.");
+      throw new IllegalStateException("Cannot modify a submitted order.");
     }
 
     OrderMenuItemId orderMenuItemId = new OrderMenuItemId(orderId, itemId);
@@ -96,17 +101,17 @@ public class OrderService {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
 
     if (orderOptional.isPresent()) {
-        Order order = orderOptional.get();
-        order.setOrderStatus(OrderStatus.SUBMITTED);
-        orderRepository.save(order);
+      Order order = orderOptional.get();
+      order.setOrderStatus(OrderStatus.SUBMITTED);
+      orderRepository.save(order);
 
-        List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
-        for (OrderMenuItem item : orderItems) {
-            item.setOrderSubmitted(true);
-        }
-        orderMenuItemRepository.saveAll(orderItems);
+      List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
+      for (OrderMenuItem item : orderItems) {
+        item.setOrderSubmitted(true);
+      }
+      orderMenuItemRepository.saveAll(orderItems);
     } else {
-        throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
+      throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
     }
   }
 
@@ -133,7 +138,7 @@ public class OrderService {
     orderRepository.save(order);
   }
 
-  public List<OrderMenuItem> getOrderedItems(int orderId){
+  public List<OrderMenuItem> getOrderedItems(int orderId) {
     Optional<Order> optionalOrder = orderRepository.findById(orderId);
     if (optionalOrder.isPresent()) {
       return optionalOrder.get().getOrderMenuItems();

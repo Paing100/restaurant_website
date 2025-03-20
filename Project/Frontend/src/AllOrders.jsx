@@ -88,11 +88,15 @@ const AllOrders = () => {
                                                 width: 20,
                                                 height: 20,
                                                 borderRadius: '50%',
-                                                backgroundColor: order.orderStatus === 'SUBMITTED' ? 'orange' : 
-                                                               order.orderStatus === 'CONFIRMED' ? 'blue' :
-                                                               order.orderStatus === 'READY' ? 'green' : 'red',
+                                                backgroundColor: order.orderStatus === 'SUBMITTED' ? 'orange' :
+                                                    order.orderStatus === 'CONFIRMED' ? 'blue' :
+                                                        order.orderStatus === 'READY' ? 'green' : 'red',
                                                 border: '2px solid white',
                                                 marginRight: 2,
+                                                boxShadow: order.orderStatus === 'SUBMITTED' ? '0 0 10px orange, 0 0 20px orange, 0 0 30px orange' :
+                                                    order.orderStatus === 'CONFIRMED' ? '0 0 10px blue, 0 0 20px blue, 0 0 30px blue' :
+                                                        order.orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
+                                                            '0 0 10px red, 0 0 20px red, 0 0 30px red',
                                             }}
                                         />
                                         <Typography variant="body2">
@@ -134,7 +138,7 @@ const AllOrders = () => {
                                     </Grid>
                                     <Grid item xs={6} sx={{ textAlign: 'right' }}>
                                         <Typography variant="body1">
-                                            £{order.orderMenuItems.reduce((total, item) => 
+                                            £{order.orderMenuItems.reduce((total, item) =>
                                                 total + (item.quantity * item.menuItem.price), 0).toFixed(2)}
                                         </Typography>
                                     </Grid>

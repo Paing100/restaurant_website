@@ -108,21 +108,16 @@ public class OrderController {
   @PostMapping("/order/{orderId}/submitOrder")
   public ResponseEntity<String> submitOrder(@PathVariable int orderId) {
     Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
-    String message;
-    if (orderOptional.isPresent()) {
-      Order order = orderOptional.get();
-      order.setOrderPlaced(LocalDateTime.now());
-      orderService.saveUpdatedOrder(order);
-      orderService.submitOrder(orderId);
-      message = "Order submitted successfully";
-      if (notificationService != null) {
-        notificationService.sendNotification("ORDER_SUBMIT", orderId, "waiter",
-          "Order #" + orderId + " is submitted");
-      }
-    } else {
-      message = "NOT SUCCESSFUL";
-    }
-    return ResponseEntity.ok(message);
+
+
+    Order order = orderOptional.get();
+    order.setOrderPlaced(LocalDateTime.now());
+    orderService.saveUpdatedOrder(order);
+    orderService.submitOrder(orderId);
+    notificationService.sendNotification("ORDER_SUBMITTED", orderId, "kitchen",
+        "A new order has been submitted");
+    return ResponseEntity.ok("Order submitted successfully");
+
   }
 
   /**

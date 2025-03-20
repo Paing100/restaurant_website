@@ -11,11 +11,11 @@ function Waiter() {
   const [notification, setNotification] = useState("");
   const ws = useRef(null);
   const [open, setOpen] = useState(false);
-  
+
 
   // use orderId to trigger use Effect, but if the same order is clicked again for other purpose
   // use effect doesn't work anymore 
-  const[orderStatus, setOrderStatus] = useState({orderId:"", orderStatus:""});
+  const [orderStatus, setOrderStatus] = useState({ orderId: "", orderStatus: "" });
 
   const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
 
@@ -31,8 +31,17 @@ function Waiter() {
       const response = await fetch("http://localhost:8080/api/order/getAllOrders");
       if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
-      setOrders(data);
-      } catch (error) {
+      // Add console.log to debug the incoming data
+      console.log("Raw order data:", data);
+
+      const ordersWithPayment = data.map(order => ({
+        ...order,
+        isPaid: order.orderPaid === true // Ensure boolean conversion
+      }));
+      // Add console.log to verify the transformed data
+      console.log("Transformed orders:", ordersWithPayment);
+      setOrders(ordersWithPayment);
+    } catch (error) {
       console.error("Error fetching orders:", error);
     }
   };
@@ -42,7 +51,7 @@ function Waiter() {
     console.log("USE EFFECT RAN!");
     fetchOrders();
     if (!ws.current) {
-        ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
+      ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
 
         ws.current.onopen = () => {
             console.log('WebSocket connected', ws.current.readyState);
@@ -79,11 +88,11 @@ function Waiter() {
   // change the status an order 
   const updateOrderStatus = async (orderId, newStatus) => {
     const settings = {
-      method: "POST", 
+      method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({"orderStatus": newStatus})
+      body: JSON.stringify({ "orderStatus": newStatus })
     }
     try {
       await fetch(`http://localhost:8080/api/order/${orderId}/updateOrderStatus`, settings);
@@ -102,13 +111,14 @@ function Waiter() {
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
-        return;
+      return;
     }
     setOpen(false);
-};
+  };
 
   return (
     <>
+      <h1>{notification}</h1>
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
@@ -134,7 +144,7 @@ function Waiter() {
             <Tab key={index} label={category} />
           ))}
         </Tabs>
-        
+
         <Grid container spacing={2}>
           <Grid item xs={12}>
             {filteredOrders.length > 0 ? (
@@ -144,16 +154,44 @@ function Waiter() {
                     key={order.orderId}
                     order={order}
                     buttonName={
-                      selectedTab === 0 ? "Confirm Order" :
-                      selectedTab === 1 ? "Deliver" : 
-                      selectedTab === 2 ? "No Button" : 
-                    ""}
+                      selectedTab === 0
+                        ? "Confirm Order"
+                        : selectedTab === 1
+                          ? "Deliver"
+                          : selectedTab === 2
+                            ? order.isPaid
+                              ? "Paid"
+                              : "Unpaid"
+                            : ""
+                    }
+                    buttonStyle={
+                      selectedTab === 2
+                        ? {
+                            backgroundColor: order.isPaid ? "#2e7d32" : "#d32f2f",
+                            color: "white",
+                            padding: "6px 12px",
+                            borderRadius: "4px",
+                            cursor: "default",
+                            textTransform: "uppercase",
+                            pointerEvents: "none"
+                          }
+                        : {
+                            backgroundColor: "#2e7d32"
+                          }
+                    }
                     onButtonClick={() => {
-                      const newStatus = 
-                        selectedTab === 0 ? "CONFIRMED" :
-                        selectedTab === 1 ? "DELIVERED" : "";
+                      if (selectedTab === 2) return;
+                      const newStatus =
+                        selectedTab === 0
+                          ? "CONFIRMED"
+                          : selectedTab === 1
+                            ? "DELIVERED"
+                            : "";
                       updateOrderStatus(order.orderId, newStatus);
-                      setOrderStatus({orderId: order.orderId, orderStatus: order.orderStatus});
+                      setOrderStatus({
+                        orderId: order.orderId,
+                        orderStatus: order.orderStatus,
+                      });
                     }}
                     fetchOrders={fetchOrders}
                   />
@@ -167,11 +205,11 @@ function Waiter() {
           </Grid>
         </Grid>
       </Box>
-            <Snackbar open={open} onClose={handleClose}>
-                <Alert onClose={handleClose} severity={"success"} sx={{ width: '100%' }}>
-                    {notification}
-                </Alert>
-            </Snackbar>
+      <Snackbar open={open} onClose={handleClose}>
+        <Alert onClose={handleClose} severity={"success"} sx={{ width: '100%' }}>
+          {notification}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

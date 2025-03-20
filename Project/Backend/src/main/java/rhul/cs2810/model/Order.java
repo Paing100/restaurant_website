@@ -145,6 +145,10 @@ public class Order {
     return Objects.hash(orderId, tableNum, orderPlaced);
   }
 
+  public boolean isOrderPaid() {
+    return orderPaid;
+  }
+
   public void setOrderPaid(boolean orderPaid) {
     this.orderPaid = orderPaid;
   }
