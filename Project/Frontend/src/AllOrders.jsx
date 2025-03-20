@@ -1,8 +1,9 @@
 /* eslint-disable */
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, CardMedia, Paper, Button } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, CardMedia, Paper, Button, IconButton } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext';
 
 const AllOrders = () => {
@@ -44,12 +45,37 @@ const AllOrders = () => {
 
     return (
         <Box sx={{ padding: 3 }}>
-            <Button
-                onClick={() => window.history.back()}
-                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' }, marginBottom: 2 }}
-            >
-                ← Back
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                <Button
+                    onClick={() => window.history.back()}
+                    sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                >
+                    ← Back
+                </Button>
+                <IconButton
+                    onClick={() => fetchOrders()} // Call fetchOrders to refresh the orders
+                    sx={{
+                        color: 'white',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        position: 'relative',
+                        top: '85px',
+                        left: '-10px',
+                    }}
+                >
+                    <RefreshIcon />
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            fontSize: '1rem',
+                            marginLeft: '8px',
+                        }}
+                    >
+                        Refresh
+                    </Typography>
+                </IconButton>
+            </Box>
             <Typography variant="h4" sx={{ marginBottom: 3 }}>Your Order History</Typography>
             <List>
                 {orders.map((order) => (
@@ -89,12 +115,12 @@ const AllOrders = () => {
                                                 height: 20,
                                                 borderRadius: '50%',
                                                 backgroundColor: order.orderStatus === 'SUBMITTED' ? 'orange' :
-                                                    order.orderStatus === 'CONFIRMED' ? 'blue' :
+                                                    order.orderStatus === 'CONFIRMED' ? 'yellow' :
                                                         order.orderStatus === 'READY' ? 'green' : 'red',
                                                 border: '2px solid white',
                                                 marginRight: 2,
                                                 boxShadow: order.orderStatus === 'SUBMITTED' ? '0 0 10px orange, 0 0 20px orange, 0 0 30px orange' :
-                                                    order.orderStatus === 'CONFIRMED' ? '0 0 10px blue, 0 0 20px blue, 0 0 30px blue' :
+                                                    order.orderStatus === 'CONFIRMED' ? '0 0 10px blue, 0 0 20px yellow, 0 0 30px blue' :
                                                         order.orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
                                                             '0 0 10px red, 0 0 20px red, 0 0 30px red',
                                             }}
@@ -148,7 +174,7 @@ const AllOrders = () => {
                     </Paper>
                 ))}
             </List>
-        </Box>
+        </Box >
     );
 };
 

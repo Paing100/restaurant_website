@@ -18,37 +18,31 @@ import EmployeeData from './EmployeeData';
 function AppContent() {
   return (
     <>
-    <div className="app">
-      <NavBar />
-      <div className="content">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/order" element={<Order />} />
-          <Route path="/allorders" element={<AllOrders />} /> {/* Corrected route */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/waiter" element={<sessionCheck><Waiter /></sessionCheck>} />
-          <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>} />
-          <Route path="/waiter_edit_menu/:id" element={<sessionCheck><EditMenu></EditMenu></sessionCheck>} />
-          <Route path="/kitchen" element={<sessionCheck><KitchenStaff /></sessionCheck>} />
-          <Route path="/manager" element={<sessionCheck><Manager /></sessionCheck>} />
-          <Route path="/register" element={<Register></Register>}/>
-          <Route path="/calculatePrice" element={<CalculatePrice></CalculatePrice>} />
-          <Route path="/employeeData" element={<EmployeeData></EmployeeData>} />
-        </Routes>
+      <div className="app">
+        <NavBar />
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/order" element={<Order />} />
+            <Route path="/allorders" element={<AllOrders />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/waiter" element={<sessionCheck><Waiter /></sessionCheck>} />
+            <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>} />
+            <Route path="/waiter_edit_menu/:id" element={<sessionCheck><EditMenu></EditMenu></sessionCheck>} />
+            <Route path="/kitchen" element={<sessionCheck><KitchenStaff /></sessionCheck>} />
+            <Route path="/manager" element={<sessionCheck><Manager /></sessionCheck>} />
+            <Route path="/register" element={<Register></Register>} />
+            <Route path="/calculatePrice" element={<CalculatePrice></CalculatePrice>} />
+            <Route path="/employeeData" element={<EmployeeData></EmployeeData>} />
+          </Routes>
+        </div>
       </div>
-    </div>
     </>
   );
 }
 
-const clearStorage = () => {
-  console.log('Local storage cleared');
-  localStorage.clear();
-}
-
 function App() {
-  clearStorage();
   return (
     <CartProvider>
       <Router>
