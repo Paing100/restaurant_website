@@ -1,7 +1,7 @@
 import { Typography, ListItem, ListItemText, Button } from "@mui/material";
 import PropTypes from "prop-types";
 
-function Orders({ order, buttonName, onButtonClick, fetchOrders }) {
+function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle }) {
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
@@ -66,7 +66,11 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders }) {
                 }
                 { buttonName !== "No Button" && 
                   (
-                  <Button variant="contained" color="success" onClick={() => onButtonClick(order.orderId)}>
+                  <Button 
+                    variant="contained" 
+                    style={buttonStyle}
+                    onClick={() => onButtonClick(order.orderId)}
+                  >
                     {buttonName}
                   </Button>
                   )
@@ -80,8 +84,8 @@ Orders.propTypes = {
   order: PropTypes.object.isRequired, 
   buttonName: PropTypes.string.isRequired, 
   onButtonClick: PropTypes.func.isRequired,
-  fetchOrders: PropTypes.func.fetchOrders 
+  fetchOrders: PropTypes.func.fetchOrders
 }
 
-export default Orders; 
+export default Orders;
 

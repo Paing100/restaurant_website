@@ -105,56 +105,57 @@ public class CustomerControllerTest {
     assertNotNull(createdOrder);
     assertNotNull(createdOrder.getOrderId()); // CREATED
   }
-  
+
   @Test
   void createNewOrderCustomerNotFoundTest() throws Exception {
-      // Use a customerId that does not exist
-      int nonExistentCustomerId = 999;
+    // Use a customerId that does not exist
+    int nonExistentCustomerId = 999;
 
-      int tableNum = 5;
+    int tableNum = 5;
 
 
-      mockMvc.perform(post("/api/customers/{customerId}/newOrder", nonExistentCustomerId)
-                      .param("tableNum", String.valueOf(tableNum))
-                      .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isBadRequest());
+    mockMvc
+        .perform(post("/api/customers/{customerId}/newOrder", nonExistentCustomerId)
+            .param("tableNum", String.valueOf(tableNum)).contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
   void getCustomerOrdersTest() throws Exception {
-      // Create a customer and a couple of orders
-      Customer customer = new Customer("John Doe");
-      customer = customerRepository.save(customer);
+    // Create a customer and a couple of orders
+    Customer customer = new Customer("John Doe");
+    customer = customerRepository.save(customer);
 
-      Order order1 = new Order();
-      order1.setTableNum(5);
-      order1.setCustomer(customer);
-      order1.setOrderStatus(OrderStatus.CREATED);
+    Order order1 = new Order();
+    order1.setTableNum(5);
+    order1.setCustomer(customer);
+    order1.setOrderStatus(OrderStatus.CREATED);
 
-      Order order2 = new Order();
-      order2.setTableNum(10);
-      order2.setCustomer(customer);
-      order2.setOrderStatus(OrderStatus.CREATED);
+    Order order2 = new Order();
+    order2.setTableNum(10);
+    order2.setCustomer(customer);
+    order2.setOrderStatus(OrderStatus.CREATED);
 
-      orderRepository.save(order1);
-      orderRepository.save(order2);
+    orderRepository.save(order1);
+    orderRepository.save(order2);
 
 
-      mockMvc.perform(get("/api/customers/{customerId}/orders", customer.getCustomerId())
-                      .contentType(MediaType.APPLICATION_JSON))
-              .andExpect(status().isOk())
-              .andExpect(jsonPath("$").isArray())
-          .andExpect(jsonPath("$.length()").value(2));
-    }
+    mockMvc
+        .perform(get("/api/customers/{customerId}/orders", customer.getCustomerId())
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk()).andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$.length()").value(2));
+  }
 
   @Test
   void getCustomerOrdersCustomerNotFoundTest() throws Exception {
-      // Try to get orders for a customer that does not exist
-      int nonExistentCustomerId = 999;
+    // Try to get orders for a customer that does not exist
+    int nonExistentCustomerId = 999;
 
-      mockMvc.perform(get("/api/customers/{customerId}/orders", nonExistentCustomerId)
-                      .contentType(MediaType.APPLICATION_JSON))
-          .andExpect(status().isBadRequest());
+    mockMvc.perform(get("/api/customers/{customerId}/orders", nonExistentCustomerId)
+        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+
+
   }
 }
 

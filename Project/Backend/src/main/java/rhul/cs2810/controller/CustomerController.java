@@ -106,7 +106,8 @@ public class CustomerController {
     Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
     if (customerOptional.isEmpty()) {
-      return ResponseEntity.badRequest().build();
+      return ResponseEntity.notFound().build(); // Return 404 Not Found instead of throwing an
+                                                // exception.
     }
 
     Customer customer = customerOptional.get();
