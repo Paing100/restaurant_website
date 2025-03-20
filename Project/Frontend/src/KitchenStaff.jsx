@@ -1,11 +1,13 @@
 import {useEffect, useState, useRef} from "react";
-import {Typography, List, ListItem, ListItemText, Box, Button} from "@mui/material";
+import {Typography, List, ListItem, ListItemText, Box, Button, Snackbar, Alert} from "@mui/material";
 
 function KitchenStaff() {
   const userName = sessionStorage.getItem("userName");
   const userRole = sessionStorage.getItem("userRole");
   const [orders, setOrders] = useState([]);
   const ws = useRef(null);
+  const [notification, setNotification] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (!ws.current){
@@ -17,13 +19,23 @@ function KitchenStaff() {
 
       ws.current.onclose = () => {
         console.log('WebSocket closed. Attempting to reconnect...');
-        setTimeout(() => {
-          ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
-        }, 3000);
       };
 
-      ws.current.onmessage = () => {
+      ws.current.onmessage = (event) => {
+        let message;
+        console.log("EVENT IN KITCHEN: " + event.data);
         fetchOrders();
+        try{
+          message = JSON.parse(event.data);
+          if (message.recipient === "kitchen" && message.type === "CONFIRMED") {
+            setNotification(message.message);
+            setOpen(true);
+          }
+          console.log(message);
+        }
+        catch(error){
+          console.log(error);
+        }
       }
     }
 
@@ -45,6 +57,7 @@ function KitchenStaff() {
         throw new Error("Error fetching orders");
       }
       const data = await response.json();
+      console.log(data);
       const pendingOrders = data.filter(
           order => order.orderStatus === "CONFIRMED");
       setOrders(pendingOrders);
@@ -99,6 +112,14 @@ function KitchenStaff() {
     }
   };
 
+  
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+        return;
+    }
+    setOpen(false);
+  };
+
   return (
     <>
       <Box>
@@ -111,13 +132,16 @@ function KitchenStaff() {
               <ListItem key={order.orderId}
                         sx={{borderBottom: "1px solid gray"}}>
                 <ListItemText
-                    primary={`Order #${order.orderId} - Table ${order.tableNum}`}
-                    secondary={order.orderMenuItems.map(item => (
-                        <Typography key={item.orderMenuItemsId.itemId}
-                                    variant="body2">
-                          {item.menuItem.name} x{item.quantity}
-                        </Typography>
-                    ))}
+                    primary={`Order #${order.orderId} - Table ${order.tableNum} --- ${new Date(order.orderPlaced).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                    secondary={
+                      <>
+                          {order.orderMenuItems.map(item => (
+                              <Typography key={item.orderMenuItemsId.itemId} variant="body2">
+                                  {item.menuItem.name} x{item.quantity}
+                              </Typography>
+                          ))}
+                      </>
+                  }
                 />
                 <Button variant="contained" color="primary"
                         onClick={() => markAsReady(order.orderId)}>
@@ -127,6 +151,11 @@ function KitchenStaff() {
           ))}
         </List>
       </Box>
+                  <Snackbar open={open} onClose={handleClose}>
+                      <Alert onClose={handleClose} severity={"success"} sx={{ width: '100%' }}>
+                          {notification}
+                      </Alert>
+                  </Snackbar>
     </>
   );
 }

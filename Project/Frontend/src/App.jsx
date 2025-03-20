@@ -34,7 +34,13 @@ function AppContent() {
   );
 }
 
+const clearStorage = () => {
+  console.log('Local storage cleared');
+  localStorage.clear();
+}
+
 function App() {
+  clearStorage();
   return (
     <CartProvider>
       <Router>

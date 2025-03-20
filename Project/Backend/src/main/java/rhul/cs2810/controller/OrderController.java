@@ -117,7 +117,7 @@ public class OrderController {
       message = "Order submitted successfully";
       if (notificationService != null) {
         notificationService.sendNotification("ORDER_SUBMIT", orderId, "waiter",
-          orderId + " is submitted");
+          "Order #" + orderId + " is submitted");
       }
     } else {
       message = "NOT SUCCESSFUL";
@@ -165,7 +165,7 @@ public class OrderController {
           orderId + " is ready to be delivered");
     } else {
       notificationService.sendNotification(param.get("orderStatus"), orderId, "kitchen",
-          orderId + " has change the status");
+          "Order # " + orderId + " has been confirmed");
     }
     return ResponseEntity.ok("Order Status changed to " + order.getOrderStatus());
   }
