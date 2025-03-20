@@ -10,6 +10,9 @@ import { CartProvider } from './CartContext';
 import MenuWaiter from './MenuWaiter';
 import EditMenu from './EditMenu';
 import KitchenStaff from "./KitchenStaff";
+import Manager from "./Manager";
+import CalculatePrice from "./CalculatePrice";
+import EmployeeData from './EmployeeData';
 
 function AppContent() {
   return (
@@ -27,6 +30,9 @@ function AppContent() {
           <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>} />
           <Route path="/waiter_edit_menu/:id" element={<sessionCheck><EditMenu></EditMenu></sessionCheck>} />
           <Route path="/kitchen" element={<sessionCheck><KitchenStaff /></sessionCheck>} />
+          <Route path="/manager" element={<sessionCheck><Manager /></sessionCheck>} />
+          <Route path="/calculatePrice" element={<CalculatePrice></CalculatePrice>} />
+          <Route path="/employeeData" element={<EmployeeData></EmployeeData>} />
         </Routes>
       </div>
     </div>

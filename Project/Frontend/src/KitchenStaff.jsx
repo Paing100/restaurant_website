@@ -47,8 +47,6 @@ function KitchenStaff() {
     };
   }, []);
 
-
-
   const fetchOrders = async () => {
     try {
       const response = await fetch(

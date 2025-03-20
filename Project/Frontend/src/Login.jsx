@@ -33,8 +33,9 @@ function Login() {
           navigate("/waiter");
         } else if (storedRole === "KITCHEN") {
           navigate("/kitchen");
+        } else if (storedRole === "MANAGER") {
+          navigate("/manager");
         }
-
       }
     } catch (error) {
       setMessage("Error: Could not connect to the server OR Wrong credentials" + error);
