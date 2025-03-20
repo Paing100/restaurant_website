@@ -57,15 +57,21 @@ const AllOrders = () => {
                     sx={{
                         color: 'white',
                         display: 'flex',
-                        flexDirection: 'row', // Stack the icon and text vertically
+                        flexDirection: 'row',
                         alignItems: 'center',
                         position: 'relative',
-                        top: '80px', // Move the button down
-                        left: '-10px', // Move the button to the left
+                        top: '85px',
+                        left: '-10px',
                     }}
                 >
                     <RefreshIcon />
-                    <Typography variant="caption" sx={{ fontSize: '0.75rem', marginTop: '4px' }}>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            fontSize: '1rem',
+                            marginLeft: '8px',
+                        }}
+                    >
                         Refresh
                     </Typography>
                 </IconButton>
