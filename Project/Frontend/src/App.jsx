@@ -25,7 +25,7 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/order" element={<Order />} />
-            <Route path="/allorders" element={<AllOrders />} /> {/* Corrected route */}
+            <Route path="/allorders" element={<AllOrders />} />
             <Route path="/login" element={<Login />} />
             <Route path="/waiter" element={<sessionCheck><Waiter /></sessionCheck>} />
             <Route path="/waiter_menu" element={<sessionCheck><MenuWaiter /></sessionCheck>} />

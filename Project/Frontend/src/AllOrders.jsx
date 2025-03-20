@@ -1,8 +1,9 @@
 /* eslint-disable */
 import React, { useState, useEffect, useContext } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, CardMedia, Paper, Button } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, CardMedia, Paper, Button, IconButton } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext';
 
 const AllOrders = () => {
@@ -44,12 +45,31 @@ const AllOrders = () => {
 
     return (
         <Box sx={{ padding: 3 }}>
-            <Button
-                onClick={() => window.history.back()}
-                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' }, marginBottom: 2 }}
-            >
-                ← Back
-            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
+                <Button
+                    onClick={() => window.history.back()}
+                    sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
+                >
+                    ← Back
+                </Button>
+                <IconButton
+                    onClick={() => fetchOrders()} // Call fetchOrders to refresh the orders
+                    sx={{
+                        color: 'white',
+                        display: 'flex',
+                        flexDirection: 'row', // Stack the icon and text vertically
+                        alignItems: 'center',
+                        position: 'relative',
+                        top: '80px', // Move the button down
+                        left: '-10px', // Move the button to the left
+                    }}
+                >
+                    <RefreshIcon />
+                    <Typography variant="caption" sx={{ fontSize: '0.75rem', marginTop: '4px' }}>
+                        Refresh
+                    </Typography>
+                </IconButton>
+            </Box>
             <Typography variant="h4" sx={{ marginBottom: 3 }}>Your Order History</Typography>
             <List>
                 {orders.map((order) => (
@@ -148,7 +168,7 @@ const AllOrders = () => {
                     </Paper>
                 ))}
             </List>
-        </Box>
+        </Box >
     );
 };
 
