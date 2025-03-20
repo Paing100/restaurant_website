@@ -258,6 +258,13 @@ function Order() {
             await fetchCart();
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
 
+            const customerNullOrderID = {
+                ...customer,
+                orderId: 0
+            };
+
+            setCustomer(customerNullOrderID);
+
             console.log("Cart cleared after order submission.");
         } else {
             setMessage(result.message);
