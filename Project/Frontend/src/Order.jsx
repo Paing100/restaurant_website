@@ -191,6 +191,7 @@ function Order() {
         return savedOrderCount ? parseInt(savedOrderCount, 10) : 0;
     });
     const [newOrderModalOpen, setNewOrderModalOpen] = useState(false);
+    const [hasCreatedOrder, setHasCreatedOrder] = useState(false);
     const timerRef = useRef(null);
 
     const orderedItems = cart?.orderedItems || {};
@@ -222,6 +223,28 @@ function Order() {
         localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
     }, [showOrderInfo, expanded, orderStatus, receipt, receiptTotal, orderTime, tableNum, storedTableNum]);
 
+    useEffect(() => {
+        const checkOrderStatus = async () => {
+            if (customer?.orderId) {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                    });
+                    
+                    if (response.ok) {
+                        const orderData = await response.json();
+                        setHasCreatedOrder(orderData.orderStatus === 'CREATED');
+                    }
+                } catch (error) {
+                    console.error('Error checking order status:', error);
+                }
+            }
+        };
+        
+        checkOrderStatus();
+    }, [customer]);
+
     const decreaseItemQuantity = (itemId) => {
         removeItemFromCart(itemId, false);
     };
@@ -242,6 +265,7 @@ function Order() {
             setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
             setReceiptTotal(cart.totalPrice);
             setOrderTime(new Date());
+            setHasCreatedOrder(false);
 
             const orderInfo = {
                 show: true,
@@ -260,10 +284,12 @@ function Order() {
 
             const customerNullOrderID = {
                 ...customer,
-                orderId: 0
+                orderId: 0,
+                tableNum: customer.tableNum || tableNum
             };
 
             setCustomer(customerNullOrderID);
+            localStorage.setItem('tableNum', customer.tableNum || tableNum);
 
             console.log("Cart cleared after order submission.");
         } else {
@@ -315,6 +341,15 @@ function Order() {
             </Button>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px' }}>
                 <Typography variant="h4">Place Your Order</Typography>
+                {!hasCreatedOrder && (
+                    <Button
+                        onClick={() => setNewOrderModalOpen(true)}
+                        variant="contained"
+                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
+                    >
+                        New Order
+                    </Button>
+                )}
             </Box>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List>
