@@ -36,20 +36,23 @@ export const CartProvider = ({ children }) => {
     }, []);
     
     useEffect(() => {
-        // Retrieve customer from localStorage when the app loads
+        // Retrieve customer and tableNum from localStorage when the app loads
         const storedCustomer = localStorage.getItem('customer');
+        const storedTableNum = localStorage.getItem('tableNum');
         if (storedCustomer) {
             const parsedCustomer = JSON.parse(storedCustomer);
             if (parsedCustomer) {
                 setCustomer(parsedCustomer);
-                setTableNum(parsedCustomer.tableNum || '');
+                setTableNum(storedTableNum || parsedCustomer.tableNum || '');
             }
         }
     }, []);
 
     const setPersistentCustomer = (customerData) => {
         setCustomer(customerData);
+        setTableNum(customerData.tableNum || '');
         localStorage.setItem('customer', JSON.stringify(customerData));
+        localStorage.setItem('tableNum', customerData.tableNum || '');
     };
 
     const logout = () => {
@@ -280,23 +283,30 @@ const submitOrder = async () => {
             throw new Error("Customer is not logged in or customer ID is missing.");
         }
 
-        // Check if current cart is empty
-        const currentOrder = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' },
-        });
-
-        if (!currentOrder.ok) {
-            throw new Error('Failed to fetch current order');
+        const currentTableNum = localStorage.getItem('tableNum') || tableNum;
+        if (!currentTableNum) {
+            throw new Error("Table number is required to create a new order");
         }
 
-        const orderData = await currentOrder.json();
-        if (orderData.orderStatus === 'CREATED' && (!orderData.orderMenuItems || orderData.orderMenuItems.length === 0)) {
-            return { success: false, message: 'Cannot create a new order while current cart is empty' };
+        // Only check current order if orderId is not 0
+        if (customer.orderId !== 0) {
+            const currentOrder = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+            });
+
+            if (!currentOrder.ok) {
+                throw new Error('Failed to fetch current order');
+            }
+
+            const orderData = await currentOrder.json();
+            if (orderData.orderStatus === 'CREATED' && (!orderData.orderMenuItems || orderData.orderMenuItems.length === 0)) {
+                return { success: false, message: 'Cannot create a new order while current cart is empty' };
+            }
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/newOrder?tableNum=${tableNum}`, {
+            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/newOrder?tableNum=${currentTableNum}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });

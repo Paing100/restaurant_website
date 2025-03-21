@@ -18,18 +18,24 @@ function MenuCard({ item, isWaiterView }) {
 
   // Watch for customer changes to complete pending add
   useEffect(() => {
-    if (customer && pendingAdd) {
+    if (customer && pendingAdd && !showNewOrderModal) {
       addItemToCart(item.itemId, quantity);
       setPendingAdd(false);
       setMessage("Item Added to Cart!");
       setSeverity('success');
       setOpenSnackbar(true);
     }
-  }, [customer, pendingAdd, item.itemId, quantity, addItemToCart]);
+  }, [customer, pendingAdd, item.itemId, quantity, addItemToCart, showNewOrderModal]);
 
   const handleAddToCart = async () => {
     if (!customer) {
       setShowModal(true);
+      setPendingAdd(true);
+      return;
+    }
+
+    if (customer.orderId === 0) {
+      setShowNewOrderModal(true);
       setPendingAdd(true);
       return;
     }
@@ -56,7 +62,7 @@ function MenuCard({ item, isWaiterView }) {
       }
 
       // If order is not submitted, add item directly
-      addItemToCart(item.itemId, quantity);
+      await addItemToCart(item.itemId, quantity);
       setMessage("Item Added to Cart!");
       setSeverity('success');
       setOpenSnackbar(true);
@@ -176,18 +182,24 @@ function MenuCard({ item, isWaiterView }) {
             setPendingAdd(false);
           }}
           onConfirm={async () => {
-            const result = await createNewOrder();
-            if (result.success) {
-              await addItemToCart(item.itemId, quantity);
-              setMessage("Item Added to Cart!");
-              setSeverity('success');
-            } else {
-              setMessage("Error creating new order");
+            try {
+              const result = await createNewOrder();
+              if (result.success) {
+                setPendingAdd(true);
+              } else {
+                setMessage("Error creating new order");
+                setSeverity('error');
+                setOpenSnackbar(true);
+              }
+              setShowNewOrderModal(false);
+            } catch (error) {
+              console.error('Error in order creation process:', error);
+              setMessage("Error in order creation process");
               setSeverity('error');
+              setOpenSnackbar(true);
+              setShowNewOrderModal(false);
+              setPendingAdd(false);
             }
-            setShowNewOrderModal(false);
-            setPendingAdd(false);
-            setOpenSnackbar(true);
           }}
         />
       )}
