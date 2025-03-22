@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, CardMedia, Paper, Button, IconButton } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -10,32 +10,58 @@ const AllOrders = () => {
     const [orders, setOrders] = useState([]);
     const [expandedOrderId, setExpandedOrderId] = useState(null);
     const { customer } = useContext(CartContext);
+    const ws = useRef(null);
+
+    const fetchOrders = async () => {
+        if (!customer || !customer.customerId) {
+            console.error('No customer found');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
+            if (response.ok) {
+                const customerOrders = await response.json();
+                setOrders(customerOrders);
+            } else {
+                console.error('Error fetching orders:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchOrders = async () => {
-            if (!customer || !customer.customerId) {
-                console.error('No customer found');
-                return;
-            }
-
-            try {
-                const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
-                if (response.ok) {
-                    const customerOrders = await response.json();
-                    setOrders(customerOrders);
-                } else {
-                    console.error('Error fetching orders:', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error fetching orders:', error);
-            }
-        };
-
         fetchOrders();
         // Refresh orders every 30 seconds
         const interval = setInterval(fetchOrders, 30000);
         return () => clearInterval(interval);
     }, [customer]);
+
+    useEffect(() => {
+        if (!ws.current){
+          ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+    
+          ws.current.onopen = () => {
+            console.log('WebSocket connected');
+          };
+    
+          ws.current.onclose = () => {
+            console.log('WebSocket closed. Attempting to reconnect...');
+          };
+    
+          ws.current.onmessage = (event) => {
+            console.log("EVENT IN CUSTOMER: " + event.data);
+            fetchOrders();
+          }
+        }
+        return () => {
+          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            console.log("Closing WebSocket on cleanup");
+            ws.current.close();
+          }
+        };
+      }, []);
 
     const formatTime = (orderPlaced) => {
         if (!orderPlaced) return 'N/A';
