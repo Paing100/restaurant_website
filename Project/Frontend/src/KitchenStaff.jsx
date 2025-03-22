@@ -1,5 +1,6 @@
 import {useEffect, useState, useRef} from "react";
-import {Typography, List, ListItem, ListItemText, Box, Button, Snackbar, Alert} from "@mui/material";
+import {Typography, List, Box, Snackbar, Alert} from "@mui/material";
+import Orders from "./Orders";
 
 function KitchenStaff() {
   const userName = sessionStorage.getItem("userName");
@@ -45,6 +46,11 @@ function KitchenStaff() {
         ws.current.close();
       }
     };
+  }, []);
+
+  useEffect(() => {
+
+    fetchOrders();
   }, []);
 
   const fetchOrders = async () => {
@@ -127,33 +133,22 @@ function KitchenStaff() {
         <Typography variant="h5" sx={{mt: 2}}>Pending Orders</Typography>
         <List>
           {orders.map(order => (
-              <ListItem key={order.orderId}
-                        sx={{borderBottom: "1px solid gray"}}>
-                <ListItemText
-                    primary={`Order #${order.orderId} - Table ${order.tableNum} --- ${new Date(order.orderPlaced).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-                    secondary={
-                      <>
-                          {order.orderMenuItems.map(item => (
-                              <Typography key={item.orderMenuItemsId.itemId} variant="body2">
-                                  {item.menuItem.name} x{item.quantity}
-                              </Typography>
-                          ))}
-                      </>
-                  }
-                />
-                <Button variant="contained" color="primary"
-                        onClick={() => markAsReady(order.orderId)}>
-                  Mark as Ready
-                </Button>
-              </ListItem>
+            <Orders 
+              key={order.orderId}
+              order={order} 
+              buttonName="Mark as Ready" 
+              onButtonClick={markAsReady}
+              fetchOrders={fetchOrders}
+              buttonStyle={{ backgroundColor: 'primary' }}
+            />
           ))}
         </List>
       </Box>
-                  <Snackbar open={open} onClose={handleClose}>
-                      <Alert onClose={handleClose} severity={"success"} sx={{ width: '100%' }}>
-                          {notification}
-                      </Alert>
-                  </Snackbar>
+      <Snackbar open={open} onClose={handleClose}>
+        <Alert onClose={handleClose} severity={"success"} sx={{ width: '100%' }}>
+          {notification}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
