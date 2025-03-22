@@ -1,39 +1,53 @@
-/* eslint-disable */
+import { useState, useEffect } from "react";
 import { Typography, ListItem, ListItemText, Button } from "@mui/material";
 import PropTypes from "prop-types";
 
 function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle }) {
+  const [elapsedTime, setElapsedTime] = useState("");
+
+  // Update timer every second
+  useEffect(() => {
+    // Only set up timer if order is not DELIVERED
+    if (order.orderStatus !== "DELIVERED") {
+      const updateTimer = () => {
+        const now = new Date();
+        const orderTime = new Date(order.orderPlaced);
+        const diffInSeconds = Math.floor((now - orderTime) / 1000);
+        
+        const minutes = Math.floor(diffInSeconds / 60);
+        const seconds = diffInSeconds % 60;
+        
+        setElapsedTime(`${minutes} min ${seconds} sec`);
+      };
+
+
+      updateTimer();
+      
+      // Set up interval to update every second
+      const timerId = setInterval(updateTimer, 1000);
+      
+
+      return () => clearInterval(timerId);
+    }
+  }, [order.orderPlaced, order.orderStatus]);
 
   const formatDate = (isoString) => {
     const date = new Date(isoString);
-    return date.toLocaleString("en-GB", {
-      year: "numeric", month: "long", day: "numeric",
+    return date.toLocaleString("en-GB", { 
+      year: "numeric", month: "long", day: "numeric", 
       hour: "2-digit", minute: "2-digit", second: "2-digit"
     });
   };
 
-  const formatElapsedTime = (orderPlaced) => {
-    const now = new Date();
-    const orderTime = new Date(orderPlaced);
-    const diffInMinutes = Math.floor((now - orderTime) / 60000);  // Difference in minutes
-    if (diffInMinutes < 60) {
-      return `${diffInMinutes} minute(s) ago`;
-    } else {
-      const hours = Math.floor(diffInMinutes / 60);
-      const minutes = diffInMinutes % 60;
-      return `${hours} hour(s) and ${minutes} minute(s) ago`;
-    }
-  };
-
-  const handleCancelOrder = async (orderId) => {
-    const response = await fetch(`http://localhost:8080/api/order/${orderId}/cancelOrder`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" }
-    });
-    if (response.ok) {
-      console.log("Order deleted successfully");
-      fetchOrders();
-    }
+  const handleCancelOrder = async(orderId) => {
+      const response = await fetch(`http://localhost:8080/api/order/${orderId}/cancelOrder`,{
+        method: "DELETE", 
+        headers: {"Content-Type":"application/json"}
+      });
+      if (response.ok){
+        console.log("Order deleted successfully");
+        fetchOrders();
+      }
   }
 
   return (
@@ -46,9 +60,14 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle }) 
               <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                 Ordered At: {formatDate(order.orderPlaced)}
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: "bold", color: 'gray' }}>
-                Time in Progress: {formatElapsedTime(order.orderPlaced)}
-              </Typography>
+              
+              {/* Only show timer if order is not DELIVERED */}
+              {order.orderStatus !== "DELIVERED" && (
+                <Typography variant="body2" sx={{ fontWeight: "bold", color: 'gray' }}>
+                  Time in Progress: {elapsedTime}
+                </Typography>
+              )}
+              
               {order.orderMenuItems.map(item => (
                 <Typography key={item.orderMenuItemsId.itemId} variant="body2">
                   {item.menuItem.name} x{item.quantity} (£{(item.menuItem.price * item.quantity).toFixed(2)})
@@ -58,22 +77,22 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle }) 
           }
         />
         {
-          buttonName === "Confirm Order" &&
+          buttonName === "Confirm Order" && 
           (
             <Button onClick={() => handleCancelOrder(order.orderId)}>
               Cancel
             </Button>
           )
         }
-        {buttonName !== "No Button" &&
+        { buttonName !== "No Button" && 
           (
-            <Button
-              variant="contained"
-              style={buttonStyle}
-              onClick={() => onButtonClick(order.orderId)}
-            >
-              {buttonName}
-            </Button>
+          <Button 
+            variant="contained" 
+            style={buttonStyle}
+            onClick={() => onButtonClick(order.orderId)}
+          >
+            {buttonName}
+          </Button>
           )
         }
       </ListItem>
@@ -82,11 +101,11 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle }) 
 }
 
 Orders.propTypes = {
-  order: PropTypes.object.isRequired,
-  buttonName: PropTypes.string.isRequired,
+  order: PropTypes.object.isRequired, 
+  buttonName: PropTypes.string.isRequired, 
   onButtonClick: PropTypes.func.isRequired,
-  fetchOrders: PropTypes.func.fetchOrders
+  fetchOrders: PropTypes.func,
+  buttonStyle: PropTypes.object
 }
 
 export default Orders;
-
