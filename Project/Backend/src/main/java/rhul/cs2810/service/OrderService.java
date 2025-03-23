@@ -101,17 +101,17 @@ public class OrderService {
     Optional<Order> orderOptional = orderRepository.findById(orderId);
 
     if (orderOptional.isPresent()) {
-      Order order = orderOptional.get();
-      order.setOrderStatus(OrderStatus.SUBMITTED);
-      orderRepository.save(order);
+        Order order = orderOptional.get();
+        order.setOrderStatus(OrderStatus.SUBMITTED);
+        orderRepository.save(order);
 
-      List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
-      for (OrderMenuItem item : orderItems) {
-        item.setOrderSubmitted(true);
-      }
-      orderMenuItemRepository.saveAll(orderItems);
+        List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
+        for (OrderMenuItem item : orderItems) {
+            item.setOrderSubmitted(true);
+        }
+        orderMenuItemRepository.saveAll(orderItems);
     } else {
-      throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
+        throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
     }
   }
 

@@ -93,6 +93,8 @@ public class OrderController {
     int rowDeleted = query.executeUpdate();
 
     if (rowDeleted > 0) {
+      notificationService.sendNotification("ORDER_CANCELLED", orderId, "customer",
+        "#" + orderId + " is cancelled by waiter");
       return ResponseEntity.ok("Order deleted successfully");
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
