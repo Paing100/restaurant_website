@@ -542,6 +542,10 @@ function Order() {
                 open={newOrderModalOpen}
                 onClose={() => setNewOrderModalOpen(false)}
                 onConfirm={handleNewOrderConfirm}
+                title="Create New Order?"
+                content="Would you like to create a new order to add more items?"
+                confirmButtonText="Yes, Create New Order"
+                cancelButtonText="No, Go Back"
             />
         </Box>
     );
