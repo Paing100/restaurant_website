@@ -94,7 +94,7 @@ const OrderInfoPopup = React.memo(({
                     Latest Order Receipt
                 </Typography>
                 <List>
-                    {receipt.map((item) => (
+                    {(receipt || []).map((item) => (
                         <ListItem key={item.itemName} sx={{ py: 1 }}>
                             <ListItemText
                                 primary={item.itemName}
@@ -193,8 +193,93 @@ function Order() {
     const [newOrderModalOpen, setNewOrderModalOpen] = useState(false);
     const [hasCreatedOrder, setHasCreatedOrder] = useState(false);
     const timerRef = useRef(null);
+    const ws = useRef(null);
 
     const orderedItems = cart?.orderedItems || {};
+
+    useEffect(() => {
+        if (!ws.current){
+          ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+    
+          ws.current.onopen = () => {
+            console.log('WebSocket connected');
+          };
+    
+          ws.current.onclose = () => {
+            console.log('WebSocket closed. Attempting to reconnect...');
+          };
+    
+          ws.current.onmessage = (event) => {
+            try{
+                const data = JSON.parse(event.data); 
+                console.log("EVENT IN ORDER:", data); 
+                if (data.type === "ORDER_CANCELLED") {
+                    removeOrderItem(data.orderId); 
+                }            
+            }
+            catch(error){
+              console.log(error);
+            }
+          }
+        }
+    
+        return () => {
+          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            console.log("Closing WebSocket on cleanup");
+            ws.current.close();
+          }
+        };
+      }, []);
+
+    const stopTimer = () => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current); // Clear the interval
+            timerRef.current = null; // Reset the timer reference
+            setOrderTime(null); // Reset the order time
+            setElapsedTime('00:00:00'); // Reset the elapsed time
+            console.log("Timer stopped.");
+        }
+    };
+
+    const restartTimer = () => {
+        stopTimer(); // Stop the current timer if it's running
+        const now = new Date();
+        setOrderTime(now); // Set the orderTime to the current time
+        console.log("Timer restarted.");
+    };
+
+    // remove the order based on its id 
+    const removeOrderItem = (orderId) => {
+        console.log("Removing item from order: ", orderId);
+        setReceipt((prevReceipt) => {
+            const updatedReceipt = prevReceipt.filter((item) => item.orderId !== orderId);
+    
+            // Check if the removed order is the last one
+            if (prevReceipt.length > 0 && prevReceipt[prevReceipt.length - 1].orderId === orderId) {
+                if (updatedReceipt.length === 0) {
+                    stopTimer(); // Stop the timer if the receipt is now empty
+                } else {
+                    restartTimer(); // Restart the timer for the new last order
+                }
+            }
+    
+            const updatedTotal = updatedReceipt.reduce(
+                (total, item) => total + item.quantity * item.price,
+                0
+            );
+            setReceiptTotal(updatedTotal);
+            console.log("Updated RECEIPT:", JSON.stringify(updatedReceipt));
+            setMessage(`Your #${orderId} is cancelled by the waiter!`); 
+            setOpen(true);
+            return updatedReceipt;
+        });
+    };
+
+    // testing the log 
+    useEffect(() => {
+        console.log("RECEIPT: " + JSON.stringify(receipt));
+        console.log("TABLE: " + tableNum);
+    }, [receipt]); 
 
     useEffect(() => {
         if (orderTime) {
@@ -254,16 +339,24 @@ function Order() {
     };
 
     const handlePaymentSuccess = async () => {
-        // Now submit the order
         const result = await submitOrder();
         if (result.success) {
+            // create a new order object 
+            const newOrder = {
+                orderId: customer?.orderId,
+                receipt: Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })),
+                receiptTotal: cart.totalPrice,
+                orderTime: new Date().toISOString(),
+                tableNum: tableNum,
+                status: 'In Progress',
+            };
             setOrderCount(orderCount => orderCount + 1);
             setOrderStatus('In Progress');
             setShowOrderInfo(true);
             setMessage(result.message);
             setSeverity('success');
-            setReceipt(Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })));
-            setReceiptTotal(cart.totalPrice);
+            // Append the new order to the receipt array
+            setReceipt((prevReceipt) => [...prevReceipt, newOrder]);            setReceiptTotal(cart.totalPrice);
             setOrderTime(new Date());
             setHasCreatedOrder(false);
 
@@ -271,7 +364,7 @@ function Order() {
                 show: true,
                 expanded: false,
                 status: 'In Progress',
-                receipt: Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })),
+                receipt: [...receipt, newOrder], // append the new order to the receipt array
                 total: cart.totalPrice,
                 orderTime: new Date().toISOString(),
                 tableNum: tableNum
@@ -290,7 +383,7 @@ function Order() {
 
             setCustomer(customerNullOrderID);
             localStorage.setItem('tableNum', customer.tableNum || tableNum);
-
+            console.log("RECEIPT: " + JSON.stringify(receipt));
             console.log("Cart cleared after order submission.");
         } else {
             setMessage(result.message);
@@ -425,17 +518,19 @@ function Order() {
                     {message}
                 </Alert>
             </Snackbar>
-            <OrderInfoPopup
-                showOrderInfo={showOrderInfo}
-                expanded={expanded}
-                setExpanded={setExpanded}
-                customer={customer}
-                tableNum={tableNum || storedTableNum}
-                elapsedTime={elapsedTime}
-                orderStatus={orderStatus}
-                receipt={receipt}
-                receiptTotal={receiptTotal}
-            />
+            {receipt.length > 0 && (
+                <OrderInfoPopup
+                    showOrderInfo={showOrderInfo}
+                    expanded={expanded}
+                    setExpanded={setExpanded}
+                    customer={customer}
+                    tableNum={tableNum || storedTableNum}
+                    elapsedTime={elapsedTime}
+                    orderStatus={orderStatus}
+                    receipt={receipt.length > 0 ? receipt[receipt.length - 1].receipt : []} // always show the latest receipt otherwise []
+                    receiptTotal={receipt.length > 0 ? receipt[receipt.length - 1].receiptTotal : 0} // always show the latest receipt total otherwise 0
+                />
+            )}
             <PaymentModal
                 open={paymentModalOpen}
                 onClose={() => setPaymentModalOpen(false)}
