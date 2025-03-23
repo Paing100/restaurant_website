@@ -4,6 +4,7 @@ import static net.bytebuddy.matcher.ElementMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -15,6 +16,7 @@ import java.util.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,10 +28,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import rhul.cs2810.model.Allergen;
-import rhul.cs2810.model.DietaryRestrictions;
-import rhul.cs2810.model.MenuItem;
+import rhul.cs2810.model.*;
+import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.MenuItemRepository;
+import rhul.cs2810.repository.OrderMenuItemRepository;
+import rhul.cs2810.repository.OrderRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -44,6 +47,12 @@ public class MenuItemControllerTest {
 
   @Autowired
   private MenuItemRepository menuItemRepository;
+  @Autowired
+  private OrderRepository orderRepository;
+  @Autowired
+  private CustomerRepository customerRepository;
+  @Autowired
+  private OrderMenuItemRepository orderMenuItemRepository;
 
   @BeforeEach
   void setUp() {
@@ -166,5 +175,43 @@ public class MenuItemControllerTest {
       .andExpect(jsonPath("$[0].name").value("Guacamole"))
       .andReturn();
 
+  }
+
+  @Test
+  void testEndOfDay() throws Exception {
+    Customer customer = new Customer();
+    customer.setName("James");
+    customer = customerRepository.save(customer);
+    Order order = new Order();
+    order.setCustomer(customer);
+    order.setTableNum(1);
+    order.setOrderStatus(OrderStatus.CREATED);
+    orderRepository.save(order);
+
+    MenuItem menuItem = new MenuItem();
+    menuItem.setName("Burger");
+    menuItem.setPrice(10.0);
+    menuItem = menuItemRepository.save(menuItem);
+
+    OrderMenuItemId orderMenuItemId = new OrderMenuItemId(order.getOrderId(), menuItem.getItemId());
+
+    OrderMenuItem orderMenuItem = new OrderMenuItem();
+    orderMenuItem.setOrderMenuItemsId(orderMenuItemId);
+    orderMenuItem.setOrder(order);
+    orderMenuItem.setQuantity(1);
+    orderMenuItem = orderMenuItemRepository.save(orderMenuItem);
+    System.out.println("ID: " + orderMenuItem);
+
+    assertEquals(1, orderRepository.count());
+    assertEquals(1, customerRepository.count());
+    assertEquals(1, orderMenuItemRepository.count());
+
+    MvcResult result = mockMvc.perform(
+      post("/Manager/endOfDay").contentType(MediaType.APPLICATION_JSON)
+    ).andReturn();
+
+    assertEquals(0, orderRepository.count());
+    assertEquals(0, customerRepository.count());
+    assertEquals(0, orderMenuItemRepository.count());
   }
 }

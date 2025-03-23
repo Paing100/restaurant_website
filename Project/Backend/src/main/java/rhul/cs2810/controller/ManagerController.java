@@ -12,10 +12,7 @@ import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
-import rhul.cs2810.repository.CustomerRepository;
-import rhul.cs2810.repository.EmployeeRepository;
-import rhul.cs2810.repository.MenuItemRepository;
-import rhul.cs2810.repository.OrderRepository;
+import rhul.cs2810.repository.*;
 import rhul.cs2810.service.OrderService;
 
 @RestController
@@ -29,15 +26,16 @@ public class ManagerController {
   private final EmployeeRepository employeeRepository;
   private final OrderRepository orderRepository;
   private final MenuItemRepository menuItemRepository;
-
+  private final OrderMenuItemRepository orderMenuItemRepository;
 
   public ManagerController(CustomerRepository customerRepository,
       EmployeeRepository employeeRepository, OrderRepository orderRepository,
-      MenuItemRepository menuItemRepository) {
+      MenuItemRepository menuItemRepository, OrderMenuItemRepository orderMenuItemRepository) {
     this.customerRepository = customerRepository;
     this.orderRepository = orderRepository;
     this.menuItemRepository = menuItemRepository;
     this.employeeRepository = employeeRepository;
+    this.orderMenuItemRepository = orderMenuItemRepository;
   }
 
   @GetMapping("/Manager/getOutstandingOrders")
@@ -89,22 +87,11 @@ public class ManagerController {
     return ResponseEntity.ok(employeesList);
   }
 
-  // @PostMapping("/Manager/getWaiterSales")
-  // public ResponseEntity<List<Order>> getWaiterSales(@RequestParam String waiter_id) {
-  // Optional<Employee> waiterOptional = employeeRepository.findByEmployeeId(waiter_id);
-  // Employee waiter = waiterOptional.get();
-  // String waiterName = waiter.getFirstName() + " " + waiter.getLastName();
-  //
-  // List<Order> orders = orderService.getAllOrders();
-  // List<Order> waiterOrders = new ArrayList<Order>();
-  //
-  // for (Order order : orders) {
-  //
-  // }
-  // }
-  //
-  // }
-
-
-
+  @PostMapping("/Manager/endOfDay")
+  public ResponseEntity<String> endOfDay(){
+    orderRepository.deleteAll();
+    customerRepository.deleteAll();
+    orderMenuItemRepository.deleteAll();
+    return ResponseEntity.ok("DATA DELETED!");
+  }
 }

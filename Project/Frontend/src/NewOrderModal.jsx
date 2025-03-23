@@ -2,7 +2,7 @@ import { Modal, Box, Typography, Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import './index.css';
 
-const NewOrderModal = ({ open, onClose, onConfirm }) => {
+const NewOrderModal = ({ open, onClose, onConfirm, title, content, confirmButtonText, cancelButtonText }) => {
     return (
         <Modal
             open={open}
@@ -11,10 +11,10 @@ const NewOrderModal = ({ open, onClose, onConfirm }) => {
         >
             <Box className="payment-modal">
                 <Typography variant="h6" component="h2">
-                    Create New Order?
+                    {title}
                 </Typography>
                 <Typography sx={{ mt: 2, mb: 3, color: 'white' }}>
-                    Would you like to create a new order to add more items?
+                    {content}
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
                     <Button
@@ -29,7 +29,7 @@ const NewOrderModal = ({ open, onClose, onConfirm }) => {
                             },
                         }}
                     >
-                        Yes, Create New Order
+                        {confirmButtonText}
                     </Button>
                     <Button
                         variant="contained"
@@ -43,7 +43,7 @@ const NewOrderModal = ({ open, onClose, onConfirm }) => {
                             },
                         }}
                     >
-                        No, Go Back
+                        {cancelButtonText}
                     </Button>
                 </Box>
             </Box>
@@ -55,6 +55,10 @@ NewOrderModal.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     onConfirm: PropTypes.func.isRequired,
+    title: PropTypes.string.isRequired,
+    content: PropTypes.string.isRequired,
+    confirmButtonText: PropTypes.string.isRequired,
+    cancelButtonText: PropTypes.string.isRequired,
 };
 
 export default NewOrderModal;

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { Typography, Box, Button, Snackbar, Alert, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import NewOrderModal from "./NewOrderModal";
 
 function Manager() {
   const [orders, setOrders] = useState([]);
@@ -8,6 +9,7 @@ function Manager() {
   const [error, setError] = useState("");
   const [tabIndex, setTabIndex] = useState(0);
   const ws = useRef(null);
+  const [endOfDayOpen, setEndOfDayOpen] = useState(false);
 
   useEffect(() => {
     fetchOutstandingOrders();
@@ -61,6 +63,21 @@ function Manager() {
     }
   };
 
+  const handleEndOfDayButton = async() => {
+    try {
+      const response = await fetch("http://localhost:8080/Manager/endOfDay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (!response.ok) throw new Error("Failed to end the day");
+      setEndOfDayOpen(false);
+    }catch(err){
+      setError(err.message);
+    }
+  }
+
   return (
     <Box sx={{ padding: 3, color: "white", backgroundColor: "black", minHeight: "100vh" }}>
       <Typography variant="h3">Welcome, Manager!</Typography>
@@ -79,6 +96,13 @@ function Manager() {
         <Link to="/register">
           <Button variant="contained">Register Staff</Button>
         </Link>
+        <Button
+          variant="contained"
+          sx={{ marginLeft: 1 }}
+          onClick={() => setEndOfDayOpen(true)} // Open the modal
+        >
+          End Of Business Day
+        </Button>
       </Box>
 
       <Tabs 
@@ -152,6 +176,17 @@ function Manager() {
           <Alert severity="error">{error}</Alert>
         </Snackbar>
       )}
+
+      <NewOrderModal 
+        open={endOfDayOpen} 
+        onClose={() => setEndOfDayOpen(false)} 
+        onConfirm={handleEndOfDayButton} 
+        title="End Of Business Day"
+        content="Do you want to end the day? This will clear all orders"
+        confirmButtonText="End Day"
+        cancelButtonText="Cancel"
+      />
+
     </Box>
   );
 }
