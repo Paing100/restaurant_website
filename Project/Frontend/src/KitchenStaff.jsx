@@ -25,12 +25,15 @@ function KitchenStaff() {
       ws.current.onmessage = (event) => {
         let message;
         console.log("EVENT IN KITCHEN: " + event.data);
-        fetchOrders();
         try{
           message = JSON.parse(event.data);
           if (message.recipient === "kitchen" && message.type === "CONFIRMED") {
             setNotification(message.message);
             setOpen(true);
+            fetchOrders();
+          }
+          else{
+            console.log("NO MESSAGE");
           }
           console.log(message);
         }
@@ -39,7 +42,7 @@ function KitchenStaff() {
         }
       }
     }
-
+    fetchOrders();
     return () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         console.log("Closing WebSocket on cleanup");
@@ -61,10 +64,11 @@ function KitchenStaff() {
         throw new Error("Error fetching orders");
       }
       const data = await response.json();
-      console.log(data);
+      console.log("IN KITCHEN FETCH: " + data);
       const pendingOrders = data.filter(
           order => order.orderStatus === "CONFIRMED");
       setOrders(pendingOrders);
+      console.log("PENDING: " + pendingOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
