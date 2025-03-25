@@ -135,6 +135,7 @@ function Manager() {
                   <TableRow>
                     <TableCell>Order ID</TableCell>
                     <TableCell>Order Status</TableCell>
+                    <TableCell>Waiter</TableCell>
                     <TableCell>Table Number</TableCell>
                     <TableCell>Order Placed</TableCell>
                     <TableCell>Total</TableCell>
@@ -142,6 +143,7 @@ function Manager() {
                 </TableHead>
                 <TableBody>
                   {orders.map((order) => {
+                    console.log(order);
                     const orderTotal = order.orderMenuItems.reduce(
                       (total, item) => total + item.menuItem.price * item.quantity, 0
                     );
@@ -149,6 +151,7 @@ function Manager() {
                       <TableRow key={order.orderId}>
                         <TableCell>{order.orderId}</TableCell>
                         <TableCell>{order.orderStatus}</TableCell>
+                        <TableCell>{order.waiter.employee.firstName}</TableCell>
                         <TableCell>{order.tableNum}</TableCell>
                         <TableCell>{new Date(order.orderPlaced).toLocaleString()}</TableCell>
                         <TableCell>£{orderTotal.toFixed(2)}</TableCell>

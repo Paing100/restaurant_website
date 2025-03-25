@@ -8,7 +8,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import rhul.cs2810.model.Employee;
+import rhul.cs2810.model.Waiter;
 import rhul.cs2810.repository.EmployeeRepository;
+import rhul.cs2810.repository.WaiterRepository;
 
 /**
  * A class containing business logic of the employee login system.
@@ -20,19 +22,31 @@ public class EmployeeService {
   private EmployeeRepository employeeRepository;
 
   @Autowired
+  private WaiterRepository waiterRepository;
+
+  @Autowired
   private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+  @Autowired
+  private WaiterService waiterService;
+
   /**
-   * A constructor with two parameters.
+   * A constructor with parameters.
    *
    * @param employeeRepository CRUD repository for Employee class
+   * @param waiterRepository CRUD repository for Waiter class
    * @param bCryptPasswordEncoder Encoder for the password
+   * @param waiterService Service for waiter management
    */
   @Autowired
   public EmployeeService(EmployeeRepository employeeRepository,
-      BCryptPasswordEncoder bCryptPasswordEncoder) {
+      WaiterRepository waiterRepository,
+      BCryptPasswordEncoder bCryptPasswordEncoder,
+      WaiterService waiterService) {
     this.employeeRepository = employeeRepository;
+    this.waiterRepository = waiterRepository;
     this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    this.waiterService = waiterService;
   }
 
   /**
@@ -77,6 +91,12 @@ public class EmployeeService {
     }
     else{
       saveNewEmployee(employee);
+      
+      if ("WAITER".equals(employee.getRole())) {
+        Waiter waiter = new Waiter(employee);
+        waiter = waiterRepository.save(waiter);
+        waiterService.reassignOrdersToDefaultWaiter(waiter);
+      }
     }
     return true;
   }

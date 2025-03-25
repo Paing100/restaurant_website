@@ -28,6 +28,7 @@ function Login() {
         const { firstName, role } = response.data;
         sessionStorage.setItem("userName", firstName);
         sessionStorage.setItem("userRole", role.toUpperCase());
+        sessionStorage.setItem("employeeId", userId);
         const storedRole = sessionStorage.getItem("userRole");
         if (storedRole === "WAITER") {
           navigate("/waiter");

@@ -14,7 +14,7 @@ public class NotificationService {
     this.webSocketHandler = webSocketHandler;
   }
 
-  public void sendNotification(String type, int orderId, String recipient, String message) {
-    webSocketHandler.sendNotification(type, orderId, recipient, message); // Using instance method
+  public void sendNotification(String type, int orderId, String recipient, String message, String waiterId) {
+    webSocketHandler.sendNotification(type, orderId, recipient, message, waiterId); // Using instance method
   }
 }

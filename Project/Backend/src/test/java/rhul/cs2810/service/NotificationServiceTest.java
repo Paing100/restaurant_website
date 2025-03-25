@@ -26,8 +26,8 @@ public class NotificationServiceTest {
   @Test
   void testSendNotification() {
     try (MockedStatic<WebSocketHandler> mockedStatic = mockStatic(WebSocketHandler.class)) {
-      notificationService.sendNotification("TYPE", 1, "RECIPIENT", "MESSAGE");
-      mockedStatic.verify(() -> WebSocketHandler.sendNotification("TYPE", 1, "RECIPIENT", "MESSAGE"));
+      notificationService.sendNotification("TYPE", 1, "RECIPIENT", "MESSAGE", "1");
+      mockedStatic.verify(() -> WebSocketHandler.sendNotification("TYPE", 1, "RECIPIENT", "MESSAGE", "1"));
     }
   }
 

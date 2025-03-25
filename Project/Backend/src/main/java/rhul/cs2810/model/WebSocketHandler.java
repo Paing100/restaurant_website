@@ -15,10 +15,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
   private static final List<WebSocketSession> sessions = new ArrayList<>();
 
-  public static void sendNotification(String type, int orderId, String recipient, String message){
+  public static void sendNotification(String type, int orderId, String recipient, String message, String waiterId){
     String jsonMessage = String.format(
-      "{\"type\":\"%s\", \"orderId\":%d, \"recipient\":\"%s\", \"message\":\"%s\"}",
-      type, orderId, recipient, message
+      "{\"type\":\"%s\", \"orderId\":%d, \"recipient\":\"%s\", \"message\":\"%s\", \"waiterId\":\"%s\"}",
+      type, orderId, recipient, message, waiterId
     );
     for(WebSocketSession session: sessions){
       if (session.isOpen()) {

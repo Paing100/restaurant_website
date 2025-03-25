@@ -18,7 +18,7 @@ public class NotificationTest {
 
   @Test
   void testNotificationConstructor(){
-    Notification notification1 = new Notification("TYPE", 1, "RECIPIENT", "MESSAGE");
+    Notification notification1 = new Notification("TYPE", 1, "RECIPIENT", "MESSAGE","1" );
     assertEquals("TYPE", notification1.getType());
     assertEquals(1, notification1.getOrderId());
     assertEquals("RECIPIENT", notification1.getRecipient());

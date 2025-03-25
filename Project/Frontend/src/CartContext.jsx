@@ -249,6 +249,7 @@ const submitOrder = async () => {
         throw new Error("Customer is not logged in or order ID is missing.");
     }
     try {
+        console.log("CUSTOMER: " + JSON.stringify(customer));
         const response = await fetch(`http://localhost:8080/api/order/${customer.orderId}/submitOrder`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
@@ -256,16 +257,21 @@ const submitOrder = async () => {
         if (!response.ok) {
             throw new Error(`Server responded with status: ${response.status}`);
         }
-        localStorage.setItem('sales', JSON.stringify(cart.totalPrice));
+        const currentSales = parseFloat(localStorage.getItem('sales')) || 0;
+        const totalSales = currentSales + cart.totalPrice;
+        localStorage.setItem('sales', totalSales);
         console.log('Order submitted successfully');
         
+        const waiterId = customer.orders?.[0]?.waiter?.waiterId;
+        console.log("ID: " + waiterId);
         // Send WebSocket message
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
             const message = JSON.stringify({
                 type: 'ORDER_SUBMIT',
                 customerId: customer.customerId,
                 orderId: customer.orderId,
-                message: 'A new order has been submitted'
+                message: 'A new order has been submitted',
+                waiterId: `${waiterId}` || '',
             });
             ws.current.send(message);
             console.log('WebSocket message sent:', message);

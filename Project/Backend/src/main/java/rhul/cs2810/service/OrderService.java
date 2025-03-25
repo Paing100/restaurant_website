@@ -29,8 +29,7 @@ public class OrderService {
   private MenuItemRepository menuItemRepository;
 
   @Autowired
-  // somehow java is complaining about notificationService not being initialized so I initialized it
-  private NotificationService notificationService = new NotificationService(new WebSocketHandler());
+  private NotificationService notificationService;
 
   /**
    * Retrieves a specific order from the given id.

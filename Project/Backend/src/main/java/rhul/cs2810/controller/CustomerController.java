@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import rhul.cs2810.model.Customer;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
+import rhul.cs2810.model.Waiter;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.OrderRepository;
+import rhul.cs2810.service.WaiterService;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,17 +22,20 @@ import java.util.Optional;
 public class CustomerController {
   private final CustomerRepository customerRepository;
   private final OrderRepository orderRepository;
+  private final WaiterService waiterService;
 
   /**
    * Constructor for CustomerController.
    *
    * @param customerRepository the repository for customers
    * @param orderRepository the repository for orders
+   * @param waiterService the service for waiter management
    */
   public CustomerController(CustomerRepository customerRepository,
-      OrderRepository orderRepository) {
+      OrderRepository orderRepository, WaiterService waiterService) {
     this.customerRepository = customerRepository;
     this.orderRepository = orderRepository;
+    this.waiterService = waiterService;
   }
 
   /**
@@ -38,7 +43,7 @@ public class CustomerController {
    *
    * @param name the name of the customer
    * @param tableNum the table number for the order
-   * @return the saved customer with the associated order
+   * @return the saved customer with the associated order, or 400 if no waiter available
    */
   @PostMapping("/add")
   public ResponseEntity<Customer> addCustomer(@RequestParam String name,
@@ -52,6 +57,14 @@ public class CustomerController {
     order.setTableNum(tableNum);
     order.setCustomer(newCustomer);
     order.setOrderStatus(OrderStatus.CREATED);
+
+    // Try to assign a waiter
+    Optional<Waiter> waiter = waiterService.findWaiterForTable(tableNum);
+    if (waiter.isEmpty()) {
+      return ResponseEntity.badRequest().build(); // No waiter available
+    }
+    order.setWaiter(waiter.get());
+    
     newCustomer.addOrder(order);
 
     // Save the order
@@ -65,7 +78,7 @@ public class CustomerController {
    *
    * @param customerId the ID of the customer
    * @param tableNum the table number for the new order
-   * @return the newly created order
+   * @return the newly created order, or 400 if customer not found or no waiter available
    */
   @PostMapping("/{customerId}/newOrder")
   public ResponseEntity<Order> createNewOrder(@PathVariable int customerId,
@@ -83,6 +96,13 @@ public class CustomerController {
     newOrder.setTableNum(tableNum);
     newOrder.setCustomer(customer);
     newOrder.setOrderStatus(OrderStatus.CREATED);
+
+    // Try to assign a waiter
+    Optional<Waiter> waiter = waiterService.findWaiterForTable(tableNum);
+    if (waiter.isEmpty()) {
+      return ResponseEntity.badRequest().build(); // No waiter available
+    }
+    newOrder.setWaiter(waiter.get());
 
     // Save the new order
     Order savedOrder = orderRepository.save(newOrder);

@@ -6,9 +6,11 @@ import Orders from "./Orders";
 function Waiter() {
   const userName = sessionStorage.getItem("userName");
   const userRole = sessionStorage.getItem("userRole");
+  const employeeId = sessionStorage.getItem("employeeId");
   const [orders, setOrders] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0);
   const [notification, setNotification] = useState("");
+  const [tables, setTables] = useState({ defaultTables: [], activeTables: [] });
   const ws = useRef(null);
   const [open, setOpen] = useState(false);
 
@@ -25,10 +27,22 @@ function Waiter() {
     ["Delivered", "DELIVERED"]
   ]);
 
-  // fetch all orders
+  // fetch waiter's assigned tables
+  const fetchTables = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/waiter/${employeeId}/tables`);
+      if (!response.ok) throw new Error("Error fetching tables");
+      const data = await response.json();
+      setTables(data);
+    } catch (error) {
+      console.error("Error fetching tables:", error);
+    }
+  };
+
+  // fetch waiter's orders
   const fetchOrders = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/order/getAllOrders");
+      const response = await fetch(`http://localhost:8080/api/waiter/${employeeId}/orders`);
       if (!response.ok) throw new Error("Error fetching orders");
       const data = await response.json();
       // Add console.log to debug the incoming data
@@ -46,44 +60,50 @@ function Waiter() {
     }
   };
 
-  // use effect for fetching all orders
+  // use effect for fetching all orders 
   useEffect(() => {
-    console.log("USE EFFECT RAN!");
+    fetchTables();
     fetchOrders();
     if (!ws.current) {
       ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
 
-        ws.current.onopen = () => {
-            console.log('WebSocket connected', ws.current.readyState);
-        };
+      ws.current.onopen = () => {
+        console.log('WebSocket connected', ws.current.readyState);
+      };
 
-        ws.current.onclose = () => {
-            console.log("Websocket session is closed");
-        };
+      ws.current.onclose = () => {
+        console.log("Websocket session is closed");
+      };
 
-        ws.current.onmessage = (event) => {
-            let message;
-            console.log("Event" + event.data);
-            setOrderStatus({orderId: event.data.orderId, orderStatus: event.data.orderStatus}); 
+      ws.current.onmessage = (event) => {
+        let message;
+        console.log("Event WAITER: " + event.data);
+        setOrderStatus({orderId: event.data.orderId, orderStatus: event.data.orderStatus}); 
+        fetchOrders();
+        try {
+          message = JSON.parse(event.data);
+
+          // Check if the message is for the current waiter
+          console.log("Message waiterId: ", message.waiterId);
+          console.log("Employee ID: ", employeeId);
+          if (message.waiterId && message.waiterId !== employeeId) {
+            console.log("Notification ignored: Not for this waiter.");
+            return; // Ignore the message if the waiterId does not match
+          }
+
+          if ((message.recipient === "waiter" && message.type === "READY") || message.type === "ORDER_SUBMIT") {
+            setOpen(true);
+            setNotification(message.message);
             fetchOrders();
-            try {
-                message = JSON.parse(event.data);
-                if ((message.recipient === "waiter" && message.type === "READY") || message.type === "ORDER_SUBMIT") {
-                    setOpen(true);
-                    setNotification(message.message);
-                    fetchOrders(); 
-                }
-            } catch (error) {
-                message = event.data;
-                console.log(error);
-            }
-        };
+            fetchTables();
+          }
+        } catch (error) {
+          message = event.data;
+          console.log(error);
+        }
+      };
     }
-    if (ws.current) {
-        console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
-        fetchOrders();  
-    }
-}, [orderStatus]);
+  }, [employeeId, orderStatus]);
 
   // change the status an order 
   const updateOrderStatus = async (orderId, newStatus) => {
@@ -122,6 +142,12 @@ function Waiter() {
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
+        
+        <Typography variant="h6" sx={{ mb: 1 }}>Your Assigned Tables</Typography>
+        <Typography variant="body1" sx={{ mb: 2 }}>
+          {Array.from(new Set([...(tables.defaultTables || []), ...(tables.activeTables || [])])).sort((a, b) => a - b).join(", ")}
+        </Typography>
+
         <Link to="/waiter_menu">
           <Button>Edit Menu</Button>
         </Link>

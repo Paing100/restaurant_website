@@ -22,7 +22,7 @@ public class NotificationController {
   @PostMapping("/send")
   public ResponseEntity<Void> sendNotification(@RequestBody Notification notification) {
     notificationService.sendNotification(notification.getType(), notification.getOrderId(),
-        notification.getRecipient(), notification.getMessage());
+        notification.getRecipient(), notification.getMessage(), notification.getWaiterId());
     return ResponseEntity.ok().build();
   }
 }

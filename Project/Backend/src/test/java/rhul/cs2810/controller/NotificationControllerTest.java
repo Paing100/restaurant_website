@@ -37,15 +37,15 @@ class NotificationControllerTest {
 
     @Test
     void testSendNotification() throws Exception {
-        Notification notification = new Notification("type1", 123, "recipient@example.com", "This is a test message");
+        Notification notification = new Notification("type1", 123, "recipient@example.com", "This is a test message", "1");
 
 
         mockMvc.perform(post("/api/notification/send")
-                .contentType("application/json")
-                .content("{\"type\":\"type1\",\"orderId\":123,\"recipient\":\"recipient@example.com\",\"message\":\"This is a test message\"}"))
-                .andExpect(status().isOk());
+          .contentType("application/json")
+          .content("{\"type\":\"type1\",\"orderId\":123,\"recipient\":\"recipient@example.com\",\"message\":\"This is a test message\", \"waiterId\": \"1\"}"))
+          .andExpect(status().isOk());
 
         // Verify that the NotificationService's sendNotification method was called once with the correct parameters
-        verify(notificationService, times(1)).sendNotification("type1", 123, "recipient@example.com", "This is a test message");
+        verify(notificationService, times(1)).sendNotification("type1", 123, "recipient@example.com", "This is a test message", "1");
     }
 }
