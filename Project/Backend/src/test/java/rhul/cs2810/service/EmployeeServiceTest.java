@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Optional;
 
@@ -15,7 +16,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import rhul.cs2810.model.Employee;
+import rhul.cs2810.model.Waiter;
 import rhul.cs2810.repository.EmployeeRepository;
+import rhul.cs2810.repository.WaiterRepository;
 
 public class EmployeeServiceTest {
 
@@ -25,12 +28,19 @@ public class EmployeeServiceTest {
   @Mock
   BCryptPasswordEncoder mockBCryptPasswordEncoder;
 
+  @Mock
+  WaiterRepository mockWaiterRepository;
+
+  @Mock
+  WaiterService mockWaiterService;
+
   @InjectMocks
   EmployeeService mockEmployeeService;
 
   @BeforeEach
   void beforeEach() {
     MockitoAnnotations.openMocks(this);
+    when(mockWaiterRepository.save(any(Waiter.class))).thenReturn(new Waiter());
   }
 
   @Test

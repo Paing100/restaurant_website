@@ -64,7 +64,7 @@ public class WebSocketHandlerTest {
       doNothing().when(session).sendMessage(new TextMessage("MESSAGE"));
       when(session.isOpen()).thenReturn(Boolean.TRUE);
       webSocketHandler.afterConnectionEstablished(session);
-      WebSocketHandler.sendNotification("TYPE", 1, "RECIPIENT", "MESSAGE");
+      WebSocketHandler.sendNotification("TYPE", 1, "RECIPIENT", "MESSAGE","1");
       verify(session, times(1)).sendMessage(any(TextMessage.class));
    }
 

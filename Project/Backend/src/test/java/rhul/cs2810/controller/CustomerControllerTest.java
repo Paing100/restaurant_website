@@ -23,10 +23,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rhul.cs2810.model.Customer;
+import rhul.cs2810.model.Employee;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
+import rhul.cs2810.model.Waiter;
 import rhul.cs2810.repository.CustomerRepository;
+import rhul.cs2810.repository.EmployeeRepository;
 import rhul.cs2810.repository.OrderRepository;
+import rhul.cs2810.repository.WaiterRepository;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -45,10 +49,29 @@ public class CustomerControllerTest {
   @Autowired
   private OrderRepository orderRepository;
 
+  @Autowired
+  private EmployeeRepository employeeRepository;
+
+  @Autowired
+  private WaiterRepository waiterRepository;
+
   @BeforeEach
   void setup() {
     customerRepository.deleteAll();
     orderRepository.deleteAll();
+    employeeRepository.deleteAll();
+    waiterRepository.deleteAll();
+    
+    Employee waiterEmployee = new Employee();
+    waiterEmployee.setEmployeeId("test-waiter");
+    waiterEmployee.setPassword("password");
+    waiterEmployee.setFirstName("Test");
+    waiterEmployee.setLastName("Waiter");
+    waiterEmployee.setRole("WAITER");
+    employeeRepository.save(waiterEmployee);
+    
+    Waiter waiter = new Waiter(waiterEmployee);
+    waiterRepository.save(waiter);
   }
 
   @Test

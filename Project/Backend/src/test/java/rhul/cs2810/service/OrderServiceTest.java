@@ -161,9 +161,9 @@ class OrderServiceTest {
   void testSubmitOrder() {
     Order mockOrder = new Order();
 
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString());
+    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString(), anyString());
 
-    notificationService.sendNotification("READY", 1, "waiter", "message");
+    notificationService.sendNotification("READY", 1, "waiter", "message", "1");
     when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
     orderService.submitOrder(1);
 

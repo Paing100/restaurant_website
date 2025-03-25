@@ -46,7 +46,7 @@ function MenuCard({ item, isWaiterView }) {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch order status');
       }
@@ -138,7 +138,7 @@ function MenuCard({ item, isWaiterView }) {
               Dietary Restrictions: {item.dietaryRestrictions.join(", ")}
             </Typography>
             </Box>
-          { 
+          {
             !isWaiterView && item.available && (
               <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
                 <TextField
@@ -201,6 +201,10 @@ function MenuCard({ item, isWaiterView }) {
               setPendingAdd(false);
             }
           }}
+          title="Create New Order?"
+          content="Would you like to create a new order to add more items?"
+          confirmButtonText="Yes, Create New Order"
+          cancelButtonText="No, Go Back"
         />
       )}
 
@@ -210,7 +214,7 @@ function MenuCard({ item, isWaiterView }) {
         </Alert>
       </Snackbar>
     </>
-      
+
   );
 }
 

@@ -38,6 +38,10 @@ public class Order {
   @JsonBackReference
   private Customer customer;
 
+  @ManyToOne
+  @JoinColumn(name = "waiter_id", referencedColumnName = "waiter_id")
+  private Waiter waiter;
+
   @Column(name = "table_num", nullable = false)
   private int tableNum;
 
@@ -90,6 +94,14 @@ public class Order {
 
   public void setTableNum(int tableNum) {
     this.tableNum = tableNum;
+  }
+
+  public Waiter getWaiter() {
+    return waiter;
+  }
+
+  public void setWaiter(Waiter waiter) {
+    this.waiter = waiter;
   }
 
   public LocalDateTime getOrderPlaced() {
