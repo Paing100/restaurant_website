@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { Typography, List, Box, Button, Tabs, Tab, Grid, Snackbar, Alert } from "@mui/material";
 import Orders from "./Orders";
+import NotificationDrawer from "./NotificationDrawer";
 
 function Waiter() {
   const userName = sessionStorage.getItem("userName");
@@ -10,6 +11,7 @@ function Waiter() {
   const [orders, setOrders] = useState([]);
   const [selectedTab, setSelectedTab] = useState(0);
   const [notification, setNotification] = useState("");
+  const [alerts, setAlerts] = useState([]);
   const [tables, setTables] = useState({ defaultTables: [], activeTables: [] });
   const ws = useRef(null);
   const [open, setOpen] = useState(false);
@@ -103,6 +105,9 @@ function Waiter() {
         }
       };
     }
+    if (ws.current) {
+      fetchOrders();  
+    }
   }, [employeeId, orderStatus]);
 
   // change the status an order 
@@ -136,9 +141,41 @@ function Waiter() {
     setOpen(false);
   };
 
+  const alertOthers = async (tableNumber, orderId) => {
+    const alertMessage = {
+      type: "ALERT",
+      orderId: orderId,
+      recipient: "waiter",
+      message: `Table ${tableNumber} needs assistance`,
+      waiterId: employeeId,
+      // sender: userName, // this is the waiter's name to be displayed in the notification 
+      // open: true // this is true to display the notification
+    };
+    console.log("MESSAGE: " + JSON.stringify(alertMessage));
+    try {
+      const sendAlert = await fetch('http://localhost:8080/api/notification/send', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(alertMessage),
+      });
+  
+      if (!sendAlert.ok) {
+        throw new Error("Failed to send an alert");
+      }
+
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify(alertMessage));
+      }
+      setAlerts(prevAlerts => [...prevAlerts, alertMessage]);
+      console.log("Alert sent via server");
+      setOpen(true);
+    } catch (error) {
+      console.error("Error from alert: " + error);
+    }
+  };
+
   return (
     <>
-      <h1>{notification}</h1>
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
@@ -151,6 +188,7 @@ function Waiter() {
         <Link to="/waiter_menu">
           <Button>Edit Menu</Button>
         </Link>
+        <NotificationDrawer notifications={alerts}/>
         <Tabs
           value={selectedTab}
           onChange={handleTabChange}
@@ -220,6 +258,7 @@ function Waiter() {
                       });
                     }}
                     fetchOrders={fetchOrders}
+                    alertButton={alertOthers}
                   />
                 ))}
               </List>

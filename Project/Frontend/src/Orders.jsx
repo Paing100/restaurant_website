@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Typography, ListItem, ListItemText, Button } from "@mui/material";
 import PropTypes from "prop-types";
 
-function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle }) {
+function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, alertButton  }) {
   const [elapsedTime, setElapsedTime] = useState("");
 
   // Update timer every second
@@ -53,6 +53,7 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle }) 
   return (
     <>
       <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
+      <Button variant="outlined" size="small" onClick={() => {alertButton(order.tableNum, order.orderId)}}>Alert Others</Button>
         <ListItemText
           primary={`Order #${order.orderId} - Table ${order.tableNum}`}
           secondary={
@@ -105,7 +106,8 @@ Orders.propTypes = {
   buttonName: PropTypes.string.isRequired, 
   onButtonClick: PropTypes.func.isRequired,
   fetchOrders: PropTypes.func,
-  buttonStyle: PropTypes.object
+  buttonStyle: PropTypes.object,
+  alertButton: PropTypes.func
 }
 
 export default Orders;

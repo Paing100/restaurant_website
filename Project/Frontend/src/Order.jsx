@@ -255,6 +255,34 @@ function Order() {
         }
     };
 
+    const alertOthers = async (tableNumber, orderId) => {
+        const alertMessage = {
+        // Define the userName variable
+          type: "ALERT",
+          orderId: orderId,
+          recipient: "waiter",
+          message: `Table ${tableNumber} needs assistance`,
+          userName: sessionStorage.getItem("userName")
+        };
+        console.log("MESSAGE: " + JSON.stringify(alertMessage));
+        try {
+          const sendAlert = await fetch('http://localhost:8080/api/notification/send', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(alertMessage),
+          });
+      
+          if (!sendAlert.ok) {
+            throw new Error("Failed to send an alert");
+          }
+          console.log("Alert sent via server");
+          setMessage(`Assistance requested! A waiter will be with you shortly.`,);
+          setOpen(true);
+        } catch (error) {
+          console.error("Error from alert: " + error);
+        }
+      };
+
     const restartTimer = () => {
         stopTimer(); // Stop the current timer if it's running
         const now = new Date();
@@ -481,6 +509,15 @@ function Order() {
             >
                 ← Back
             </Button>
+
+            <Button
+                        onClick={() => alertOthers(tableNum, customer.orderId)}
+                        variant="contained"
+                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' }, display: 'block', marginLeft: 'auto', marginTop: 2}}
+                    >
+                        Call Assistance
+                    </Button>
+            
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px' }}>
                 <Typography variant="h4">Place Your Order</Typography>
                 {!hasCreatedOrder && (
@@ -491,6 +528,7 @@ function Order() {
                     >
                         New Order
                     </Button>
+                    
                 )}
             </Box>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
@@ -533,6 +571,8 @@ function Order() {
                             >
                                 Remove All
                             </Button>
+                            
+                            
                         </ListItem>
                     );
                 })}
@@ -549,6 +589,7 @@ function Order() {
                         >
                             Clear Cart
                         </Button>
+                        
                     </Box>
                 </Grid>
                 <Grid item xs={6}>
@@ -560,12 +601,14 @@ function Order() {
                     >
                         Submit Order
                     </Button>
+                    
                 </Grid>
             </Grid>
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
                     {message}
                 </Alert>
+                
             </Snackbar>
             {receipt.length > 0 && (
                 <OrderInfoPopup
