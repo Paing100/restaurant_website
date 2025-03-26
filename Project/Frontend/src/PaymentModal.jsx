@@ -55,7 +55,7 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         }
     };
 
-// Skip payment for testing purposes
+    // Skip payment for testing purposes
     // TAKE OUT BEFORE DEPLOYMENT
     const handleSkipPayment = () => {
         onPaymentSuccess();
@@ -69,45 +69,54 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
             BackdropProps={{ onClick: (e) => e.stopPropagation() }}
         >
             <Box className="payment-modal">
-                <Typography variant="h6" component="h2" onClick={handleSkipPayment} style={{ cursor: 'pointer' }}>
+                <Typography
+                    variant="h6"
+                    component="h2"
+                    onClick={handleSkipPayment}
+                    style={{ cursor: 'pointer', textAlign: 'center' }}
+                >
                     Enter Payment Details
                 </Typography>
-                <TextField
-                    label="Name on Card"
-                    fullWidth
-                    margin="normal"
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                />
-                <TextField
-                    label="Card Number"
-                    fullWidth
-                    margin="normal"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                />
-                <TextField
-                    label="Sort Code"
-                    fullWidth
-                    margin="normal"
-                    value={sortCode}
-                    onChange={(e) => setSortCode(e.target.value)}
-                />
-                <TextField
-                    label="Expiry Date"
-                    fullWidth
-                    margin="normal"
-                    value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
-                />
-                <TextField
-                    label="CVV"
-                    fullWidth
-                    margin="normal"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value)}
-                />
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
+                <Box className="payment-form">
+                    <TextField
+                        label="Card Number"
+                        margin="normal"
+                        value={cardNumber}
+                        onChange={(e) => setCardNumber(e.target.value)}
+                        fullWidth
+                    />
+                    <Box className="payment-row">
+                        <TextField
+                            label="Sort Code"
+                            margin="normal"
+                            value={sortCode}
+                            onChange={(e) => setSortCode(e.target.value)}
+                            sx={{ flex: 1 }}
+                        />
+                        <TextField
+                            label="Expiry Date"
+                            margin="normal"
+                            value={expiryDate}
+                            onChange={(e) => setExpiryDate(e.target.value)}
+                            sx={{ flex: 1 }}
+                        />
+                        <TextField
+                            label="CVV"
+                            margin="normal"
+                            value={cvv}
+                            onChange={(e) => setCvv(e.target.value)}
+                            sx={{ flex: 1 }}
+                        />
+                    </Box>
+                    <TextField
+                        label="Name on Card"
+                        margin="normal"
+                        value={cardName}
+                        onChange={(e) => setCardName(e.target.value)}
+                        fullWidth
+                    />
+                </Box>
+                <Box className="button-container">
                     <Button
                         variant="contained"
                         color="primary"
@@ -117,7 +126,11 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
                     </Button>
                 </Box>
                 {error && (
-                    <Snackbar open={true} autoHideDuration={6000} onClose={() => setError('')}>
+                    <Snackbar
+                        open={true}
+                        autoHideDuration={6000}
+                        onClose={() => setError('')}
+                    >
                         <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
                             {error}
                         </Alert>

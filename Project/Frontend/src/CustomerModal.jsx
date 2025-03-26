@@ -3,8 +3,9 @@ import { Modal, Box, TextField, Button, Typography, IconButton } from '@mui/mate
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
+import PropTypes from 'prop-types';
 
-const CustomerModal = () => {
+const CustomerModal = ({ onClose }) => {
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
     const [name, setName] = useState('');
     const [tableNum, setTableNumState] = useState('');
@@ -42,7 +43,7 @@ const CustomerModal = () => {
                 setCustomer(customerWithOrderId);
                 setTableNum(tableNum);
                 setOpen(false);
-                console.log(customerWithOrderId)
+                console.log(customerWithOrderId);
             } catch (error) {
                 console.error('Error adding customer:', error);
             }
@@ -73,6 +74,7 @@ const CustomerModal = () => {
 
     const handleClose = () => {
         setOpen(false);
+        onClose && onClose();
     };
 
     return (
@@ -198,6 +200,10 @@ const CustomerModal = () => {
             </Box>
         </Modal>
     );
+};
+
+CustomerModal.propTypes = {
+    onClose: PropTypes.func.isRequired,
 };
 
 export default CustomerModal;
