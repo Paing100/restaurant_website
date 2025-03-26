@@ -76,9 +76,7 @@ function MenuCard({ item, isWaiterView }) {
 
   const handleModalClose = () => {
     setShowModal(false);
-    if (!customer) {
-      setPendingAdd(false);
-    }
+    if (!customer) { setPendingAdd(false); }
   };
 
   const handleSnackbarClose = (event, reason) => {
