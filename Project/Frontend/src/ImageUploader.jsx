@@ -1,48 +1,49 @@
-import {useState} from "react";
+import { useState } from "react";
 import PropTypes from 'prop-types';
 
 function ImageUploader({ setImagePath }) {
-
-  const [image, setImage] = useState("");
   const [previewURL, setPreviewURL] = useState("");
 
-  const handleFile = file => {
-    setImage(file);
-    setPreviewURL(URL.createObjectURL(file));
-    const imagePath = `assets/${file.name}`;
-    setImagePath(imagePath);
-  }
+  const handleFile = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
 
-  const handleDragOver = (event) => {
+    try {
+      const response = await fetch("http://localhost:8080/api/images/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        const imageUrl = await response.text();
+        setImagePath(imageUrl); // Pass image URL to parent (EditMenu)
+        setPreviewURL(imageUrl);
+      } else {
+        console.error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+
+  const handleDrop = (event) => {
     event.preventDefault();
-  }
-
-  const handleOnDrop = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
     let imageFile = event.dataTransfer.files[0];
     handleFile(imageFile);
-  }
+  };
 
   return (
-    <>
-      <div className="image-upload-wrapper">
-        <div className="drop" onDragOver={handleDragOver} onDrop={handleOnDrop}>
-          <p>Drop you image here...</p>
-        </div>
-        {
-          previewURL && <div className="image">
-            <img src={previewURL} width="100px"/><span>{image.name}</span>
-            </div>
-        }
+    <div className="image-upload-wrapper">
+      <div className="drop" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
+        <p>Drop your image here...</p>
       </div>
-    </>
+      {previewURL && <img src={previewURL} width="100px" alt="Preview" />}
+    </div>
   );
 }
 
 ImageUploader.propTypes = {
-  setImagePath: PropTypes.string.isReuqired
+  setImagePath: PropTypes.func.isRequired
 };
 
-export default ImageUploader; 
+export default ImageUploader;
