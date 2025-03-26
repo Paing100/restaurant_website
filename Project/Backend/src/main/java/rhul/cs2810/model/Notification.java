@@ -1,24 +1,52 @@
 package rhul.cs2810.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "notifications")
 public class Notification {
-  private String type;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "notification_id")
+  private int notifId;
+
+  @Column(name = "message_type")
+  private String messageType;
+
+  @Column(name = "order_id")
   private int orderId;
+
+  @Column(name = "recipient")
   private String recipient;
+
+  @Column(name = "message")
   private String message;
+
+  @Column(name = "waiterId")
   private String waiterId;
 
-  public Notification(){}
+  public Notification() {}
 
   public Notification(String type, int orderId, String recipient, String message, String waiterId) {
-    this.type = type;
+    this.messageType = type;
     this.orderId = orderId;
     this.recipient = recipient;
     this.message = message;
     this.waiterId = waiterId;
   }
 
+  public int getNotifId() {
+    return notifId;
+  }
+
   public String getType() {
-    return type;
+    return messageType;
   }
 
   public String getWaiterId() {
@@ -30,7 +58,7 @@ public class Notification {
   }
 
   public void setType(String type) {
-    this.type = type;
+    this.messageType = type;
   }
 
   public int getOrderId() {

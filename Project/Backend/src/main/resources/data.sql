@@ -69,9 +69,10 @@ VALUES
 ((SELECT item_id FROM menu_item WHERE name = 'Tres Leches Cake'), (SELECT name FROM allergens WHERE name = 'EGG'));
 
 INSERT INTO employee(employeeId, firstName, lastName, role, password) VALUES
-('string', 'James', 'Webb', 'WAITER', '$2a$10$LitqTTiD0K8RnMs.Xk2iBuotCwoost79uN877IgN9odaSTDvlBRW.'),
-('hello', 'Kevin', 'Peter', 'KITCHEN', '$2a$10$hv5co/45PJF6LrA7vYUmye1E7lGnD6pJwJEUh0mqt8ufl306LEFTq'),
-('manager', 'Max', 'B', 'MANAGER', '$2a$10$CuIe.MemzYqL7GCFP2vOkeeP5PHphuU.yjhcmj7kPFH5/.aiyQ4Te');
+('string', 'James', 'Webb', 'Waiter', '$2a$10$LitqTTiD0K8RnMs.Xk2iBuotCwoost79uN877IgN9odaSTDvlBRW.'),
+('hello', 'Kevin', 'Peter', 'Kitchen', '$2a$10$hv5co/45PJF6LrA7vYUmye1E7lGnD6pJwJEUh0mqt8ufl306LEFTq'),
+('b', 'b', 'b', 'Waiter', '$2a$10$5e0DG1VFZR9..x4Nu0VSE.OroEw5qzfE7syD4bt9Ty3qF3In3nryu'),
+('manager', 'Max', 'B', 'Manager', '$2a$10$CuIe.MemzYqL7GCFP2vOkeeP5PHphuU.yjhcmj7kPFH5/.aiyQ4Te');
 
 INSERT INTO waiter(employee_id) VALUES
 ('string');

@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS order_menu_items CASCADE;
 DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS menu_item CASCADE;
 DROP TABLE IF EXISTS customer CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
 DROP TABLE IF EXISTS waiter CASCADE;
 DROP TABLE IF EXISTS employee CASCADE;
 
@@ -88,3 +89,13 @@ CREATE TABLE menu_item_dietary_restrictions (
     FOREIGN KEY (item_id) REFERENCES menu_item(item_id) ON DELETE CASCADE,
     FOREIGN KEY (restriction) REFERENCES dietary_restrictions(name) ON DELETE CASCADE
 );
+
+CREATE TABLE notifications (
+    notification_id SERIAL PRIMARY KEY,
+    message_type VARCHAR(225) NOT NULL,
+    order_id INT NOT NULL,
+    recipient VARCHAR(225) NOT NULL,
+    message VARCHAR(225) NOT NULL,
+    waiterId VARCHAR(225) NOT NULL
+);
+
