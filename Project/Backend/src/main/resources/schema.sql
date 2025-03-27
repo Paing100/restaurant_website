@@ -97,5 +97,6 @@ CREATE TABLE notifications (
     recipient VARCHAR(225) NOT NULL,
     message VARCHAR(225) NOT NULL,
     waiterId VARCHAR(225) NOT NULL
+
 );
 

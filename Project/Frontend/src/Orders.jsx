@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Typography, ListItem, ListItemText, Button } from "@mui/material";
 import PropTypes from "prop-types";
 
-function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, alertButton  }) {
+function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, alertButton, forKitchen = false  }) {
   const [elapsedTime, setElapsedTime] = useState("");
 
   // Update timer every second
@@ -53,7 +53,9 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
   return (
     <>
       <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
-      <Button variant="outlined" size="small" onClick={() => {alertButton(order.tableNum, order.orderId)}}>Alert Others</Button>
+        {!forKitchen && (
+          <Button variant="outlined" size="small" onClick={() => {alertButton(order.tableNum, order.orderId)}}>Alert Others</Button>
+        )}
         <ListItemText
           primary={`Order #${order.orderId} - Table ${order.tableNum}`}
           secondary={
@@ -105,9 +107,10 @@ Orders.propTypes = {
   order: PropTypes.object.isRequired, 
   buttonName: PropTypes.string.isRequired, 
   onButtonClick: PropTypes.func.isRequired,
-  fetchOrders: PropTypes.func,
-  buttonStyle: PropTypes.object,
-  alertButton: PropTypes.func
+  fetchOrders: PropTypes.func.isRequired,
+  buttonStyle: PropTypes.object.isRequired,
+  alertButton: PropTypes.func,
+  forKitchen: PropTypes.bool,
 }
 
 export default Orders;

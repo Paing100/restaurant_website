@@ -144,6 +144,7 @@ function KitchenStaff() {
               onButtonClick={markAsReady}
               fetchOrders={fetchOrders}
               buttonStyle={{ backgroundColor: 'primary' }}
+              forKitchen={true}
             />
           ))}
         </List>

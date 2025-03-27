@@ -1,27 +1,23 @@
 package rhul.cs2810.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.sun.net.httpserver.HttpsServer;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-import org.hibernate.annotations.NotFound;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,16 +28,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import rhul.cs2810.model.Employee;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.Waiter;
-import rhul.cs2810.model.Employee;
 import rhul.cs2810.service.NotificationService;
 import rhul.cs2810.service.OrderService;
 
@@ -111,7 +106,7 @@ class OrderControllerTest {
     mockEmployee.setEmployeeId("123");
     mockWaiter.setEmployee(mockEmployee);
     mockOrder.setWaiter(mockWaiter);
-    
+
     when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(mockOrder);
     doNothing().when(orderService).submitOrder(1);
 
@@ -139,7 +134,7 @@ class OrderControllerTest {
     mockEmployee.setEmployeeId("123");
     mockWaiter.setEmployee(mockEmployee);
     mockOrder.setWaiter(mockWaiter);
-    
+
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "CREATED");
 
@@ -172,14 +167,15 @@ class OrderControllerTest {
     when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
     when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
     when(mockQuery.executeUpdate()).thenReturn(1);
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString(), anyString());
+    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
+        anyString(), anyString());
 
-    mockMvc.perform(delete("/api/order/1/cancelOrder"))
-        .andExpect(status().isOk())
+    mockMvc.perform(delete("/api/order/1/cancelOrder")).andExpect(status().isOk())
         .andExpect(content().string("Order deleted successfully"));
 
     verify(orderService, times(1)).getOrder(1);
-    verify(notificationService, times(1)).sendNotification(anyString(), anyInt(), anyString(), anyString(), anyString());
+    verify(notificationService, times(1)).sendNotification(anyString(), anyInt(), anyString(),
+        anyString(), anyString());
     verify(mockQuery, times(1)).executeUpdate();
   }
 
@@ -204,9 +200,7 @@ class OrderControllerTest {
   void testSubmitOrder_OrderNotFound() throws Exception {
     when(orderService.getOrder(1)).thenReturn(null);
 
-    mockMvc
-        .perform(post("/api/order/{orderId}/submitOrder", 1))
-        .andExpect(status().isNotFound())
+    mockMvc.perform(post("/api/order/{orderId}/submitOrder", 1)).andExpect(status().isNotFound())
         .andExpect(content().string("Order not found"));
   }
 
@@ -219,31 +213,28 @@ class OrderControllerTest {
     mockEmployee.setEmployeeId("123");
     mockWaiter.setEmployee(mockEmployee);
     mockOrder.setWaiter(mockWaiter);
-    
+
     when(orderService.getOrder(1)).thenReturn(mockOrder);
     doNothing().when(orderService).saveUpdatedOrder(mockOrder);
     doNothing().when(orderService).submitOrder(1);
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString(), anyString());
+    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
+        anyString(), anyString());
 
-    mockMvc
-        .perform(post("/api/order/{orderId}/submitOrder", 1))
-        .andExpect(status().isOk())
+    mockMvc.perform(post("/api/order/{orderId}/submitOrder", 1)).andExpect(status().isOk())
         .andExpect(content().string("Order submitted successfully"));
   }
 
   @Test
   void testUpdateOrderStatus_OrderNotFound() throws Exception {
     when(orderService.getOrder(1)).thenReturn(null);
-    
+
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "CREATED");
 
     mockMvc
         .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(map)))
-        .andExpect(status().isNotFound())
-        .andExpect(content().string("Order not found!"));
+            .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
+        .andExpect(status().isNotFound()).andExpect(content().string("Order not found!"));
   }
 
   @Test
@@ -255,29 +246,26 @@ class OrderControllerTest {
     mockEmployee.setEmployeeId("123");
     mockWaiter.setEmployee(mockEmployee);
     mockOrder.setWaiter(mockWaiter);
-    
+
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "READY");
 
     when(orderService.getOrder(1)).thenReturn(mockOrder);
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString(), anyString());
+    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
+        anyString(), anyString());
     doNothing().when(orderService).saveUpdatedOrder(mockOrder);
 
     mockMvc
         .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(map)))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Order Status changed to READY"));
+            .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
+        .andExpect(status().isOk()).andExpect(content().string("Order Status changed to READY"));
   }
 
   @Test
   void testMarkOrderAsPaid_OrderNotFound() throws Exception {
     when(orderService.getOrder(1)).thenReturn(null);
 
-    mockMvc
-        .perform(post("/api/order/{orderId}/markAsPaid", 1))
-        .andExpect(status().isNotFound())
+    mockMvc.perform(post("/api/order/{orderId}/markAsPaid", 1)).andExpect(status().isNotFound())
         .andExpect(content().string("Order not found!"));
   }
 
@@ -285,11 +273,11 @@ class OrderControllerTest {
   void testCancelOrder_OrderNotFound() throws Exception {
     when(orderService.getOrder(1)).thenReturn(null);
 
-    mockMvc.perform(delete("/api/order/1/cancelOrder"))
-        .andExpect(status().isNotFound())
+    mockMvc.perform(delete("/api/order/1/cancelOrder")).andExpect(status().isNotFound())
         .andExpect(content().string("Order not found"));
 
     verify(orderService, times(1)).getOrder(1);
-    verify(notificationService, never()).sendNotification(anyString(), anyInt(), anyString(), anyString(), anyString());
+    verify(notificationService, never()).sendNotification(anyString(), anyInt(), anyString(),
+        anyString(), anyString());
   }
 }
