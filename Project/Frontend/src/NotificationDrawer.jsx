@@ -2,6 +2,9 @@ import * as React from 'react';
 import { IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PropTypes from "prop-types";
+import alertSound from './assets/sound/alertNoti.mp3';
+import { useWithSound } from './useWithSound';
+
 import { 
   styled, 
   Box, 
@@ -36,6 +39,11 @@ function NotificationDrawer({ notifications = []}) {
 
   const [alertStack, setalertStack] = useState(notifications);
   const ws = useRef(null);
+  const { playSound } = useWithSound(alertSound);
+
+  const handleAlertSound = () => {
+    playSound();
+  }
 
   const removeAlert = async (index) => {
     const notiId = alertStack[index]?.notifId;
@@ -48,8 +56,29 @@ function NotificationDrawer({ notifications = []}) {
     if (response.ok){
       console.log("Notification deleted successfully");
       setalertStack(alertStack.filter((_, i) => i !== index));
+
+      // send WebSocket message to all waiters, remove the alert
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        const messageDel = { notification_id: notiId, type: "REMOVE_ALERT", };
+        console.log("Delete message: " + JSON.stringify(messageDel));
+        try {
+          const sendAlert = await fetch('http://localhost:8080/api/notification/send', {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(messageDel),
+          });
+    
+          if (!sendAlert.ok) {
+            throw new Error("Failed to send an alert");
+          }
+          console.log("Alert sent via server");
+        } catch (error) {
+          console.error("Error from alert: " + error);
+        }
+        console.log("Del message sent " + JSON.stringify(messageDel));
+      }
     }
-  }
+  };
 
     useEffect(() => {
       console.log("USE EFFECT RAN!");
@@ -60,6 +89,7 @@ function NotificationDrawer({ notifications = []}) {
         });
         if (response.ok) {
           const data = await response.json();
+          console.log("Data fetched: " + JSON.stringify(data));
           setalertStack(data);
         }
         console.log("Alerts fetched successfully");
@@ -78,13 +108,19 @@ function NotificationDrawer({ notifications = []}) {
           };
   
           ws.current.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-              console.log("Event in ND" + event.data);
-              console.log("TYPE in ND" + message.type);
+              console.log("Event IN NOTIFICATION" + event.data);
               try {
+                const message = JSON.parse(event.data);
+                console.log("WebSocket message received: ", message); 
                 if (message.type === "ALERT"){
-                  console.log("IN ND")
                   setalertStack((prevStack) => [...prevStack, message]);
+                  getAlerts();
+                  handleAlertSound();
+                }
+                // handle REMOVE_ALERT message
+                if (message.type === "REMOVE_ALERT") {
+                  setalertStack((prevStack) => prevStack.filter(alert => alert.notification_id !== message.notification_id));
+                  console.log("Alert removed via WebSocket: " + message.notifId);
                   getAlerts();
                 }
               } catch (error) {

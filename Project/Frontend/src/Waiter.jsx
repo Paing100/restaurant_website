@@ -80,7 +80,7 @@ function Waiter() {
       ws.current.onmessage = (event) => {
         let message;
         console.log("Event WAITER: " + event.data);
-        setOrderStatus({orderId: event.data.orderId, orderStatus: event.data.orderStatus}); 
+        setOrderStatus({orderId: event.data.orderId, orderStatus: event.data.orderStatus});
         fetchOrders();
         try {
           message = JSON.parse(event.data);
@@ -97,16 +97,12 @@ function Waiter() {
             setOpen(true);
             setNotification(message.message);
             fetchOrders();
-            fetchTables();
           }
         } catch (error) {
           message = event.data;
           console.log(error);
         }
       };
-    }
-    if (ws.current) {
-      fetchOrders();  
     }
   }, [employeeId, orderStatus]);
 
@@ -148,7 +144,7 @@ function Waiter() {
       recipient: "waiter",
       message: `Table ${tableNumber} needs assistance`,
       waiterId: employeeId,
-      // sender: userName, // this is the waiter's name to be displayed in the notification 
+      // sender: userName, // this is the waiter's name to be displayed in the notification
       // open: true // this is true to display the notification
     };
     console.log("MESSAGE: " + JSON.stringify(alertMessage));
@@ -158,17 +154,12 @@ function Waiter() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(alertMessage),
       });
-  
+
       if (!sendAlert.ok) {
         throw new Error("Failed to send an alert");
       }
-
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify(alertMessage));
-      }
       setAlerts(prevAlerts => [...prevAlerts, alertMessage]);
       console.log("Alert sent via server");
-      setOpen(true);
     } catch (error) {
       console.error("Error from alert: " + error);
     }
@@ -179,7 +170,6 @@ function Waiter() {
       <Box>
         <Typography variant="h3">Welcome {userName}!</Typography>
         <Typography variant="h4">{userRole} Dashboard</Typography>
-        
         <Typography variant="h6" sx={{ mb: 1 }}>Your Assigned Tables</Typography>
         <Typography variant="body1" sx={{ mb: 2 }}>
           {Array.from(new Set([...(tables.defaultTables || []), ...(tables.activeTables || [])])).sort((a, b) => a - b).join(", ")}
