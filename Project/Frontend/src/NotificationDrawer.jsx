@@ -35,7 +35,7 @@ const Item = styled(Paper)(({ theme }) => ({
   }),
 }));
 
-function NotificationDrawer({ notifications = []}) {
+function NotificationDrawer({ notifications = [], employeeId}) {
 
   const [alertStack, setalertStack] = useState(notifications);
   const ws = useRef(null);
@@ -112,7 +112,8 @@ function NotificationDrawer({ notifications = []}) {
               try {
                 const message = JSON.parse(event.data);
                 console.log("WebSocket message received: ", message); 
-                if (message.type === "ALERT"){
+                console.log("NOTIF EMPLOYEEID: " + message.waiterId);
+                if (message.type === "ALERT" && message.waiterId != employeeId){
                   setalertStack((prevStack) => [...prevStack, message]);
                   getAlerts();
                   handleAlertSound();
@@ -206,6 +207,7 @@ function NotificationDrawer({ notifications = []}) {
 
 NotificationDrawer.propTypes = {
   notifications: PropTypes.array,
+  employeeId: PropTypes.string.isRequired, 
 };
 
 export default NotificationDrawer;

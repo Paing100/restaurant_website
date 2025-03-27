@@ -178,7 +178,7 @@ function Waiter() {
         <Link to="/waiter_menu">
           <Button>Edit Menu</Button>
         </Link>
-        <NotificationDrawer notifications={alerts}/>
+        <NotificationDrawer notifications={alerts} employeeId={employeeId}/>
         <Tabs
           value={selectedTab}
           onChange={handleTabChange}
