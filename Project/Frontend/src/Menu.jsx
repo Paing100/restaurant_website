@@ -73,6 +73,9 @@ function Menu({ isWaiterView }) {
             '& .Mui-selected': {
               color: '#5762d5',
             },
+            "& .MuiTab-root:focus": {
+              backgroundColor: "transparent",
+            },
           }}
         >
           {categories.map((category, index) => (

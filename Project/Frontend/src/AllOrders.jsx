@@ -39,29 +39,29 @@ const AllOrders = () => {
     }, [customer]);
 
     useEffect(() => {
-        if (!ws.current){
-          ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
-    
-          ws.current.onopen = () => {
-            console.log('WebSocket connected');
-          };
-    
-          ws.current.onclose = () => {
-            console.log('WebSocket closed. Attempting to reconnect...');
-          };
-    
-          ws.current.onmessage = (event) => {
-            console.log("EVENT IN CUSTOMER: " + event.data);
-            fetchOrders();
-          }
+        if (!ws.current) {
+            ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+
+            ws.current.onopen = () => {
+                console.log('WebSocket connected');
+            };
+
+            ws.current.onclose = () => {
+                console.log('WebSocket closed. Attempting to reconnect...');
+            };
+
+            ws.current.onmessage = (event) => {
+                console.log("EVENT IN CUSTOMER: " + event.data);
+                fetchOrders();
+            }
         }
         return () => {
-          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-            console.log("Closing WebSocket on cleanup");
-            ws.current.close();
-          }
+            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+                console.log("Closing WebSocket on cleanup");
+                ws.current.close();
+            }
         };
-      }, []);
+    }, []);
 
     const formatTime = (orderPlaced) => {
         if (!orderPlaced) return 'N/A';
@@ -140,15 +140,15 @@ const AllOrders = () => {
                                                 width: 20,
                                                 height: 20,
                                                 borderRadius: '50%',
-                                                backgroundColor: 
+                                                backgroundColor:
                                                     order.orderStatus === 'SUBMITTED' ? 'orange' :
-                                                    order.orderStatus === 'CONFIRMED' ? 'yellow' :
-                                                    order.orderStatus === 'READY' ? 'green' : 'red',
+                                                        order.orderStatus === 'CONFIRMED' ? 'yellow' :
+                                                            order.orderStatus === 'READY' ? 'green' : 'red',
                                                 border: '2px solid white',
                                                 marginRight: 2,
                                                 boxShadow: order.orderStatus === 'SUBMITTED' ? '0 0 10px orange, 0 0 20px orange, 0 0 30px orange' :
-                                                    order.orderStatus === 'CONFIRMED' ? '0 0 10px blue, 0 0 20px yellow, 0 0 30px blue' :
-                                                    order.orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
+                                                    order.orderStatus === 'CONFIRMED' ? '0 0 10px yellow, 0 0 20px yellow, 0 0 30px blue' :
+                                                        order.orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
                                                             '0 0 10px red, 0 0 20px red, 0 0 30px red',
                                             }}
                                         />

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import * as React from 'react';
 import { IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -5,23 +6,23 @@ import PropTypes from "prop-types";
 import alertSound from './assets/sound/alertNoti.mp3';
 import { useWithSound } from './useWithSound';
 
-import { 
-  styled, 
-  Box, 
-  Paper, 
-  Stack, 
-  Drawer, 
-  Button, 
-  List, 
-  ListItem, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
+import {
+  styled,
+  Box,
+  Paper,
+  Stack,
+  Drawer,
+  Button,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import { useEffect, useState, useRef } from "react";
 
-import { 
-  AddAlert as AddAlertIcon 
+import {
+  AddAlert as AddAlertIcon
 } from '@mui/icons-material';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -35,7 +36,7 @@ const Item = styled(Paper)(({ theme }) => ({
   }),
 }));
 
-function NotificationDrawer({ notifications = [], employeeId}) {
+function NotificationDrawer({ notifications = [], employeeId }) {
 
   const [alertStack, setalertStack] = useState(notifications);
   const ws = useRef(null);
@@ -48,12 +49,12 @@ function NotificationDrawer({ notifications = [], employeeId}) {
   const removeAlert = async (index) => {
     const notiId = alertStack[index]?.notifId;
     console.log("Removing notification with id: " + notiId);
-    const response = await fetch(`http://localhost:8080/api/notification/${notiId}/removeMessages`,{
-      method: "DELETE", 
-      headers: {"Content-Type":"application/json"},
+    const response = await fetch(`http://localhost:8080/api/notification/${notiId}/removeMessages`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
     });
 
-    if (response.ok){
+    if (response.ok) {
       console.log("Notification deleted successfully");
       setalertStack(alertStack.filter((_, i) => i !== index));
 
@@ -67,7 +68,7 @@ function NotificationDrawer({ notifications = [], employeeId}) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(messageDel),
           });
-    
+
           if (!sendAlert.ok) {
             throw new Error("Failed to send an alert");
           }
@@ -80,61 +81,61 @@ function NotificationDrawer({ notifications = [], employeeId}) {
     }
   };
 
-    useEffect(() => {
-      console.log("USE EFFECT RAN!");
-      const getAlerts = async () => {
-        const response = await fetch("http://localhost:8080/api/notification/getMessages", {
-          method: "GET",
-          headers: {"Content-Type":"application/json"},
-        });
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Data fetched: " + JSON.stringify(data));
-          setalertStack(data);
+  useEffect(() => {
+    console.log("USE EFFECT RAN!");
+    const getAlerts = async () => {
+      const response = await fetch("http://localhost:8080/api/notification/getMessages", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Data fetched: " + JSON.stringify(data));
+        setalertStack(data);
+      }
+      console.log("Alerts fetched successfully");
+      console.log("Alerts: " + JSON.stringify(alertStack));
+    }
+    getAlerts();
+    if (!ws.current) {
+      ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+
+      ws.current.onopen = () => {
+        console.log('WebSocket connected', ws.current.readyState);
+      };
+
+      ws.current.onclose = () => {
+        console.log("Websocket session is closed");
+      };
+
+      ws.current.onmessage = (event) => {
+        console.log("Event IN NOTIFICATION" + event.data);
+        try {
+          const message = JSON.parse(event.data);
+          console.log("WebSocket message received: ", message);
+          console.log("NOTIF EMPLOYEEID: " + message.waiterId);
+          if (message.type === "ALERT" && message.waiterId != employeeId) {
+            setalertStack((prevStack) => [...prevStack, message]);
+            getAlerts();
+            handleAlertSound();
+          }
+          // handle REMOVE_ALERT message
+          if (message.type === "REMOVE_ALERT") {
+            setalertStack((prevStack) => prevStack.filter(alert => alert.notification_id !== message.notification_id));
+            console.log("Alert removed via WebSocket: " + message.notifId);
+            getAlerts();
+          }
+        } catch (error) {
+          console.log(error);
         }
-        console.log("Alerts fetched successfully");
-        console.log("Alerts: " + JSON.stringify(alertStack));
-      }
+      };
+    }
+    if (ws.current) {
+      console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
       getAlerts();
-      if (!ws.current) {
-        ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
-  
-          ws.current.onopen = () => {
-              console.log('WebSocket connected', ws.current.readyState);
-          };
-  
-          ws.current.onclose = () => {
-              console.log("Websocket session is closed");
-          };
-  
-          ws.current.onmessage = (event) => {
-              console.log("Event IN NOTIFICATION" + event.data);
-              try {
-                const message = JSON.parse(event.data);
-                console.log("WebSocket message received: ", message); 
-                console.log("NOTIF EMPLOYEEID: " + message.waiterId);
-                if (message.type === "ALERT" && message.waiterId != employeeId){
-                  setalertStack((prevStack) => [...prevStack, message]);
-                  getAlerts();
-                  handleAlertSound();
-                }
-                // handle REMOVE_ALERT message
-                if (message.type === "REMOVE_ALERT") {
-                  setalertStack((prevStack) => prevStack.filter(alert => alert.notification_id !== message.notification_id));
-                  console.log("Alert removed via WebSocket: " + message.notifId);
-                  getAlerts();
-                }
-              } catch (error) {
-                  console.log(error);
-              }
-          };
-      }
-      if (ws.current) {
-          console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
-          getAlerts();  
-      }
+    }
   }, []);
- 
+
   const [state, setState] = React.useState({
     right: false,
   });
@@ -168,25 +169,25 @@ function NotificationDrawer({ notifications = [], employeeId}) {
           alertStack.length > 0 ? (
             alertStack.map((noti, index) => (
               <Box sx={{ width: '100%' }} key={index}>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Item sx={{ flexGrow: 1 }}>
-                  <ListItemText primary={noti.message} />
-                </Item>
-                <IconButton edge="end" onClick={() => removeAlert(index)}>
-                  <CloseIcon />
-                </IconButton>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Item sx={{ flexGrow: 1 }}>
+                    <ListItemText primary={noti.message} />
+                  </Item>
+                  <IconButton edge="end" onClick={() => removeAlert(index)}>
+                    <CloseIcon />
+                  </IconButton>
+                </Stack>
+              </Box>
+            ))
+          ) : (
+            <Box sx={{ width: '100%' }}>
+              <Stack>
+                <Item>{"NO NEW NOTIFICATIONS!"}</Item>
               </Stack>
             </Box>
-            ))
-          ): (
-            <Box sx={{ width: '100%' }}>
-            <Stack>
-                <Item>{"NO NEW NOTIFICATIONS!"}</Item>
-            </Stack>
-          </Box>
           )
         }
-      
+
       </List>
     </Box>
   );
@@ -207,7 +208,7 @@ function NotificationDrawer({ notifications = [], employeeId}) {
 
 NotificationDrawer.propTypes = {
   notifications: PropTypes.array,
-  employeeId: PropTypes.string.isRequired, 
+  employeeId: PropTypes.string.isRequired,
 };
 
 export default NotificationDrawer;

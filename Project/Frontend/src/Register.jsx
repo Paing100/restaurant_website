@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, TextField, Snackbar, Alert, InputLabel, Select, MenuItem  } from "@mui/material";
+import { Button, TextField, Snackbar, Alert, InputLabel, Select, MenuItem } from "@mui/material";
 import axios from "axios";
 
 function Register() {
@@ -10,23 +10,23 @@ function Register() {
   const [severity, setSeverity] = useState("error");
   const [role, setRole] = useState("waiter");
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");  
+  const [message, setMessage] = useState("");
 
   const handleRegister = async () => {
-    try{
+    try {
       const response = await axios.post("http://localhost:8080/auth/register", {
-        employeeId: userId, 
-        password: password, 
+        employeeId: userId,
+        password: password,
         firstName: firstName,
         lastName: lastName,
-        role: role, 
-        }, {
+        role: role,
+      }, {
         headers: {
           "Content-Type": "application/json"
         }
       });
 
-      if (response.status === 200){
+      if (response.status === 200) {
         console.log("Employee registered!");
         setMessage("Registered/Updated Successfully!");
         setSeverity("success");
@@ -34,7 +34,7 @@ function Register() {
         removeInputs();
       }
 
-    } catch(error){
+    } catch (error) {
       console.log(error);
       setMessage("Error: could not connect to the server");
       setSeverity("error");
@@ -42,7 +42,7 @@ function Register() {
     }
   }
 
-  const removeInputs = () => { 
+  const removeInputs = () => {
     setUserId("");
     setPassword("");
     setFirstName("");
@@ -54,23 +54,39 @@ function Register() {
     setOpen(false);
   };
 
-  const handleSelectChange = (event) => { 
+  const handleSelectChange = (event) => {
     setRole(event.target.value);
   }
 
-  return(
+  return (
     <>
-      <div 
+      <div
         className="register"
         style={{
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          height: "500px",
+          alignItems: "center",
+          height: "80vh",
           gap: "16px",
-          marginLeft: "50px", 
         }}
       >
+        <Button
+          onClick={() => window.history.back()}
+          sx={{
+            position: "absolute",
+            top: "100px",
+            left: "50px",
+            backgroundColor: '#333',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: 'darkgray',
+            },
+            marginBottom: 2,
+          }}
+        >
+          ← Back
+        </Button>
         <div className="username">
           <TextField
             id="outlined-basic"
@@ -78,28 +94,27 @@ function Register() {
             variant="outlined"
             value={userId}
             required
-            error={!userId}
             onChange={(e) => setUserId(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: 'white', // Dark grey border
+                  borderColor: 'white',
                 },
                 '&:hover fieldset': {
-                  borderColor: 'white', // Lighter grey on hover
+                  borderColor: 'white',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: 'white', // Even lighter grey when focused
+                  borderColor: 'white',
                 },
               },
               '& .MuiInputLabel-root': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white', // Lighter grey text color when focused
+                color: 'white',
               },
               '& .MuiInputBase-input': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
             }}
           />
@@ -111,26 +126,25 @@ function Register() {
             type="password"
             required
             value={password}
-            error={!password}
             autoComplete="current-password"
             onChange={(e) => setPassword(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: 'white', // Dark grey border
+                  borderColor: 'white',
                 },
                 '&:hover fieldset': {
-                  borderColor: 'white', // Lighter grey on hover
+                  borderColor: 'white',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: 'white', // Even lighter grey when focused
+                  borderColor: 'white',
                 },
               },
               '& .MuiInputLabel-root': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white', // Lighter grey text color when focused
+                color: 'white',
               },
               '& .MuiInputBase-input': {
                 color: 'white',
@@ -144,26 +158,25 @@ function Register() {
             label="firstName"
             type="firstName"
             value={firstName}
-            required  
-            error={!firstName}
+            required
             onChange={(e) => setFirstName(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: 'white', // Dark grey border
+                  borderColor: 'white',
                 },
                 '&:hover fieldset': {
-                  borderColor: 'white', // Lighter grey on hover
+                  borderColor: 'white',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: 'white', // Even lighter grey when focused
+                  borderColor: 'white',
                 },
               },
               '& .MuiInputLabel-root': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white', // Lighter grey text color when focused
+                color: 'white',
               },
               '& .MuiInputBase-input': {
                 color: 'white',
@@ -178,25 +191,24 @@ function Register() {
             type="lastName"
             value={lastName}
             required
-            error={!lastName}
             onChange={(e) => setLastName(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: 'white', // Dark grey border
+                  borderColor: 'white',
                 },
                 '&:hover fieldset': {
-                  borderColor: 'white', // Lighter grey on hover
+                  borderColor: 'white',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: 'white', // Even lighter grey when focused
+                  borderColor: 'white',
                 },
               },
               '& .MuiInputLabel-root': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white', // Lighter grey text color when focused
+                color: 'white',
               },
               '& .MuiInputBase-input': {
                 color: 'white',
@@ -205,34 +217,33 @@ function Register() {
           />
         </div>
         <div className="role">
-          <InputLabel id="demo-simple-select-label"   
-          sx={{ color: "white", }}
+          <InputLabel id="demo-simple-select-label"
+            sx={{ color: "white", }}
           >Role
           </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              value={role}
-              onChange={handleSelectChange}
-              label="Age"
-              error={!role}
-              sx={{ 
-                    width: "200px",
-                    color: "white", // Change selected text color
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "white", // Change border color
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "white",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "white",
-                    },
-                    "& .MuiSelect-icon": {
-                      color: "white", // Change dropdown icon color
-                    },
-                  }}
-            >
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            value={role}
+            onChange={handleSelectChange}
+            label="Age"
+            sx={{
+              width: "200px",
+              color: "white",
+              "& .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white",
+              },
+              "&:hover .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white",
+              },
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                borderColor: "white",
+              },
+              "& .MuiSelect-icon": {
+                color: "white",
+              },
+            }}
+          >
             <MenuItem value={"waiter"}>Waiter</MenuItem>
             <MenuItem value={"kitchen"}>Kitchen</MenuItem>
             <MenuItem value={"manager"}>Manager</MenuItem>
@@ -243,22 +254,33 @@ function Register() {
           variant="contained"
           onClick={handleRegister}
           sx={{
-            backgroundColor: '#333', // Dark grey background
-            color: 'white', // White text color
+            backgroundColor: '#333',
+            color: 'white',
             '&:hover': {
-              backgroundColor: '#666', // Lighter grey on hover
+              backgroundColor: '#666',
             },
-            alignSelf: "flex-start",
+            alignSelf: "center", // Center the button
           }}
         >
           Register/ Update
         </Button>
       </div>
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-              <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
-                {message}
-              </Alert>
-            </Snackbar>
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={severity}
+          sx={{
+            width: '100%',
+            backgroundColor: '#333',
+            color: 'white',
+            '& .MuiAlert-icon': {
+              color: 'white',
+            },
+          }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

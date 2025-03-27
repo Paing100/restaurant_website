@@ -66,16 +66,16 @@ const OrderInfoPopup = React.memo(({
                                     width: 20,
                                     height: 20,
                                     borderRadius: '50%',
-                                    backgroundColor: 
+                                    backgroundColor:
                                         orderStatus === 'SUBMITTED' ? 'orange' :
-                                        orderStatus === 'CONFIRMED' ? 'yellow' :
-                                        orderStatus === 'READY' ? 'green' : 'red',
+                                            orderStatus === 'CONFIRMED' ? 'yellow' :
+                                                orderStatus === 'READY' ? 'green' : 'red',
                                     border: '2px solid white',
-                                    boxShadow: 
+                                    boxShadow:
                                         orderStatus === 'SUBMITTED' ? '0 0 10px orange, 0 0 20px orange, 0 0 30px orange' :
-                                        orderStatus === 'CONFIRMED' ? '0 0 10px blue, 0 0 20px yellow, 0 0 30px blue' :
-                                        orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
-                                                            '0 0 10px red, 0 0 20px red, 0 0 30px red',                                    
+                                            orderStatus === 'CONFIRMED' ? '0 0 10px yellow, 0 0 20px yellow, 0 0 30px yellow' :
+                                                orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
+                                                    '0 0 10px red, 0 0 20px red, 0 0 30px red',
                                     marginRight: 2, // Increased marginRight to add more space
                                 }}
                             />
@@ -184,7 +184,7 @@ function Order() {
     });
     const [orderTime, setOrderTime] = useState(() => {
         const savedOrderInfo = localStorage.getItem('orderInfo');
-        const savedOrderTime = savedOrderInfo? JSON.parse(savedOrderInfo).orderTime : null;
+        const savedOrderTime = savedOrderInfo ? JSON.parse(savedOrderInfo).orderTime : null;
         return savedOrderTime ? new Date(savedOrderTime) : null;
     });
     const [storedTableNum, setStoredTableNum] = useState(() => {
@@ -206,51 +206,51 @@ function Order() {
     const orderedItems = cart?.orderedItems || {};
 
     useEffect(() => {
-        if (!ws.current){
-          ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
-    
-          ws.current.onopen = () => {
-            console.log('WebSocket connected');
-          };
-    
-          ws.current.onclose = () => {
-            console.log('WebSocket closed. Attempting to reconnect...');
-          };
-          ws.current.onmessage = (event) => {
-            try{
-                const data = JSON.parse(event.data); 
-                console.log("DATA: " + data)
-                //if (data.orderId && customer?.orderId && data.orderId === customer.orderId) {
+        if (!ws.current) {
+            ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+
+            ws.current.onopen = () => {
+                console.log('WebSocket connected');
+            };
+
+            ws.current.onclose = () => {
+                console.log('WebSocket closed. Attempting to reconnect...');
+            };
+            ws.current.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log("DATA: " + data)
+                    //if (data.orderId && customer?.orderId && data.orderId === customer.orderId) {
                     updateOrderStatus(data.orderId, data.status);
                     fetchOrderStatus(data.orderId);
-                    if (receipt.length === 0){
-                        setElapsedTime('00:00:00'); 
+                    if (receipt.length === 0) {
+                        setElapsedTime('00:00:00');
                     }
-                //}
-                if (data.type === "ORDER_CANCELLED") {
-                    removeOrderItem(data.orderId); 
-                }            
+                    //}
+                    if (data.type === "ORDER_CANCELLED") {
+                        removeOrderItem(data.orderId);
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                }
             }
-            catch(error){
-              console.log(error);
-            }
-          }
         }
-    
+
         return () => {
-          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-            console.log("Closing WebSocket on cleanup");
-            ws.current.close();
-          }
+            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+                console.log("Closing WebSocket on cleanup");
+                ws.current.close();
+            }
         };
-      }, []);
+    }, []);
 
     const stopTimer = () => {
         if (timerRef.current) {
-            clearInterval(timerRef.current); // Clear the interval
-            timerRef.current = null; // Reset the timer reference
-            setOrderTime(null); // Reset the order time
-            setElapsedTime('00:00:00'); // Reset the elapsed time
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+            setOrderTime(null);
+            setElapsedTime('00:00:00');
             console.log("Timer stopped.");
         }
     };
@@ -284,9 +284,9 @@ function Order() {
       };
 
     const restartTimer = () => {
-        stopTimer(); // Stop the current timer if it's running
+        stopTimer();
         const now = new Date();
-        setOrderTime(now); // Set the orderTime to the current time
+        setOrderTime(now);
         console.log("Timer restarted.");
     };
 
@@ -296,7 +296,7 @@ function Order() {
             const updatedReceipt = prevReceipt.map((order) =>
                 order.orderId === orderId ? { ...order, status: newStatus } : order
             );
-    
+
             return updatedReceipt;
         });
     };
@@ -306,11 +306,10 @@ function Order() {
         console.log("Removing item from order: ", orderId);
         setReceipt((prevReceipt) => {
             const updatedReceipt = prevReceipt.filter((item) => item.orderId !== orderId);
-    
-            // Check if the removed order is the last one
+
             if (prevReceipt.length > 0 && prevReceipt[prevReceipt.length - 1].orderId === orderId) {
                 if (updatedReceipt.length === 0) {
-                    stopTimer(); // Stop the timer if the receipt is now empty
+                    stopTimer();
                     setOrderTime(null);
                 } else {
                     setOrderStatus(updatedReceipt.status);
@@ -323,7 +322,7 @@ function Order() {
             );
             setReceiptTotal(updatedTotal);
             console.log("Updated RECEIPT:", JSON.stringify(updatedReceipt));
-            setMessage(`Your Order #${orderId} is cancelled by the waiter!`); 
+            setMessage(`Your Order #${orderId} is cancelled by the waiter!`);
             setSeverity('error');
             setOpen(true);
             return updatedReceipt;
@@ -340,7 +339,7 @@ function Order() {
                 const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, '0');
                 setElapsedTime(`${hours}:${minutes}:${seconds}`);
             }, 1000);
-        }else{
+        } else {
             setElapsedTime('00:00:00');
         }
         return () => clearInterval(timerRef.current);
@@ -367,7 +366,7 @@ function Order() {
                         method: 'GET',
                         headers: { 'Accept': 'application/json' },
                     });
-                    
+
                     if (response.ok) {
                         const orderData = await response.json();
                         setHasCreatedOrder(orderData.orderStatus === 'CREATED');
@@ -377,7 +376,7 @@ function Order() {
                 }
             }
         };
-        
+
         checkOrderStatus();
     }, [customer]);
 
@@ -407,7 +406,7 @@ function Order() {
             setMessage(result.message);
             setSeverity('success');
             // Append the new order to the receipt array
-            setReceipt((prevReceipt) => [...prevReceipt, newOrder]);            
+            setReceipt((prevReceipt) => [...prevReceipt, newOrder]);
             setReceiptTotal(cart.totalPrice);
             setOrderTime(new Date());
             setHasCreatedOrder(false);
@@ -476,8 +475,8 @@ function Order() {
         setOpen(false);
     };
 
-    const fetchOrderStatus = async(orderId) => {
-        try{
+    const fetchOrderStatus = async (orderId) => {
+        try {
             const response = await fetch(`http://localhost:8080/api/orders/${orderId}/getOrder`, {
                 method: 'GET',
                 headers: { 'Accept': 'application/json' },
@@ -492,11 +491,11 @@ function Order() {
                 }
                 console.log("NEW STATUS: ", orderData.orderStatus);
             }
-            else{
+            else {
                 console.error("Failed to fetch order status");
             }
         }
-        catch(error){
+        catch (error) {
             console.error("Failed to fetch order status", error);
         }
     }
