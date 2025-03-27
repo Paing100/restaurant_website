@@ -73,6 +73,7 @@ function Manager() {
       });
       if (!response.ok) throw new Error("Failed to end the day");
       setEndOfDayOpen(false);
+      localStorage.setItem('sales', 0);
     }catch(err){
       setError(err.message);
     }
@@ -87,7 +88,7 @@ function Manager() {
         <Link to="/waiter_menu">
           <Button variant="contained" sx={{ marginRight: 1 }}>Edit Menu</Button>
         </Link>
-        <Link target="_blank" to="/calculatePrice">
+        <Link to="/calculatePrice">
           <Button variant="contained" sx={{ marginLeft: 1 }}>Calculate Price</Button>
         </Link>
         <Link to="/employeeData">
