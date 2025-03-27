@@ -1,5 +1,5 @@
-
-import {useRef, useEffect} from 'react';
+/* eslint-disable */
+import { useRef, useEffect } from 'react';
 
 export const useWithSound = (audio) => {
   const audioRef = useRef();
@@ -9,7 +9,7 @@ export const useWithSound = (audio) => {
   }, []);
 
   const playSound = () => {
-    audioRef.current.play();  
+    audioRef.current.play();
     return {};
   }
   return {
