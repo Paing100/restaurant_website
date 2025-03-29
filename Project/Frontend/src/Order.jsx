@@ -9,6 +9,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PropTypes from "prop-types";
 import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
+import MenuCard from './MenuCard';
 
 import { Link } from 'react-router-dom';
 
@@ -159,7 +160,7 @@ OrderInfoPopup.propTypes = {
 }
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer, suggestions } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [showOrderInfo, setShowOrderInfo] = useState(() => {
@@ -510,12 +511,12 @@ function Order() {
             </Button>
 
             <Button
-                        onClick={() => alertOthers(tableNum, customer.orderId)}
-                        variant="contained"
-                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' }, display: 'block', marginLeft: 'auto', marginTop: 2}}
-                    >
-                        Call Assistance
-                    </Button>
+                onClick={() => alertOthers(tableNum, customer.orderId)}
+                variant="contained"
+                sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' }, display: 'block', marginLeft: 'auto', marginTop: 2}}
+            >
+                Call Assistance
+            </Button>
             
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px' }}>
                 <Typography variant="h4">Place Your Order</Typography>
@@ -531,7 +532,7 @@ function Order() {
                 )}
             </Box>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
-            <List>
+            <List sx={{ mb: 4 }}>
                 {Object.entries(orderedItems).map(([itemName, item]) => {
                     const itemTotal = item.price * item.quantity;
                     return (
@@ -576,11 +577,67 @@ function Order() {
                     );
                 })}
             </List>
-            <Divider />
-            <Typography variant="h6" sx={{ marginTop: 2 }}>Total Price: £{(cart.totalPrice || 0).toFixed(2)}</Typography>
-            <Grid container spacing={2} sx={{ marginTop: 2 }}>
-                <Grid item xs={6}>
-                    <Box sx={{}}>
+
+            {suggestions && suggestions.length > 0 && customer?.orderId > 0 && Object.keys(orderedItems).length > 0 && (
+                <Box sx={{ 
+                    mb: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: '100%'
+                }}>
+                    <Typography variant="h5" sx={{ 
+                        padding: '15px',
+                        borderBottom: '1px solid #333',
+                        textAlign: 'center',
+                        width: '100%'
+                    }}>
+                        Waiter's Suggestions
+                    </Typography>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            overflowX: 'auto',
+                            pt: 2,
+                            pb: 2,
+                            width: '100%',
+                            justifyContent: 'center',
+                            '&::-webkit-scrollbar': {
+                                height: 8,
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                backgroundColor: '#333',
+                                borderRadius: 4,
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: '#5762d5',
+                                borderRadius: 4,
+                            },
+                        }}
+                    >
+                        <Box sx={{ 
+                            display: 'flex',
+                            gap: 2,
+                            px: 2,
+                            maxWidth: '1400px',
+                            margin: '0 auto'
+                        }}>
+                            {suggestions.map((item) => (
+                                <Box key={item.itemId} sx={{ minWidth: 260, maxWidth: 260, flexShrink: 0 }}>
+                                    <MenuCard item={item} isWaiterView={false} />
+                                </Box>
+                            ))}
+                        </Box>
+                    </Box>
+                </Box>
+            )}
+
+            <Box sx={{ mt: 2 }}>
+                <Typography variant="h6" sx={{ marginTop: 2  }}>
+                    Total Price: £{(cart.totalPrice || 0).toFixed(2)}
+                </Typography>
+                <Grid container spacing={2}>
+                    <Grid item xs={6}>
                         <Button
                             onClick={() => clearCart()}
                             sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
@@ -588,21 +645,20 @@ function Order() {
                         >
                             Clear Cart
                         </Button>
-                        
-                    </Box>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Button
+                            onClick={handleSubmit}
+                            variant="contained"
+                            sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
+                            fullWidth
+                        >
+                            Submit Order
+                        </Button>
+                    </Grid>
                 </Grid>
-                <Grid item xs={6}>
-                    <Button
-                        onClick={handleSubmit}
-                        variant="contained"
-                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
-                        fullWidth
-                    >
-                        Submit Order
-                    </Button>
-                    
-                </Grid>
-            </Grid>
+            </Box>
+
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
                     {message}

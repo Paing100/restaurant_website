@@ -10,6 +10,8 @@ export const CartProvider = ({ children }) => {
     const [customer, setCustomer] = useState(null);
     const [tableNum, setTableNum] = useState('');
     const [loading, setLoading] = useState(true);
+    const [menuItems, setMenuItems] = useState([]);
+    const [suggestions, setSuggestions] = useState([]);
     const ws = useRef(null);
 
     // Establish WebSocket connection
@@ -101,6 +103,70 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    const getRandomSuggestions = () => {
+        try {
+            const cartItemIds = Object.values(cart.orderedItems).map(item => item.itemId);
+
+            const availableItems = menuItems.filter(item => 
+                item.available && !cartItemIds.includes(item.itemId)
+            );
+
+            if (availableItems.length <= 5) {
+                setSuggestions(availableItems);
+                return;
+            }
+
+            const randomItems = [];
+            const availableCopy = [...availableItems];
+            
+            for (let i = 0; i < 5 && availableCopy.length > 0; i++) {
+                const randomIndex = Math.floor(Math.random() * availableCopy.length);
+                randomItems.push(availableCopy[randomIndex]);
+                availableCopy.splice(randomIndex, 1);
+            }
+            
+            setSuggestions(randomItems);
+        } catch (error) {
+            console.error('Error generating suggestions:', error);
+            setSuggestions([]);
+        }
+    };
+
+    const replaceSuggestion = (addedItemId) => {
+        try {
+            const cartItemIds = [...Object.values(cart.orderedItems).map(item => item.itemId), addedItemId];
+
+            const availableItems = menuItems.filter(item => 
+                item.available && 
+                !cartItemIds.includes(item.itemId) && 
+                !suggestions.some(suggestion => suggestion.itemId === item.itemId)
+            );
+
+            if (availableItems.length === 0) return;
+
+            const randomIndex = Math.floor(Math.random() * availableItems.length);
+            const replacementItem = availableItems[randomIndex];
+
+            setSuggestions(currentSuggestions => 
+                currentSuggestions.map(item => 
+                    item.itemId === addedItemId ? replacementItem : item
+                )
+            );
+        } catch (error) {
+            console.error('Error replacing suggestion:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchMenuItems();
+    }, []);
+
+    useEffect(() => {
+        if (menuItems.length > 0 && suggestions.length === 0) {
+            getRandomSuggestions();
+        }
+    }, [menuItems]);
+
     const addItemToCart = async (itemId, quantity) => {
         if (!customer) {
             console.error('Customer is not set');
@@ -137,6 +203,10 @@ export const CartProvider = ({ children }) => {
                 const errorText = await response.text();
                 console.error('Error adding item to cart:', errorText);
                 throw new Error(`Failed to add item to cart: ${response.status}`);
+            }
+
+            if (suggestions.some(item => item.itemId === itemId)) {
+                replaceSuggestion(itemId);
             }
 
             const contentType = response.headers.get('content-type');
@@ -335,6 +405,27 @@ const submitOrder = async () => {
         }
     };
 
+    const fetchMenuItems = async () => {
+        try {
+            const response = await fetch('http://localhost:8080/MenuItems', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+            });
+            if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
+            const menuData = await response.json();
+            
+            if (menuData && Array.isArray(menuData)) {
+                setMenuItems(menuData);
+            } else {
+                console.error('Invalid menu data format received');
+                setMenuItems([]);
+            }
+        } catch (error) {
+            console.error('Error fetching menu items:', error);
+            setMenuItems([]);
+        }
+    };
+
     useEffect(() => {
         if (customer) fetchCart();
     }, [customer]);
@@ -349,10 +440,13 @@ const submitOrder = async () => {
                 cart,
                 customer,
                 tableNum,
+                menuItems,
+                suggestions,
                 setCart,
                 setCustomer: setPersistentCustomer,
                 setTableNum,
                 fetchCart,
+                fetchMenuItems,
                 addItemToCart,
                 removeItemFromCart,
                 clearCart,
