@@ -24,6 +24,7 @@ function Waiter() {
   const [alerts, setAlerts] = useState([]);
   const [tables, setTables] = useState({ defaultTables: [], activeTables: [] });
   const ws = useRef(null);
+  const [orderStatus, setOrderStatus] = useState(null);
   const [open, setOpen] = useState(false);
 
   const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
@@ -90,6 +91,7 @@ function Waiter() {
             setOpen(true);
             setNotification(message.message);
             fetchOrders();
+            fetchTables();
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);

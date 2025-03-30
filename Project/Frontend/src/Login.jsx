@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { Button, TextField, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -15,11 +16,11 @@ function Login() {
     try {
       const response = await axios.post("http://localhost:8080/auth/login", {
         employeeId: userId,
-        password: password
+        password: password,
       }, {
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
       if (response.status === 200) {
         const expirationTime = new Date().getTime() + 30 * 60 * 1000;
@@ -37,9 +38,10 @@ function Login() {
         } else if (storedRole === "MANAGER") {
           navigate("/manager");
         }
+        window.location.reload(); // Reload the page after login
       }
     } catch (error) {
-      setMessage("Error: Could not connect to the server OR Wrong credentials" + error);
+      setMessage("Error: Could not connect to the server OR Wrong credentials");
       setSeverity("error");
       setOpen(true);
     }
@@ -71,23 +73,23 @@ function Login() {
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: 'white', // Dark grey border
+                  borderColor: 'white',
                 },
                 '&:hover fieldset': {
-                  borderColor: 'white', // Lighter grey on hover
+                  borderColor: 'white',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: 'white', // Even lighter grey when focused
+                  borderColor: 'white',
                 },
               },
               '& .MuiInputLabel-root': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white', // Lighter grey text color when focused
+                color: 'white',
               },
               '& .MuiInputBase-input': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
             }}
           />
@@ -102,20 +104,20 @@ function Login() {
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
-                  borderColor: 'white', // Dark grey border
+                  borderColor: 'white',
                 },
                 '&:hover fieldset': {
-                  borderColor: 'white', // Lighter grey on hover
+                  borderColor: 'white',
                 },
                 '&.Mui-focused fieldset': {
-                  borderColor: 'white', // Even lighter grey when focused
+                  borderColor: 'white',
                 },
               },
               '& .MuiInputLabel-root': {
-                color: 'white', // Dark grey text color
+                color: 'white',
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white', // Lighter grey text color when focused
+                color: 'white',
               },
               '& .MuiInputBase-input': {
                 color: 'white',
@@ -127,10 +129,10 @@ function Login() {
           variant="contained"
           onClick={handleLogin}
           sx={{
-            backgroundColor: '#333', // Dark grey background
-            color: 'white', // White text color
+            backgroundColor: '#333',
+            color: 'white',
             '&:hover': {
-              backgroundColor: '#666', // Lighter grey on hover
+              backgroundColor: '#666',
             },
           }}
         >
