@@ -21,6 +21,7 @@ function Manager() {
   const [tabIndex, setTabIndex] = useState(0);
   const ws = useRef(null);
   const [endOfDayOpen, setEndOfDayOpen] = useState(false);
+  const [totalSales, setTotalSales] = useState(0);
 
   useEffect(() => {
     fetchOutstandingOrders();
@@ -43,12 +44,21 @@ function Manager() {
     };
   }, []);
 
+  const calculateTotalSales = (orders) => {
+    return orders.reduce((total, order) => {
+      const orderTotal = order.orderMenuItems.reduce( 
+        (sum, item) => sum + item.menuItem.price * item.quantity, 0);
+      return total + orderTotal;
+    }, 0);
+  };
+
   const fetchOutstandingOrders = async () => {
     try {
       const response = await fetch("http://localhost:8080/Manager/getOutstandingOrders");
       if (!response.ok) throw new Error("Failed to fetch orders");
       const data = await response.json();
       setOrders(data);
+      setTotalSales(calculateTotalSales(data)); // Calculate and set total sales
     } catch (err) {
       setError(err.message);
     }
@@ -73,7 +83,6 @@ function Manager() {
       });
       if (!response.ok) throw new Error("Failed to end the day");
       setEndOfDayOpen(false);
-      localStorage.setItem('sales', 0);
     }catch(err){
       setError(err.message);
     }
@@ -137,9 +146,10 @@ function Manager() {
 
       {tabIndex === 0 && (
         <Box sx={{ marginTop: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-            Outstanding Orders:
+          <Typography variant="h6" sx={{ marginBottom: 2 }}>
+            Total Sales: £{totalSales.toFixed(2)}
           </Typography>
+          <Typography variant="h5">Outstanding Orders:</Typography>
           {orders.length > 0 ? (
             <TableContainer component={Paper}>
               <Table

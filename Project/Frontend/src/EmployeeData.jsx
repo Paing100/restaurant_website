@@ -26,9 +26,6 @@ function EmployeeData() {
       <Typography variant="h3" sx={{ fontWeight: "bold", marginBottom: 3 }}>
         Employee Data
       </Typography>
-      <Typography variant="h5" sx={{ marginBottom: 3 }}>
-        Total Sales: £{localStorage.getItem("sales")}
-      </Typography>
       {employeeData.length > 0 ? (
         employeeData.map((employee) => (
           <Card
