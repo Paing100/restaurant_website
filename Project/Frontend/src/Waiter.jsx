@@ -27,14 +27,13 @@ function Waiter() {
   const [alerts, setAlerts] = useState([]);
   const [tables, setTables] = useState({ defaultTables: [], activeTables: [] });
   const ws = useRef(null);
-  const [orderStatus, setOrderStatus] = useState(null);
   const [open, setOpen] = useState(false);
 
-    const { playSound } = useWithSound(notiSound);
-  
-    const handleNotiSound = () => {
-      playSound();
-    }
+  const { playSound } = useWithSound(notiSound);
+
+  const handleNotiSound = () => {
+    playSound();
+  }
 
   const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
   const [orderStatus, setOrderStatus] = useState({ orderId: "", orderStatus: "" });
@@ -91,7 +90,7 @@ function Waiter() {
 
       ws.current.onmessage = (event) => {
         let message;
-        setOrderStatus({orderId: event.data.orderId, orderStatus: event.data.orderStatus});
+        setOrderStatus({ orderId: event.data.orderId, orderStatus: event.data.orderStatus });
         try {
           message = JSON.parse(event.data);
           if (message.waiterId && message.waiterId !== employeeId) return;
