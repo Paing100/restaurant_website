@@ -14,6 +14,9 @@ import {
 } from "@mui/material";
 import Orders from "./Orders";
 import NotificationDrawer from "./NotificationDrawer";
+import notiSound from './assets/sound/Noti.mp3';
+import { useWithSound } from './useWithSound';
+
 
 function Waiter() {
   const userName = sessionStorage.getItem("userName");
@@ -26,7 +29,14 @@ function Waiter() {
   const ws = useRef(null);
   const [open, setOpen] = useState(false);
 
+    const { playSound } = useWithSound(notiSound);
+  
+    const handleNotiSound = () => {
+      playSound();
+    }
+
   const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
+  const [orderStatus, setOrderStatus] = useState({ orderId: "", orderStatus: "" });
 
   const statusMap = new Map([
     ["To Confirm", "SUBMITTED"],
@@ -80,13 +90,15 @@ function Waiter() {
 
       ws.current.onmessage = (event) => {
         let message;
+        setOrderStatus({orderId: event.data.orderId, orderStatus: event.data.orderStatus});
         try {
           message = JSON.parse(event.data);
           if (message.waiterId && message.waiterId !== employeeId) return;
           if (
             (message.recipient === "waiter" && message.type === "READY") ||
-            message.type === "ORDER_SUBMIT"
+            message.type === "ORDER_SUBMITTED"
           ) {
+            handleNotiSound();
             setOpen(true);
             setNotification(message.message);
             fetchOrders();
@@ -96,7 +108,7 @@ function Waiter() {
         }
       };
     }
-  }, [employeeId]);
+  }, [employeeId, orderStatus]);
 
   const updateOrderStatus = async (orderId, newStatus) => {
     const settings = {
@@ -264,7 +276,12 @@ function Waiter() {
                           ? "DELIVERED"
                           : "";
                     updateOrderStatus(order.orderId, newStatus);
+                    setOrderStatus({
+                      orderId: order.orderId,
+                      orderStatus: order.orderStatus,
+                    });
                   }}
+
                   fetchOrders={fetchOrders}
                   alertButton={alertOthers}
                 />

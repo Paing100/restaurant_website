@@ -1,6 +1,8 @@
 import {useEffect, useState, useRef} from "react";
 import {Typography, List, Box, Snackbar, Alert} from "@mui/material";
 import Orders from "./Orders";
+import notiSound from './assets/sound/Noti.mp3';
+import { useWithSound } from './useWithSound';
 
 function KitchenStaff() {
   const userName = sessionStorage.getItem("userName");
@@ -10,6 +12,12 @@ function KitchenStaff() {
   const [notification, setNotification] = useState("");
   const [open, setOpen] = useState(false);
 
+      const { playSound } = useWithSound(notiSound);
+    
+      const handleNotiSound = () => {
+        playSound();
+      }
+  
   useEffect(() => {
     if (!ws.current){
       ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
@@ -28,6 +36,7 @@ function KitchenStaff() {
         try{
           message = JSON.parse(event.data);
           if (message.recipient === "kitchen" && message.type === "CONFIRMED") {
+            handleNotiSound();
             setNotification(message.message);
             setOpen(true);
             fetchOrders();
