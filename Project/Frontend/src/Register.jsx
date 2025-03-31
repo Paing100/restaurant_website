@@ -10,9 +10,66 @@ function Register() {
   const [severity, setSeverity] = useState("error");
   const [role, setRole] = useState("waiter");
   const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState("");  
+  const [passwordError, setPasswordError] = useState(false);
+  const [nameError, setNameError] = useState({ firstName: false, lastName: false });
+
+  const validatePassword = (pwd) => {
+    // Password must:
+    // - Contain at least one uppercase letter
+    // - Contain at least one lowercase letter
+    // - Contain at least one digit
+    // - Contain at least one special character
+    // - Be at least 8 characters long
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-[\]{};':"\\|,.<>?]).{8,}$/;
+
+    return passwordRegex.test(pwd);
+  };
+
+  const validateName = (name) => {
+    // Only allow letters (including accented characters)
+    const nameRegex = /^[A-Za-zÀ-ÿ]+$/;
+    return nameRegex.test(name);
+  };
 
   const handleRegister = async () => {
+    // Reset name errors
+    setNameError({ firstName: false, lastName: false });
+    
+    // Validate all required fields
+    if (!userId || !password || !firstName || !lastName) {
+      setMessage("All fields are required");
+      setSeverity("error");
+      setOpen(true);
+      return;
+    }
+
+    // Check name validations
+    if (!validateName(firstName)) {
+      setNameError(prev => ({ ...prev, firstName: true }));
+      setMessage("First name should only contain letters and no spaces");
+      setSeverity("error");
+      setOpen(true);
+      return;
+    }
+
+    if (!validateName(lastName)) {
+      setNameError(prev => ({ ...prev, lastName: true }));
+      setMessage("Last name should only contain letters and no spaces");
+      setSeverity("error");
+      setOpen(true);
+      return;
+    }
+
+    // Validate password
+    if (!validatePassword(password)) {
+      setPasswordError(true);
+      setMessage("Invalid password format");
+      setSeverity("error");
+      setOpen(true);
+      return;
+    }
+
     try {
       const response = await axios.post("http://localhost:8080/auth/register", {
         employeeId: userId,
@@ -48,6 +105,8 @@ function Register() {
     setFirstName("");
     setLastName("");
     setRole("waiter");
+    setPasswordError(false);
+    setNameError({ firstName: false, lastName: false });
   }
 
   const handleClose = () => {
@@ -94,6 +153,7 @@ function Register() {
             variant="outlined"
             value={userId}
             required
+            error={!userId}
             onChange={(e) => setUserId(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -126,8 +186,12 @@ function Register() {
             type="password"
             required
             value={password}
+            error={passwordError}
             autoComplete="current-password"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError(false);
+            }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
@@ -155,10 +219,11 @@ function Register() {
         <div className="firstName">
           <TextField
             id="firstName-input"
-            label="firstName"
-            type="firstName"
+            label="First Name"
+            type="text"
             value={firstName}
             required
+            error={nameError.firstName}
             onChange={(e) => setFirstName(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -187,10 +252,11 @@ function Register() {
         <div className="lastName">
           <TextField
             id="lastName-input"
-            label="lastName"
-            type="lastName"
+            label="Last Name"
+            type="text"
             value={lastName}
             required
+            error={nameError.lastName}
             onChange={(e) => setLastName(e.target.value)}
             sx={{
               '& .MuiOutlinedInput-root': {
@@ -226,7 +292,8 @@ function Register() {
             id="demo-simple-select-standard"
             value={role}
             onChange={handleSelectChange}
-            label="Age"
+            label="Role"
+            error={!role}
             sx={{
               width: "200px",
               color: "white",
@@ -248,7 +315,6 @@ function Register() {
             <MenuItem value={"kitchen"}>Kitchen</MenuItem>
             <MenuItem value={"manager"}>Manager</MenuItem>
           </Select>
-
         </div>
         <Button
           variant="contained"
