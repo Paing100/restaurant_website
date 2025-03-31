@@ -324,6 +324,7 @@ function Order() {
             setReceiptTotal(updatedTotal);
             console.log("Updated RECEIPT:", JSON.stringify(updatedReceipt));
             setMessage(`Your Order #${orderId} is cancelled by the waiter!`);
+            stopTimer();
             setSeverity('error');
             setOpen(true);
             return updatedReceipt;

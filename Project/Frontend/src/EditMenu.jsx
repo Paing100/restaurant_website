@@ -21,6 +21,13 @@ function EditMenu() {
   const [severity, setSeverity] = useState("success");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({
+    name: false,
+    description: false,
+    price: false,
+    calories: false,
+    category: false
+  });
 
   const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
   const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETARIAN", "VEGAN", "HALAL"];
@@ -35,12 +42,114 @@ function EditMenu() {
       .catch((error) => console.error("Error fetching menu item:", error));
   }, [id]);
 
+  const validateName = (name) => {
+    // Name should be 3-50 characters, only letters, spaces, and hyphens
+    return /^[A-Za-z\s-]{3,50}$/.test(name);
+  };
+
+  const validateDescription = (description) => {
+    // Description should be 10-250 characters
+    return description.length >= 10 && description.length <= 250;
+  };
+
+  const validatePrice = (price) => {
+    // Price should be a positive number between 0 and 21
+    return price > 0 && price < 21;
+  };
+
+  const validateCalories = (calories) => {
+    // Calories should be between 0 and 2000
+    return calories >= 0 && calories <= 2000;
+  };
+
+  const validateCategory = (category) => {
+    // Category should be between 0 and 3
+    return category >= 0 && category <= 3;
+  };
+
   const handleChange = (event) => {
-    setMenuItem({ ...menuItem, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    
+    // Validate inputs based on field name
+    if (name === 'name') {
+      setErrors(prev => ({ ...prev, name: !validateName(value) }));
+    } else if (name === 'description') {
+      setErrors(prev => ({ ...prev, description: !validateDescription(value) }));
+    } else if (name === 'price') {
+      setErrors(prev => ({ ...prev, price: !validatePrice(value) }));
+    } else if (name === 'calories') {
+      setErrors(prev => ({ ...prev, calories: !validateCalories(value) }));
+    } else if (name === 'category') {
+      setErrors(prev => ({ ...prev, category: !validateCategory(value) }));
+    }
+
+    setMenuItem({ ...menuItem, [name]: value });
+  };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/images/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const imageUrl = await response.text();
+        setImagePath(imageUrl);
+        setMenuItem({ ...menuItem, imagePath: imageUrl });
+      } else {
+        console.error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      handleImageUpload({ target: { files: [file] } });
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate all fields before submission
+    const nameValid = validateName(menuItem.name);
+    const descriptionValid = validateDescription(menuItem.description);
+    const priceValid = validatePrice(menuItem.price);
+    const caloriesValid = validateCalories(menuItem.calories);
+    const categoryValid = validateCategory(menuItem.category);
+
+    // Update errors state
+    setErrors({
+      name: !nameValid,
+      description: !descriptionValid,
+      price: !priceValid,
+      calories: !caloriesValid,
+      category: !categoryValid
+    });
+
+    // Check if any validation failed
+    if (!nameValid || !descriptionValid || !priceValid || !caloriesValid || !categoryValid) {
+      setSeverity("error");
+      setMessage("Please correct the errors before submitting.");
+      setOpen(true);
+      return;
+    }
+
     const updatedMenuItem = { ...menuItem, imagePath };
 
     try {
@@ -102,6 +211,8 @@ function EditMenu() {
           onChange={handleChange}
           fullWidth
           required
+          error={errors.name}
+          helperText={errors.name ? "Name must be 3-50 characters, only letters, spaces, and hyphens" : ""}
           sx={textFieldStyles}
         />
 
@@ -115,6 +226,8 @@ function EditMenu() {
           required
           multiline
           rows={3}
+          error={errors.description}
+          helperText={errors.description ? "Description must be 10-250 characters" : ""}
           sx={textFieldStyles}
         />
 
@@ -127,8 +240,41 @@ function EditMenu() {
           onChange={handleChange}
           fullWidth
           required
+          error={errors.price}
+          helperText={errors.price ? "Price must be between 0 and 21" : ""}
+          inputProps={{ step: "0.01", min: "0", max: "1000" }}
           sx={textFieldStyles}
         />
+
+        {/* Image Upload */}
+        <Box
+          sx={{
+            border: "2px dashed white",
+            padding: "20px",
+            textAlign: "center",
+            cursor: "pointer",
+            mb: 2,
+          }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <Typography sx={{ color: "white" }}>
+            Drag & drop an image here, or click to select
+          </Typography>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            style={{ display: "none" }}
+            id="file-upload"
+          />
+          <label htmlFor="file-upload">
+            <Button variant="outlined" component="span" sx={{ mt: 1, color: "white", borderColor: "white" }}>
+              Select File
+            </Button>
+          </label>
+        </Box>
+        {imagePath && <img src={imagePath} alt="Menu Item" width="150px" />}
 
         {/* Calories Field */}
         <TextField
@@ -139,6 +285,9 @@ function EditMenu() {
           onChange={handleChange}
           fullWidth
           required
+          error={errors.calories}
+          helperText={errors.calories ? "Calories must be between 0 and 2000" : ""}
+          inputProps={{ min: "0", max: "2000" }}
           sx={textFieldStyles}
         />
 
@@ -146,10 +295,14 @@ function EditMenu() {
         <TextField
           label="Category"
           name="category"
+          type="number"
           value={menuItem.category}
           onChange={handleChange}
           fullWidth
           required
+          error={errors.category}
+          helperText={errors.category ? "Category must be between 0 and 3" : ""}
+          inputProps={{ min: "0", max: "3" }}
           sx={textFieldStyles}
         />
 
