@@ -95,8 +95,9 @@ export const CartProvider = ({ children }) => {
             const totalPrice = orderData.orderMenuItems.reduce((total, item) =>
                 total + ((item.quantity || 0) * (item.menuItem?.price || 0)), 0
             );
+            console.log("PRICE: " + totalPrice);
 
-            setCart({ orderedItems, totalPrice });
+            setCart({ orderedItems, totalPrice: parseFloat(totalPrice.toFixed(2)) });
         } catch (error) {
             console.error('Error fetching order:', error);
             setCart({ orderedItems: {}, totalPrice: 0 });
