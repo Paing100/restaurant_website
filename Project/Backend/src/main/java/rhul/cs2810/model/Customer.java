@@ -31,6 +31,12 @@ public class Customer {
   @Column(name = "name")
   private String name;
 
+  @Column(name = "email")
+  private String email;
+
+  @Column(name = "password")
+  private String password;
+
   @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<Order> orders = new ArrayList<>();
@@ -44,6 +50,19 @@ public class Customer {
    */
   public Customer(String name) {
     this.name = name;
+  }
+
+  /**
+   * Constructs a Customer with specified name, email, and password.
+   *
+   * @param name the name of customer
+   * @param email the email of customer
+   * @param password the password of customer
+   */
+  public Customer(String name, String email, String password) {
+    this.name = name;
+    this.email = email;
+    this.password = password;
   }
 
   /**
@@ -89,5 +108,41 @@ public class Customer {
    */
   public int getCustomerId() {
     return customerId;
+  }
+
+  /**
+   * Gets the email of the customer.
+   *
+   * @return the email
+   */
+  public String getEmail() {
+    return email;
+  }
+
+  /**
+   * Sets the email of the customer.
+   *
+   * @param email of the customer
+   */
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  /**
+   * Gets the password of the customer.
+   *
+   * @return the password
+   */
+  public String getPassword() {
+    return password;
+  }
+
+  /**
+   * Sets the password of the customer.
+   *
+   * @param password of the customer
+   */
+  public void setPassword(String password) {
+    this.password = password;
   }
 }

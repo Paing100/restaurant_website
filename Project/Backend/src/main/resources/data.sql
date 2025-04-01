@@ -75,6 +75,5 @@ INSERT INTO employee(employeeId, firstName, lastName, role, password) VALUES
 ('manager', 'Max', 'B', 'Manager', '$2a$10$CuIe.MemzYqL7GCFP2vOkeeP5PHphuU.yjhcmj7kPFH5/.aiyQ4Te');
 
 INSERT INTO waiter(employee_id) VALUES
-('string');
-
-
+('string'),
+('b');

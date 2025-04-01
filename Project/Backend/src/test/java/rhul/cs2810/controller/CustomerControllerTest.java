@@ -180,6 +180,89 @@ public class CustomerControllerTest {
 
 
   }
+  @Test
+  void addCustomerWithAccountTest() throws Exception {
+    String name = "John Doe";
+    int tableNum = 5;
+    String email = "john@email.com";
+    String password = "password123";
+
+    MvcResult result = mockMvc
+        .perform(post("/api/customers/add")
+            .param("name", name)
+            .param("tableNum", String.valueOf(tableNum))
+            .param("email", email)
+            .param("password", password)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    Customer createdCustomer = objectMapper.readValue(result.getResponse().getContentAsString(), Customer.class);
+
+    assertNotNull(createdCustomer);
+    assertEquals(name, createdCustomer.getName());
+    assertEquals(email, createdCustomer.getEmail());
+    assertNotNull(createdCustomer.getPassword());
+    assertTrue(createdCustomer.getPassword().startsWith("$2a$")); // Verify it's a BCrypt hash
+  }
+
+  @Test
+  void createAccountTest() throws Exception {
+    // First create a customer without account
+    Customer customer = new Customer("John Doe");
+    customer = customerRepository.save(customer);
+
+    String email = "john@email.com";
+    String password = "password123";
+
+    MvcResult result = mockMvc
+        .perform(post("/api/customers/{customerId}/createAccount", customer.getCustomerId())
+            .param("email", email)
+            .param("password", password)
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    Customer updatedCustomer = objectMapper.readValue(result.getResponse().getContentAsString(), Customer.class);
+
+    assertEquals(email, updatedCustomer.getEmail());
+    assertNotNull(updatedCustomer.getPassword());
+    assertTrue(updatedCustomer.getPassword().startsWith("$2a$")); // Verify it's a BCrypt hash
+  }
+
+  @Test
+  void loginCustomerTest() throws Exception {
+    // Create a customer with account
+    Customer customer = new Customer("John Doe");
+    customer.setEmail("john@email.com");
+    customer.setPassword("$2a$10$iGS.Ap4WdVTbFeetsvq8Fu/s87ifulBvK1n17JzO81hWbFxkFZr5C"); // Pre-hashed password
+    customerRepository.save(customer);
+
+    MvcResult result = mockMvc
+        .perform(post("/api/customers/login")
+            .param("email", "john@email.com")
+            .param("password", "password123")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andReturn();
+
+    Customer loggedInCustomer = objectMapper.readValue(result.getResponse().getContentAsString(), Customer.class);
+    assertEquals(customer.getCustomerId(), loggedInCustomer.getCustomerId());
+  }
+
+  @Test
+  void loginCustomerFailTest() throws Exception {
+    // Create a customer with account
+    Customer customer = new Customer("John Doe", "john@email.com", "password123");
+    customerRepository.save(customer);
+
+    mockMvc
+        .perform(post("/api/customers/login")
+            .param("email", "john@email.com")
+            .param("password", "wrongpassword")
+            .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isUnauthorized());
+  }
 }
 
 

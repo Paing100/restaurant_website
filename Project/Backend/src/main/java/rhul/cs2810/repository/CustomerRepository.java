@@ -8,4 +8,5 @@ import rhul.cs2810.model.Customer;
  */
 public interface CustomerRepository extends CrudRepository<Customer, Integer> {
   Customer findByName(String name);
+  Customer findByEmail(String email);
 }

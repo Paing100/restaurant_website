@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import rhul.cs2810.model.*;
 import rhul.cs2810.service.OrderService;
 import rhul.cs2810.service.NotificationService;
+import rhul.cs2810.service.WaiterService;
 
 /**
  * Controller for order.s
@@ -40,6 +41,9 @@ public class OrderController {
 
   @Autowired
   private EntityManager entityManager;
+
+  @Autowired
+  private WaiterService waiterService;
 
 
   /**
@@ -123,12 +127,17 @@ public class OrderController {
         }
 
         Order order = orderOptional.get();
-        Employee employee = order.getWaiter().getEmployee();
-        String waiterId = employee.getEmployeeId();
+
         order.setOrderPlaced(LocalDateTime.now());
         orderService.saveUpdatedOrder(order);
+
         orderService.submitOrder(orderId);
-        notificationService.sendNotification("ORDER_SUBMITTED", orderId, "kitchen", "A new order has been submitted", waiterId);
+
+        if (order.getWaiter() != null && order.getWaiter().getEmployee() != null) {
+            String waiterId = order.getWaiter().getEmployee().getEmployeeId();
+            notificationService.sendNotification("ORDER_SUBMITTED", orderId, "kitchen", "A new order has been submitted", waiterId);
+        }
+        
         return ResponseEntity.ok("Order submitted successfully");
     } catch (IllegalStateException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -217,5 +226,44 @@ public class OrderController {
     orderService.saveUpdatedOrder(order);
 
     return ResponseEntity.ok("Order marked as paid successfully");
+  }
+
+  /**
+   * Updates an order's table number and reassigns the waiter if needed.
+   * 
+   * @param orderId the ID of the order to update
+   * @param updateRequest a map containing the new table number
+   * @return ResponseEntity with success or error message
+   */
+  @PostMapping("/orders/{orderId}/updateOrder")
+  public ResponseEntity<String> updateOrder(@PathVariable int orderId, @RequestBody Map<String, Integer> updateRequest) {
+      try {
+          Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
+          if (orderOptional.isEmpty()) {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+          }
+
+          Order order = orderOptional.get();
+          Integer newTableNum = updateRequest.get("tableNum");
+          
+          if (newTableNum == null) {
+              return ResponseEntity.badRequest().body("Table number is required");
+          }
+
+          // Try to find a waiter for the new table
+          Optional<Waiter> newWaiter = waiterService.findWaiterForTable(newTableNum);
+          if (newWaiter.isEmpty()) {
+              return ResponseEntity.badRequest().body("No waiter available for the new table");
+          }
+
+          order.setTableNum(newTableNum);
+          order.setWaiter(newWaiter.get());
+          orderService.saveUpdatedOrder(order);
+
+          return ResponseEntity.ok("Order updated successfully");
+      } catch (Exception e) {
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                  .body("Error updating order: " + e.getMessage());
+      }
   }
 }

@@ -3,6 +3,7 @@ import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert 
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
+//import PropTypes from 'prop-types';
 
 const CustomerModal = () => {
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
@@ -10,6 +11,10 @@ const CustomerModal = () => {
     const [tableNum, setTableNumState] = useState('');
     const [open, setOpen] = useState(true);
     const [error, setError] = useState('');
+    const [showAccountPrompt, setShowAccountPrompt] = useState(false);
+    const [showEmailPassword, setShowEmailPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const nameInputRef = useRef(null);
 
@@ -68,6 +73,16 @@ const CustomerModal = () => {
         return true;
     };
 
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const validatePassword = (pwd) => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-[\]{};':"\\|,.<>?]).{8,}$/;
+        return passwordRegex.test(pwd);
+    };
+
     const handleSubmit = async () => {
         // Validate inputs before submitting
         if (!validateInputs()) {
@@ -93,10 +108,46 @@ const CustomerModal = () => {
             };
             setCustomer(customerWithOrderId);
             setTableNum(tableNum.trim());
-            setOpen(false);
+            setShowAccountPrompt(true);
         } catch (error) {
             console.error('Error adding customer:', error);
             setError('Failed to submit. Please try again.');
+        }
+    };
+
+    const handleAccountCreation = async () => {
+        if (!validateEmail(email)) {
+            setError('Please enter a valid email address');
+            return;
+        }
+        if (!validatePassword(password)) {
+            setError('Password must contain at least one uppercase letter, one lowercase letter, one number, one special character, and be at least 8 characters long');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/createAccount?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create account');
+            }
+
+            const updatedCustomer = await response.json();
+            const customerWithOrderId = {
+                ...updatedCustomer,
+                orderId: customer.orderId,
+                tableNum: parseInt(tableNum.trim(), 10)
+            };
+            setCustomer(customerWithOrderId);
+            setShowEmailPassword(false);
+        } catch (error) {
+            console.error('Error creating account:', error);
+            setError('Failed to create account. Please try again.');
         }
     };
 
@@ -116,7 +167,8 @@ const CustomerModal = () => {
             const newCustomer = await response.json();
             const customerWithOrderId = {
                 ...newCustomer,
-                orderId: newCustomer.order.orderId
+                orderId: newCustomer.order.orderId,
+                tableNum: 1
             };
             setCustomer(customerWithOrderId);
             setTableNum(1);
@@ -264,6 +316,143 @@ const CustomerModal = () => {
                 </Box>
             </Modal>
 
+            <Modal 
+                open={showAccountPrompt} 
+                onClose={() => {}}
+                disableEscapeKeyDown
+            >
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 400,
+                    bgcolor: 'rgba(60, 58, 58, 0.93)',
+                    color: 'white',
+                    boxShadow: 24,
+                    p: 4,
+                    borderRadius: 2,
+                }}>
+                    <Typography variant="h6" component="h2" sx={{ color: 'white', mb: 2 }}>
+                        Would you like to create an account?
+                    </Typography>
+                    <Typography sx={{ color: 'white', mb: 3 }}>
+                        You can track your orders in real-time and view your order history at Oaxaca.
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => {
+                                setShowAccountPrompt(false);
+                                setShowEmailPassword(true);
+                            }}
+                            sx={{
+                                backgroundColor: '#333',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#666',
+                                },
+                            }}
+                        >
+                            Yes
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => {
+                                setShowAccountPrompt(false);
+                                setCustomer({
+                                    ...customer,
+                                    tableNum: parseInt(tableNum.trim(), 10)
+                                });
+                            }}
+                            sx={{
+                                backgroundColor: '#333',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#666',
+                                },
+                            }}
+                        >
+                            No
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
+
+            <Modal open={showEmailPassword} onClose={() => setShowEmailPassword(false)}>
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 400,
+                    bgcolor: 'rgba(60, 58, 58, 0.93)',
+                    color: 'white',
+                    boxShadow: 24,
+                    p: 4,
+                    borderRadius: 2,
+                }}>
+                    <Typography variant="h6" component="h2" sx={{ color: 'white', mb: 2 }}>
+                        Create Your Account
+                    </Typography>
+                    <TextField
+                        label="Email"
+                        fullWidth
+                        margin="normal"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        error={!!error && error.includes('email')}
+                        helperText={error && error.includes('email') ? error : ''}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                '& fieldset': { borderColor: 'white' },
+                                '&:hover fieldset': { borderColor: 'white' },
+                                '&.Mui-focused fieldset': { borderColor: 'white' },
+                            },
+                            '& .MuiInputLabel-root': { color: 'white' },
+                            '& .MuiInputBase-input': { color: 'white' },
+                        }}
+                    />
+                    <TextField
+                        label="Password"
+                        type="password"
+                        fullWidth
+                        margin="normal"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        error={!!error && error.includes('Password')}
+                        helperText={error && error.includes('Password') ? error : ''}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                '& fieldset': { borderColor: 'white' },
+                                '&:hover fieldset': { borderColor: 'white' },
+                                '&.Mui-focused fieldset': { borderColor: 'white' },
+                            },
+                            '& .MuiInputLabel-root': { color: 'white' },
+                            '& .MuiInputBase-input': { color: 'white' },
+                        }}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleAccountCreation}
+                            sx={{
+                                backgroundColor: '#333',
+                                color: 'white',
+                                '&:hover': {
+                                    backgroundColor: '#666',
+                                },
+                            }}
+                        >
+                            Create Account
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
+
             {/* Error Snackbar */}
             <Snackbar
                 open={!!error}
@@ -271,9 +460,9 @@ const CustomerModal = () => {
                 onClose={handleErrorClose}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert 
-                    onClose={handleErrorClose} 
-                    severity="error" 
+                <Alert
+                    onClose={handleErrorClose}
+                    severity="error"
                     sx={{ width: '100%' }}
                 >
                     {error}

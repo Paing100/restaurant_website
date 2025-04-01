@@ -43,5 +43,23 @@ public class CustomerTest {
     assertEquals("Smith", customer2.getName());
   }
 
+  @Test
+  void testCustomerConstructorWithEmailAndPassword() {
+    Customer customer2 = new Customer("Smith", "smith@email.com", "password123");
+    assertEquals("Smith", customer2.getName());
+    assertEquals("smith@email.com", customer2.getEmail());
+    assertEquals("password123", customer2.getPassword());
+  }
 
+  @Test
+  void testGetAndSetEmail() {
+    customer.setEmail("test@email.com");
+    assertEquals("test@email.com", customer.getEmail());
+  }
+
+  @Test
+  void testGetAndSetPassword() {
+    customer.setPassword("testpass123");
+    assertEquals("testpass123", customer.getPassword());
+  }
 }

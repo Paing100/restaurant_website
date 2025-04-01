@@ -1,11 +1,12 @@
 /* eslint-disable */
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert, IconButton, Paper, Slide } from '@mui/material';
+import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert, IconButton, Paper, Slide, TextField } from '@mui/material';
 import { CartContext } from './CartContext';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from "prop-types";
 import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
@@ -160,7 +161,7 @@ OrderInfoPopup.propTypes = {
 }
 
 function Order() {
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer, suggestions } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions } = useContext(CartContext);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState('success');
     const [showOrderInfo, setShowOrderInfo] = useState(() => {
@@ -202,7 +203,10 @@ function Order() {
     const [newOrderModalOpen, setNewOrderModalOpen] = useState(false);
     const [hasCreatedOrder, setHasCreatedOrder] = useState(false);
     const timerRef = useRef(null);
-    const ws = useRef(null);
+        const ws = useRef(null);
+
+    const [tableEditModalOpen, setTableEditModalOpen] = useState(false);
+    const [newTableNum, setNewTableNum] = useState('');
 
     const orderedItems = cart?.orderedItems || {};
 
@@ -382,6 +386,73 @@ function Order() {
         checkOrderStatus();
     }, [customer]);
 
+    // Add new useEffect to check for existing orders
+    useEffect(() => {
+        const checkExistingOrders = async () => {
+            if (customer?.customerId) {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/orders`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' },
+                    });
+
+                    if (response.ok) {
+                        const orders = await response.json();
+                        // Filter for submitted orders (status not CREATED)
+                        const submittedOrders = orders.filter(order => order.orderStatus !== 'CREATED');
+                        
+                        if (submittedOrders.length > 0) {
+                            const latestOrder = submittedOrders[submittedOrders.length - 1];
+
+                            setReceipt(submittedOrders.map(order => ({
+                                orderId: order.orderId,
+                                receipt: order.orderMenuItems.map(item => ({
+                                    itemName: item.menuItem.name,
+                                    quantity: item.quantity,
+                                    price: item.menuItem.price
+                                })),
+                                receiptTotal: order.orderMenuItems.reduce((total, item) => 
+                                    total + (item.quantity * item.menuItem.price), 0),
+                                orderTime: order.orderPlaced,
+                                tableNum: order.tableNum,
+                                status: order.orderStatus
+                            })));
+
+                            setShowOrderInfo(true);
+                            setOrderStatus(latestOrder.orderStatus);
+
+                            const latestNonDeliveredOrder = submittedOrders.reverse().find(order => order.orderStatus !== 'DELIVERED');
+                            if (latestNonDeliveredOrder) {
+                                setOrderTime(new Date(latestNonDeliveredOrder.orderPlaced));
+                            }
+
+                            const orderInfo = {
+                                show: true,
+                                expanded: false,
+                                status: latestOrder.orderStatus,
+                                receipt: receipt,
+                                total: latestOrder.orderMenuItems.reduce((total, item) => 
+                                    total + (item.quantity * item.menuItem.price), 0),
+                                orderTime: latestOrder.orderPlaced,
+                                tableNum: latestOrder.tableNum
+                            };
+                            localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
+                        } else {
+                            // No submitted orders, clear the status bar
+                            setShowOrderInfo(false);
+                            setReceipt([]);
+                            localStorage.removeItem('orderInfo');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching customer orders:', error);
+                }
+            }
+        };
+
+        checkExistingOrders();
+    }, [customer?.customerId]); // Only run when customerId changes
+
     const decreaseItemQuantity = (itemId) => {
         removeItemFromCart(itemId, false);
     };
@@ -502,6 +573,31 @@ function Order() {
         }
     }
 
+    const handleTableNumChange = () => {
+        // Validate table number
+        const tableNumInt = parseInt(newTableNum, 10);
+        if (!newTableNum || isNaN(tableNumInt) || tableNumInt <= 0 || tableNumInt > 40) {
+            setMessage('Table number must be between 1 and 40');
+            setSeverity('error');
+            setOpen(true);
+            return;
+        }
+
+        const updatedCustomer = {
+            ...customer,
+            tableNum: tableNumInt
+        };
+        setCustomer(updatedCustomer);
+        setTableNum(tableNumInt);
+        localStorage.setItem('tableNum', tableNumInt.toString());
+        localStorage.setItem('customer', JSON.stringify(updatedCustomer));
+        setMessage('Table number updated successfully');
+        setSeverity('success');
+        setOpen(true);
+        setTableEditModalOpen(false);
+        setNewTableNum('');
+    };
+
     return (
         <Box sx={{ padding: 3, paddingBottom: showOrderInfo ? 8 : 3 }}>
             <Button
@@ -529,9 +625,30 @@ function Order() {
                     >
                         New Order
                     </Button>
-                    
                 )}
             </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', padding: '15px', gap: 2 }}>
+                <Typography variant="h6" sx={{ color: 'white' }}>
+                    Your Table Number: {tableNum || 'Not set'}
+                </Typography>
+                <Button
+                    onClick={() => {
+                        setNewTableNum(tableNum?.toString() || '');
+                        setTableEditModalOpen(true);
+                    }}
+                    sx={{ 
+                        backgroundColor: '#333',
+                        color: 'white',
+                        '&:hover': { 
+                            backgroundColor: 'darkgray' 
+                        }
+                    }}
+                >
+                    CHANGE
+                </Button>
+            </Box>
+
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List sx={{ mb: 4 }}>
                 {Object.entries(orderedItems).map(([itemName, item]) => {
@@ -672,11 +789,11 @@ function Order() {
                     expanded={expanded}
                     setExpanded={setExpanded}
                     customer={customer}
-                    tableNum={tableNum || storedTableNum}
+                    tableNum={receipt[receipt.length - 1]?.tableNum}
                     elapsedTime={elapsedTime}
                     orderStatus={receipt[receipt.length - 1]?.status}
                     receipt={receipt.length > 0 && receipt[receipt.length - 1]?.receipt ? receipt[receipt.length - 1].receipt : []}
-                    receiptTotal={receipt.length > 0 && receipt[receipt.length - 1]?.receiptTotal ? receipt[receipt.length - 1].receiptTotal : 0} // always show the latest receipt total otherwise 0
+                    receiptTotal={receipt.length > 0 && receipt[receipt.length - 1]?.receiptTotal ? receipt[receipt.length - 1].receiptTotal : 0}
                 />
             )}
             <PaymentModal
@@ -695,8 +812,52 @@ function Order() {
                 confirmButtonText="Yes, Create New Order"
                 cancelButtonText="No, Go Back"
             />
+            <NewOrderModal
+                open={tableEditModalOpen}
+                onClose={() => {
+                    setTableEditModalOpen(false);
+                    setNewTableNum('');
+                }}
+                onConfirm={handleTableNumChange}
+                title="Change Table Number"
+                content={
+                    <Box sx={{ pt: 2 }}>
+                        <TextField
+                            autoFocus
+                            fullWidth
+                            label="New Table Number"
+                            type="number"
+                            value={newTableNum}
+                            onChange={(e) => setNewTableNum(e.target.value)}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'white',
+                                    },
+                                },
+                                '& .MuiInputLabel-root': {
+                                    color: 'white',
+                                },
+                                '& .MuiInputBase-input': {
+                                    color: 'white',
+                                },
+                            }}
+                        />
+                    </Box>
+                }
+                confirmButtonText="Update Table Number"
+                cancelButtonText="Cancel"
+            />
         </Box>
     );
 }
 
 export default Order;
+
+
