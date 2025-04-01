@@ -26,7 +26,9 @@ CREATE TABLE waiter (
 
 CREATE TABLE customer (
     customer_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    password VARCHAR(255)
 );
 
 CREATE TYPE order_status AS ENUM ('CREATED', 'SUBMITTED', 'CONFIRMED', 'IN_PROGRESS', 'READY', 'DELIVERED');

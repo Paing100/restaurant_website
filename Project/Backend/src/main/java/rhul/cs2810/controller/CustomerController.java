@@ -9,6 +9,7 @@ import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.model.Waiter;
 import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.OrderRepository;
+import rhul.cs2810.service.CustomerService;
 import rhul.cs2810.service.WaiterService;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class CustomerController {
   private final CustomerRepository customerRepository;
   private final OrderRepository orderRepository;
   private final WaiterService waiterService;
+  private final CustomerService customerService;
 
   /**
    * Constructor for CustomerController.
@@ -30,12 +32,14 @@ public class CustomerController {
    * @param customerRepository the repository for customers
    * @param orderRepository the repository for orders
    * @param waiterService the service for waiter management
+   * @param customerService the service for customer management
    */
   public CustomerController(CustomerRepository customerRepository,
-      OrderRepository orderRepository, WaiterService waiterService) {
+      OrderRepository orderRepository, WaiterService waiterService, CustomerService customerService) {
     this.customerRepository = customerRepository;
     this.orderRepository = orderRepository;
     this.waiterService = waiterService;
+    this.customerService = customerService;
   }
 
   /**
@@ -43,14 +47,23 @@ public class CustomerController {
    *
    * @param name the name of the customer
    * @param tableNum the table number for the order
+   * @param email the email of the customer
+   * @param password the password of the customer
    * @return the saved customer with the associated order, or 400 if no waiter available
    */
   @PostMapping("/add")
-  public ResponseEntity<Customer> addCustomer(@RequestParam String name,
-      @RequestParam int tableNum) {
-    // Create and save customer first
-    Customer newCustomer = new Customer(name);
-    newCustomer = customerRepository.save(newCustomer);
+  public ResponseEntity<Customer> addCustomer(@RequestParam String name, @RequestParam int tableNum, @RequestParam(required = false) String email, @RequestParam(required = false) String password) {
+
+    // Check if email is provided and already exists
+    if (email != null && customerRepository.findByEmail(email) != null) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    // Create and save customer with hashed password
+    Customer newCustomer = (email != null && password != null)
+        ? new Customer(name, email, password)
+        : new Customer(name);
+    newCustomer = customerService.saveCustomer(newCustomer);
 
     // Create order linked to the persisted customer
     Order order = new Order();
@@ -133,5 +146,39 @@ public class CustomerController {
     Customer customer = customerOptional.get();
     List<Order> orders = customer.getOrders();
     return ResponseEntity.ok(orders);
+  }
+
+  /**
+   * Creates an account for an existing customer.
+   *
+   * @param customerId the ID of the customer
+   * @param email the email for the account
+   * @param password the password for the account
+   * @return the updated customer, or 400 if customer not found or email already exists
+   */
+  @PostMapping("/{customerId}/createAccount")
+  public ResponseEntity<Customer> createAccount(@PathVariable int customerId,
+      @RequestParam String email,
+      @RequestParam String password) {
+
+    Optional<Customer> updatedCustomer = customerService.createAccount(customerId, email, password);
+    return updatedCustomer.map(ResponseEntity::ok)
+        .orElse(ResponseEntity.badRequest().build());
+  }
+
+  /**
+   * Authenticates a customer with email and password.
+   *
+   * @param email the customer's email
+   * @param password the customer's password
+   * @return the customer if authentication successful, or 401 if not
+   */
+  @PostMapping("/login")
+  public ResponseEntity<Customer> loginCustomer(@RequestParam String email,
+      @RequestParam String password) {
+
+    Optional<Customer> authenticatedCustomer = customerService.authenticateCustomer(email, password);
+    return authenticatedCustomer.map(ResponseEntity::ok)
+        .orElse(ResponseEntity.status(401).build());
   }
 }
