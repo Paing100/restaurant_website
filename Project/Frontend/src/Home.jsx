@@ -34,7 +34,7 @@ function Home() {
             Welcome to Oaxaca
           </Typography>
           <Typography variant="h5" component="p" sx={{ color: "#ffffff" }} gutterBottom>
-            Experience the best of Mexican street food and table service.
+            Experience the best of Mexican street food.
           </Typography>
           <Link to="/menu" style={{ textDecoration: "none" }}>
             <Button variant="contained" color="primary" size="large">
