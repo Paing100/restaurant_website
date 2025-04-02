@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import {
@@ -19,31 +18,38 @@ import { useWithSound } from './useWithSound';
 
 
 function Waiter() {
+  // Retrieve session data for username and employee ID
   const userName = sessionStorage.getItem("userName");
   const employeeId = sessionStorage.getItem("employeeId");
-  const [orders, setOrders] = useState([]);
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [notification, setNotification] = useState("");
-  const [alerts, setAlerts] = useState([]);
-  const [tables, setTables] = useState({ defaultTables: [], activeTables: [] });
-  const ws = useRef(null);
-  const [open, setOpen] = useState(false);
 
+  // state variables
+  const [orders, setOrders] = useState([]); // stores list of orders
+  const [selectedTab, setSelectedTab] = useState(0); // tracks the currently selected tab 
+  const [notification, setNotification] = useState(""); // stores the notifiction messages
+  const [alerts, setAlerts] = useState([]); // stores alert notifications
+  const [tables, setTables] = useState({ defaultTables: [], activeTables: [] }); // stores assigned tables 
+  const ws = useRef(null); // web socket reference 
+  const [open, setOpen] = useState(false); // controls the visibility of the snackbar 
+  const [orderStatus, setOrderStatus] = useState({ orderId: "", orderStatus: "" }); // Tracks the status of an order
+
+  // Use custom hook for handling notification sound
   const { playSound } = useWithSound(notiSound);
 
-  const handleNotiSound = () => {
+  const handleNotiSound = () => { // Play notification sound when a new notification arrives
     playSound();
   }
 
+  // categories for the tabs 
   const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
-  const [orderStatus, setOrderStatus] = useState({ orderId: "", orderStatus: "" });
 
+  // map order statuses to tab categories 
   const statusMap = new Map([
     ["To Confirm", "SUBMITTED"],
     ["Ready To Deliver", "READY"],
     ["Delivered", "DELIVERED"],
   ]);
 
+  // Fetch tables assigned to the waiter
   const fetchTables = async () => {
     try {
       const response = await fetch(
@@ -57,6 +63,7 @@ function Waiter() {
     }
   };
 
+ // Fetch orders assigned to the waiter
   const fetchOrders = async () => {
     try {
       const response = await fetch(
@@ -74,6 +81,7 @@ function Waiter() {
     }
   };
 
+   // WebSocket connection for receiving real-time notifications
   useEffect(() => {
     fetchTables();
     fetchOrders();
@@ -90,6 +98,7 @@ function Waiter() {
 
       ws.current.onmessage = (event) => {
         let message;
+        // Update order status from WebSocket message
         setOrderStatus({ orderId: event.data.orderId, orderStatus: event.data.orderStatus });
         try {
           message = JSON.parse(event.data);
@@ -111,6 +120,7 @@ function Waiter() {
     }
   }, [employeeId, orderStatus]);
 
+  // Update order status on the server
   const updateOrderStatus = async (orderId, newStatus) => {
     const settings = {
       method: "POST",
@@ -124,25 +134,29 @@ function Waiter() {
         `http://localhost:8080/api/order/${orderId}/updateOrderStatus`,
         settings
       );
-      await fetchOrders();
+      await fetchOrders(); // refresh orders after updating status
     } catch (error) {
       console.error("Error updating order status:", error);
     }
   };
 
+  // handle tab change 
   const handleTabChange = (event, newValue) => {
     setSelectedTab(newValue);
   };
 
+  // filter orders based on selected tab 
   const filteredOrders = orders.filter(
     (order) => order.orderStatus === statusMap.get(categories[selectedTab])
   );
 
+  // Close notification alert
   const handleClose = (event, reason) => {
     if (reason === "clickaway") return;
     setOpen(false);
   };
 
+  // Send alert notification to waiter if assistance is needed
   const alertOthers = async (tableNumber, orderId) => {
     const alertMessage = {
       type: "ALERT",
@@ -161,7 +175,7 @@ function Waiter() {
         }
       );
       if (!sendAlert.ok) throw new Error("Failed to send an alert");
-      setAlerts((prevAlerts) => [...prevAlerts, alertMessage]);
+      setAlerts((prevAlerts) => [...prevAlerts, alertMessage]); // Add the alert to the alerts state
     } catch (error) {
       console.error("Error sending alert:", error);
     }
@@ -174,10 +188,12 @@ function Waiter() {
         Welcome, {userName}!
       </Typography>
 
+      {/* Notification drawer */}
       <Box sx={{ position: "absolute", top: 16, right: 16 }}>
         <NotificationDrawer notifications={alerts} />
       </Box>
 
+      {/* Assigned tables */}
       <Box
         sx={{
           display: "flex",
@@ -214,6 +230,7 @@ function Waiter() {
         </Button>
       </Link>
 
+      {/* Tabs for order categories */}
       <Tabs
         value={selectedTab}
         onChange={handleTabChange}
@@ -234,6 +251,7 @@ function Waiter() {
         ))}
       </Tabs>
 
+      {/* Display filtered orders */}
       <Grid container spacing={2}>
         <Grid item xs={12}>
           {filteredOrders.length > 0 ? (
@@ -269,7 +287,7 @@ function Waiter() {
                       }
                   }
                   onButtonClick={() => {
-                    if (selectedTab === 2) return;
+                    if (selectedTab === 2) return; // do nothing for "Delivered" tab
                     const newStatus =
                       selectedTab === 0
                         ? "CONFIRMED"
@@ -295,7 +313,8 @@ function Waiter() {
           )}
         </Grid>
       </Grid>
-
+      
+      {/* Snackbar for notifications */}
       <Snackbar open={open} onClose={handleClose}>
         <Alert
           onClose={handleClose}

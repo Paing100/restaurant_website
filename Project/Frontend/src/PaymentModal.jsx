@@ -11,12 +11,15 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
     const [cvv, setCvv] = useState('');
     const [error, setError] = useState('');
 
+    // Function to validate the card details entered by the user
     const validateCardInfo = () => {
         if (!cardName) return "Card name is required.";
         if (!/^[A-Za-z ]+$/.test(cardName)) return "Card name must only contain letters and spaces.";
         if (!/^\d{16}$/.test(cardNumber)) return "Card number must be 16 digits.";
         if (!/^\d{6}$/.test(sortCode)) return "Sort code must be 6 digits.";
         if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate)) return "Expiry date must be in MM/YY format.";
+
+        // Check if the expiry date is in the future
         const [month, year] = expiryDate.split('/').map(Number);
         const currentDate = new Date();
         const expiry = new Date(`20${year}`, month - 1);
@@ -24,7 +27,7 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         if (!/^\d{3}$/.test(cvv)) return "CVV must be 3 digits.";
         return "";
     };
-
+     // Handles the form submission by validating card details and processing the payment
     const handleSubmit = () => {
         const errorMessage = validateCardInfo();
         if (errorMessage) {
@@ -33,7 +36,7 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         }
         handlePaymentSuccess();
     };
-
+    // Handles the payment process by sending a request to the backend
     const handlePaymentSuccess = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/order/${orderId}/markAsPaid`, {
@@ -44,6 +47,7 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
             });
 
             if (response.ok) {
+                 // If the payment is successful, call the success callback and close the modal
                 onPaymentSuccess();
                 console.log('Order marked as paid');
                 onClose();
@@ -55,8 +59,6 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         }
     };
 
-    // Skip payment for testing purposes
-    // TAKE OUT BEFORE DEPLOYMENT
     const handleSkipPayment = () => {
         onPaymentSuccess();
         onClose();
@@ -140,7 +142,7 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         </Modal>
     );
 };
-
+// Define prop types to ensure correct usage of the component
 PaymentModal.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,

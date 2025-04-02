@@ -5,13 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
 import PropTypes from 'prop-types';
 
+// component for customer login modal 
 const CustomerLoginModal = ({ open, onClose }) => {
-    const { setCustomer } = useContext(CartContext);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+    const { setCustomer } = useContext(CartContext); // access 'setCustomer' from CartContext
+    const [email, setEmail] = useState(''); // state for email input 
+    const [password, setPassword] = useState(''); // state for password input 
+    const [error, setError] = useState(''); // state for errors 
+    const navigate = useNavigate(); // hook for navigation 
 
+    // function to handle logins 
     const handleLogin = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/customers/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {

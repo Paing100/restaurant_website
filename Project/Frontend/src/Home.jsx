@@ -29,6 +29,7 @@ function Home() {
             backgroundColor: "rgba(0, 0, 0, 0.5)", 
           }}
         />
+        {/* Main content container */}
         <Container sx={{ position: "relative", zIndex: 1 }}>
           <Typography variant="h2" component="h1" gutterBottom sx={{ fontWeight: "bold", color: "#ffffff" }}>
             Welcome to Oaxaca

@@ -1,17 +1,22 @@
-/* eslint-disable */
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, CardMedia, Paper, Button, IconButton } from '@mui/material';
+import { useState, useEffect, useContext, useRef } from 'react';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper, Button, IconButton } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext';
 
 const AllOrders = () => {
+    // State to store orders and the currently expanded order ID
     const [orders, setOrders] = useState([]);
     const [expandedOrderId, setExpandedOrderId] = useState(null);
+
+    // Access customer data from CartContext
     const { customer } = useContext(CartContext);
+
+    // WebSocket reference 
     const ws = useRef(null);
 
+    // Function to fetch orders for current customer using its unique ID 
     const fetchOrders = async () => {
         if (!customer || !customer.customerId) {
             console.error('No customer found');
@@ -22,7 +27,7 @@ const AllOrders = () => {
             const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
             if (response.ok) {
                 const customerOrders = await response.json();
-                setOrders(customerOrders);
+                setOrders(customerOrders); // update orders state 
             } else {
                 console.error('Error fetching orders:', response.statusText);
             }
@@ -31,13 +36,15 @@ const AllOrders = () => {
         }
     };
 
+    // Fetch orders on component mount
     useEffect(() => {
         fetchOrders();
         // Refresh orders every 30 seconds
         const interval = setInterval(fetchOrders, 30000);
-        return () => clearInterval(interval);
+        return () => clearInterval(interval); // Cleanup interval on unmount
     }, [customer]);
 
+    // set up websocket connection to listen for order updates 
     useEffect(() => {
         if (!ws.current) {
             ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
@@ -52,10 +59,11 @@ const AllOrders = () => {
 
             ws.current.onmessage = (event) => {
                 console.log("EVENT IN CUSTOMER: " + event.data);
-                fetchOrders();
+                fetchOrders(); // refresh orders when a websocket message is received
             }
         }
         return () => {
+            // Cleanup WebSocket connection on component unmount
             if (ws.current && ws.current.readyState === WebSocket.OPEN) {
                 console.log("Closing WebSocket on cleanup");
                 ws.current.close();
@@ -63,6 +71,7 @@ const AllOrders = () => {
         };
     }, []);
 
+    // Format the order time into a readable string 
     const formatTime = (orderPlaced) => {
         if (!orderPlaced) return 'N/A';
         const date = new Date(orderPlaced);
@@ -71,6 +80,7 @@ const AllOrders = () => {
 
     return (
         <Box sx={{ padding: 3 }}>
+            {/*Header with Back and Refresh button*/}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
                 <Button
                     onClick={() => window.history.back()}
@@ -103,10 +113,11 @@ const AllOrders = () => {
                 </IconButton>
             </Box>
             <Typography variant="h4" sx={{ marginBottom: 3 }}>Your Order History</Typography>
+            {/*List of orders*/}
             <List>
                 {orders.map((order) => (
                     <Paper
-                        key={order.orderId}
+                        key={order.orderId} // unique key for each order
                         sx={{
                             backgroundColor: '#333',
                             color: 'white',
@@ -133,6 +144,8 @@ const AllOrders = () => {
                                         {formatTime(order.orderPlaced)}
                                     </Typography>
                                 </Grid>
+
+                                {/* Order status with color-coded indicator */}
                                 <Grid item xs={2}>
                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                         <Box
@@ -157,11 +170,15 @@ const AllOrders = () => {
                                         </Typography>
                                     </Box>
                                 </Grid>
+
+                                {/*Expand/Collapse icon*/}
                                 <Grid item xs={1}>
                                     {expandedOrderId === order.orderId ? <ExpandMoreIcon /> : <ExpandLessIcon />}
                                 </Grid>
                             </Grid>
                         </Box>
+
+                        {/*Expanded order details*/}
                         {expandedOrderId === order.orderId && (
                             <Box sx={{ mt: 2, overflowY: 'auto', maxHeight: '80vh' }}>
                                 <Typography variant="h6" sx={{ mb: 2, borderBottom: '1px solid #555', pb: 1 }}>

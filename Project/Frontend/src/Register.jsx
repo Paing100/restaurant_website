@@ -71,6 +71,7 @@ function Register() {
     }
 
     try {
+      // Send registration request to backend
       const response = await axios.post("http://localhost:8080/auth/register", {
         employeeId: userId,
         password: password,
@@ -82,13 +83,13 @@ function Register() {
           "Content-Type": "application/json"
         }
       });
-
+       // If registration is successful
       if (response.status === 200) {
         console.log("Employee registered!");
         setMessage("Registered/Updated Successfully!");
         setSeverity("success");
         setOpen(true);
-        removeInputs();
+        removeInputs(); // Clear form fields
       }
 
     } catch (error) {
@@ -98,7 +99,7 @@ function Register() {
       setOpen(true);
     }
   }
-
+ // Clears input fields after successful registration
   const removeInputs = () => {
     setUserId("");
     setPassword("");
@@ -108,11 +109,11 @@ function Register() {
     setPasswordError(false);
     setNameError({ firstName: false, lastName: false });
   }
-
+  // Closes the Snackbar notification
   const handleClose = () => {
     setOpen(false);
   };
-
+  // Handles role selection change
   const handleSelectChange = (event) => {
     setRole(event.target.value);
   }

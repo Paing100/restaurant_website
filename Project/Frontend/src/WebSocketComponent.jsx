@@ -7,16 +7,17 @@ const WebSocketComponent = () => {
   const ws = useRef(null);
 
   useEffect(() => {
+     // Creating a new WebSocket connection
     ws.currrent = new WebSocket("ws://localhost:8080/ws/notifications")
-
+    // Event handler when the WebSocket connection is opened
     ws.current.onopen = () => {
       console.log('WebSocket connected');
     };
-
+     // Event handler when the WebSocket connection is closed
     ws.onclose = () => {
       console.log("Websocket session is closed");
     }
-
+    // Cleanup function to close WebSocket on component unmount
     return () => {
       if (ws.current){
         socket.close();
@@ -25,14 +26,15 @@ const WebSocketComponent = () => {
   }, []);
 
   const handleNotification = async() => {
+    // Sending a POST request to notify the server
     const response = fetch('http://localhost:8080/api/notification/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify("New notification"),
+      body: JSON.stringify("New notification"), // Request body with the notification message
     });
-
+   // Checking if the response was successful
     if (((await response).ok)){
       console.log("Notification sent");
     }

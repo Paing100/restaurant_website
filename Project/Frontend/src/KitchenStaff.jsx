@@ -5,18 +5,24 @@ import notiSound from './assets/sound/Noti.mp3';
 import { useWithSound } from './useWithSound';
 
 function KitchenStaff() {
+  // retrieve the username from session storage 
   const userName = sessionStorage.getItem("userName");
-  const [orders, setOrders] = useState([]);
-  const ws = useRef(null);
-  const [notification, setNotification] = useState("");
-  const [open, setOpen] = useState(false);
 
-      const { playSound } = useWithSound(notiSound);
-    
-      const handleNotiSound = () => {
-        playSound();
-      }
+  // State variables  
+  const [orders, setOrders] = useState([]); // stores the list of pending orders 
+  const ws = useRef(null); // websocket reference 
+  const [notification, setNotification] = useState(""); // store notification messages 
+  const [open, setOpen] = useState(false); // controls the visibility of the snackbar 
+
+  // custom hook to play notification sound 
+  const { playSound } = useWithSound(notiSound);
+
+  // function to play the sound 
+  const handleNotiSound = () => {
+    playSound();
+  }
   
+  // useEffect to establish websocket when the component is loaded 
   useEffect(() => {
     if (!ws.current) {
       ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
@@ -25,14 +31,16 @@ function KitchenStaff() {
 
       ws.current.onclose = () => console.log("WebSocket closed");
 
+      // handle incoming WebSocket messages 
       ws.current.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
+          // check if the message is for the kitchen and type is "CONFIRMED"
           if (message.recipient === "kitchen" && message.type === "CONFIRMED") {
-            handleNotiSound();
-            setNotification(message.message);
-            setOpen(true);
-            fetchOrders();
+            handleNotiSound(); // play sound 
+            setNotification(message.message); // set notification message
+            setOpen(true); // show the snackbar
+            fetchOrders(); // refresh the list of orders 
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -42,6 +50,7 @@ function KitchenStaff() {
 
     fetchOrders();
 
+    // Cleanup WebSocket connection on component unmount
     return () => {
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         ws.current.close();
@@ -49,6 +58,7 @@ function KitchenStaff() {
     };
   }, []);
 
+  // function to fetch orders from server 
   const fetchOrders = async () => {
     try {
       const response = await fetch(
@@ -57,15 +67,17 @@ function KitchenStaff() {
       if (!response.ok) throw new Error("Error fetching orders");
 
       const data = await response.json();
+      // Filter orders with "CONFIRMED"
       const pendingOrders = data.filter(
         (order) => order.orderStatus === "CONFIRMED"
       );
-      setOrders(pendingOrders);
+      setOrders(pendingOrders); // update the orders
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
-  };
+  };  
 
+  // function to change the order status to "READY"
   const markAsReady = async (orderId) => {
     setOrders((prevOrders) =>
       prevOrders.filter((order) => order.orderId !== orderId)
@@ -77,6 +89,7 @@ function KitchenStaff() {
       body: JSON.stringify({ orderStatus: "READY" }),
     };
 
+    // notification message to be sent to the waiter 
     const notificationMessage = {
       type: "READY",
       orderId: orderId,
@@ -85,11 +98,13 @@ function KitchenStaff() {
     };
 
     try {
+      // update the order status using the API
       await fetch(
         `http://localhost:8080/api/order/${orderId}/updateOrderStatus`,
         settings
       );
 
+      // send the message to the waiter with an API end point 
       const sendMessage = await fetch(
         "http://localhost:8080/api/notification/send",
         {
@@ -101,6 +116,7 @@ function KitchenStaff() {
 
       if (!sendMessage.ok) throw new Error("Failed to send notification");
 
+      // send the notification via websocket if the connection is open 
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         ws.current.send(JSON.stringify(notificationMessage));
       }
@@ -109,6 +125,7 @@ function KitchenStaff() {
     }
   };
 
+  // function to close the snackbar 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") return;
     setOpen(false);
@@ -122,6 +139,8 @@ function KitchenStaff() {
       <Typography variant="h5" sx={{ marginBottom: 2 }}>
         Pending Orders
       </Typography>
+
+      {/* Display the list of pending orders if there's any */}
       {orders.length > 0 ? (
         <List>
           {orders.map((order) => (
@@ -145,6 +164,8 @@ function KitchenStaff() {
           No orders to mark as ready
         </Typography>
       )}
+
+      {/* Snackbar for notifications */} 
       <Snackbar open={open} onClose={handleClose}>
         <Alert
           onClose={handleClose}

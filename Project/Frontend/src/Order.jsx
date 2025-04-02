@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert, IconButton, Paper, Slide, TextField } from '@mui/material';
 import { CartContext } from './CartContext';
@@ -6,14 +5,13 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from "prop-types";
 import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
 import MenuCard from './MenuCard';
-
 import { Link } from 'react-router-dom';
 
+// Popup component to display order information
 const OrderInfoPopup = React.memo(({
     showOrderInfo,
     expanded,
@@ -44,6 +42,7 @@ const OrderInfoPopup = React.memo(({
                 overflow: 'hidden'
             }}
         >
+            {/* Header for the popup */}
             <Box sx={{ cursor: 'pointer' }} onClick={() => setExpanded(!expanded)}>
                 <Grid container spacing={1} alignItems="center">
                     <Grid item xs={2.5}>
@@ -139,7 +138,8 @@ const OrderInfoPopup = React.memo(({
         </Paper>
     </Slide>
 ));
-
+OrderInfoPopup.displayName = "OrderInfoPopup";
+// PropTypes validation for `OrderInfoPopup`
 OrderInfoPopup.propTypes = {
     showOrderInfo: PropTypes.bool.isRequired,
     expanded: PropTypes.bool.isRequired,
@@ -161,55 +161,52 @@ OrderInfoPopup.propTypes = {
 }
 
 function Order() {
+    // Context and state variables
     const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions } = useContext(CartContext);
-    const [message, setMessage] = useState('');
-    const [severity, setSeverity] = useState('success');
-    const [showOrderInfo, setShowOrderInfo] = useState(() => {
+    const [message, setMessage] = useState(''); // snackbar message
+    const [severity, setSeverity] = useState('success'); // snackbar severity
+    const [showOrderInfo, setShowOrderInfo] = useState(() => { // Controls order info popup visibility
         const savedOrderInfo = localStorage.getItem('orderInfo');
         return savedOrderInfo ? JSON.parse(savedOrderInfo).show : false;
     });
-    const [expanded, setExpanded] = useState(() => {
+    const [expanded, setExpanded] = useState(() => { // Controls popup expansion
         const savedOrderInfo = localStorage.getItem('orderInfo');
         return savedOrderInfo ? JSON.parse(savedOrderInfo).expanded : false;
     });
-    const [orderStatus, setOrderStatus] = useState(() => {
+    const [orderStatus, setOrderStatus] = useState(() => {  // Tracks order status
         const savedOrderInfo = localStorage.getItem('orderInfo');
         return savedOrderInfo ? JSON.parse(savedOrderInfo).status : 'PENDING';
     });
-    const [receipt, setReceipt] = useState(() => {
+    const [receipt, setReceipt] = useState(() => { // Stores receipt details
         const savedOrderInfo = localStorage.getItem('orderInfo');
         return savedOrderInfo ? JSON.parse(savedOrderInfo).receipt : [];
     });
-    const [receiptTotal, setReceiptTotal] = useState(() => {
+    const [receiptTotal, setReceiptTotal] = useState(() => { // Stores total receipt amount
         const savedOrderInfo = localStorage.getItem('orderInfo');
         return savedOrderInfo ? JSON.parse(savedOrderInfo).total : 0;
     });
-    const [orderTime, setOrderTime] = useState(() => {
+    const [orderTime, setOrderTime] = useState(() => { // Tracks order time
         const savedOrderInfo = localStorage.getItem('orderInfo');
         const savedOrderTime = savedOrderInfo ? JSON.parse(savedOrderInfo).orderTime : null;
         return savedOrderTime ? new Date(savedOrderTime) : null;
     });
-    const [storedTableNum, setStoredTableNum] = useState(() => {
+    const [storedTableNum, setStoredTableNum] = useState(() => { // Stores table number
         const savedOrderInfo = localStorage.getItem('orderInfo');
         return savedOrderInfo ? JSON.parse(savedOrderInfo).tableNum : null;
     });
-    const [open, setOpen] = useState(false);
-    const [elapsedTime, setElapsedTime] = useState('00:00:00');
-    const [paymentModalOpen, setPaymentModalOpen] = useState(false);
-    const [orderCount, setOrderCount] = useState(() => {
-        const savedOrderCount = localStorage.getItem('orderCount');
-        return savedOrderCount ? parseInt(savedOrderCount, 10) : 0;
-    });
-    const [newOrderModalOpen, setNewOrderModalOpen] = useState(false);
-    const [hasCreatedOrder, setHasCreatedOrder] = useState(false);
-    const timerRef = useRef(null);
-        const ws = useRef(null);
+    const [open, setOpen] = useState(false); // Controls Snackbar visibility
+    const [elapsedTime, setElapsedTime] = useState('00:00:00'); // Tracks elapsed time
+    const [paymentModalOpen, setPaymentModalOpen] = useState(false); // Controls payment modal visibility
+    const [newOrderModalOpen, setNewOrderModalOpen] = useState(false); // Controls new order modal visibility
+    const [hasCreatedOrder, setHasCreatedOrder] = useState(false); // Tracks if an order has been created
+    const timerRef = useRef(null); // Timer reference for elapsed time
+    const ws = useRef(null); // WebSocket reference 
+    const [tableEditModalOpen, setTableEditModalOpen] = useState(false); // Controls table edit modal visibility
+    const [newTableNum, setNewTableNum] = useState(''); // Tracks new table number input
 
-    const [tableEditModalOpen, setTableEditModalOpen] = useState(false);
-    const [newTableNum, setNewTableNum] = useState('');
+    const orderedItems = cart?.orderedItems || {}; // Extract ordered items from the cart
 
-    const orderedItems = cart?.orderedItems || {};
-
+    // WebSocket setup for real-time updates
     useEffect(() => {
         if (!ws.current) {
             ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
@@ -250,6 +247,7 @@ function Order() {
         };
     }, []);
 
+    // function to stop the timer for customer 
     const stopTimer = () => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
@@ -260,6 +258,7 @@ function Order() {
         }
     };
 
+    // function to alert others 
     const alertOthers = async (tableNumber, orderId) => {
         const alertMessage = {
         // Define the userName variable
@@ -288,13 +287,7 @@ function Order() {
         }
       };
 
-    const restartTimer = () => {
-        stopTimer();
-        const now = new Date();
-        setOrderTime(now);
-        console.log("Timer restarted.");
-    };
-
+    // update the status of an order that accepts two arguments
     const updateOrderStatus = (orderId, newStatus) => {
         setReceipt((prevReceipt) => {
             // Find and update the status of the specific order
@@ -335,6 +328,7 @@ function Order() {
         });
     };
 
+    // Timer for elapsed time
     useEffect(() => {
         if (orderTime) {
             timerRef.current = setInterval(() => {
@@ -351,6 +345,7 @@ function Order() {
         return () => clearInterval(timerRef.current);
     }, [orderTime]);
 
+    // Save order info to localStorage
     useEffect(() => {
         const orderInfo = {
             show: showOrderInfo,
@@ -453,16 +448,19 @@ function Order() {
         checkExistingOrders();
     }, [customer?.customerId]); // Only run when customerId changes
 
+    // Function to decrease item quantity by removing it from the cart
     const decreaseItemQuantity = (itemId) => {
         removeItemFromCart(itemId, false);
     };
 
+    // Function to increase item quantity by adding it to the cart
     const increaseItemQuantity = (itemId) => {
         addItemToCart(itemId, 1);
     };
 
+    // Handles payment success by submitting the order and updating the UI and local storage
     const handlePaymentSuccess = async () => {
-        const result = await submitOrder();
+        const result = await submitOrder(); // submit order and get result 
         if (result.success) {
             // create a new order object 
             const newOrder = {
@@ -473,7 +471,6 @@ function Order() {
                 tableNum: tableNum,
                 status: 'SUBMITTED',
             };
-            setOrderCount(orderCount => orderCount + 1);
             setOrderStatus('SUBMITTED');
             setShowOrderInfo(true);
             setMessage(result.message);
@@ -516,6 +513,7 @@ function Order() {
         setOpen(true);
     };
 
+    // Function to handle confirming a new order
     const handleNewOrderConfirm = async () => {
         const result = await createNewOrder();
         if (result.success) {
@@ -526,11 +524,12 @@ function Order() {
             setMessage(result.message);
             setSeverity('error');
         }
-        setOpen(true);
+        setOpen(true); 
     };
 
+    // Function to handle order submission
     const handleSubmit = () => {
-        if (!orderedItems || Object.keys(orderedItems).length === 0) {
+        if (!orderedItems || Object.keys(orderedItems).length === 0) { // check if the cart is empty 
             console.error("Error: Cart is empty. Cannot submit order.");
             setMessage("Error: Cart is empty. Cannot submit order.");
             setSeverity('error');
@@ -538,9 +537,10 @@ function Order() {
             return;
         }
 
-        setPaymentModalOpen(true);
+        setPaymentModalOpen(true); // Open the payment modal if the cart is not empty
     };
 
+    // Function to handle closing the notification modal
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -548,6 +548,7 @@ function Order() {
         setOpen(false);
     };
 
+    // Fetches the current order status from the backend using orderId
     const fetchOrderStatus = async (orderId) => {
         try {
             const response = await fetch(`http://localhost:8080/api/orders/${orderId}/getOrder`, {
@@ -555,9 +556,9 @@ function Order() {
                 headers: { 'Accept': 'application/json' },
             });
             if (response.ok) {
-                const orderData = await response.json();
-                updateOrderStatus(orderData.orderId, orderData.orderStatus);
-                setOrderStatus(orderData.orderStatus);
+                const orderData = await response.json(); // Parse order data from the response
+                updateOrderStatus(orderData.orderId, orderData.orderStatus); // Update the order status
+                setOrderStatus(orderData.orderStatus); // Set the new order status in state
                 if (orderData.orderStatus === 'DELIVERED') {
                     stopTimer();
                     setOrderTime(null);
@@ -573,6 +574,7 @@ function Order() {
         }
     }
 
+    // Function to handle table number change
     const handleTableNumChange = () => {
         // Validate table number
         const tableNumInt = parseInt(newTableNum, 10);
@@ -583,23 +585,25 @@ function Order() {
             return;
         }
 
+        // Update customer table number in state and local storage
         const updatedCustomer = {
             ...customer,
-            tableNum: tableNumInt
+            tableNum: tableNumInt // Set the updated table number
         };
-        setCustomer(updatedCustomer);
-        setTableNum(tableNumInt);
-        localStorage.setItem('tableNum', tableNumInt.toString());
-        localStorage.setItem('customer', JSON.stringify(updatedCustomer));
+        setCustomer(updatedCustomer); // update customer state 
+        setTableNum(tableNumInt); // update table number state
+        localStorage.setItem('tableNum', tableNumInt.toString()); // save the updated table number in local storage
+        localStorage.setItem('customer', JSON.stringify(updatedCustomer)); // save updated customer data 
         setMessage('Table number updated successfully');
-        setSeverity('success');
-        setOpen(true);
-        setTableEditModalOpen(false);
-        setNewTableNum('');
+        setSeverity('success'); // set success serverity 
+        setOpen(true); // open notification modal 
+        setTableEditModalOpen(false); // close table number edit modal
+        setNewTableNum(''); // reset table number input field 
     };
 
     return (
         <Box sx={{ padding: 3, paddingBottom: showOrderInfo ? 8 : 3 }}>
+            {/* Back button */}
             <Button
                 onClick={() => window.history.back()}
                 sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' }, marginBottom: 2 }}
@@ -607,6 +611,7 @@ function Order() {
                 ← Back
             </Button>
 
+            {/* Call assistance button to alert others */}
             <Button
                 onClick={() => alertOthers(tableNum, customer.orderId)}
                 variant="contained"
@@ -615,6 +620,7 @@ function Order() {
                 Call Assistance
             </Button>
             
+            {/* Section for displaying the tagble number and option to change it */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px' }}>
                 <Typography variant="h4">Place Your Order</Typography>
                 {!hasCreatedOrder && (
@@ -627,7 +633,8 @@ function Order() {
                     </Button>
                 )}
             </Box>
-
+            
+            {/* Display current table number with option to edit */}
             <Box sx={{ display: 'flex', alignItems: 'center', padding: '15px', gap: 2 }}>
                 <Typography variant="h6" sx={{ color: 'white' }}>
                     Your Table Number: {tableNum || 'Not set'}
@@ -648,7 +655,8 @@ function Order() {
                     CHANGE
                 </Button>
             </Box>
-
+            
+            {/* Section for displaying ordered items */}
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List sx={{ mb: 4 }}>
                 {Object.entries(orderedItems).map(([itemName, item]) => {
@@ -695,7 +703,8 @@ function Order() {
                     );
                 })}
             </List>
-
+            
+            {/* Section for displaying suggestions from waiter if available */}
             {suggestions && suggestions.length > 0 && customer?.orderId > 0 && Object.keys(orderedItems).length > 0 && (
                 <Box sx={{ 
                     mb: 4,
@@ -710,7 +719,7 @@ function Order() {
                         textAlign: 'center',
                         width: '100%'
                     }}>
-                        Waiter's Suggestions
+                        Waiter&apos;s Suggestions
                     </Typography>
                     <Box
                         sx={{
@@ -750,6 +759,7 @@ function Order() {
                 </Box>
             )}
 
+            {/* Section for displaying total price and options to clear cart or submit */}
             <Box sx={{ mt: 2 }}>
                 <Typography variant="h6" sx={{ marginTop: 2  }}>
                     Total Price: £{(cart.totalPrice || 0).toFixed(2)}
@@ -777,12 +787,15 @@ function Order() {
                 </Grid>
             </Box>
 
+            {/* Snackbar for displaying messages */}
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
                     {message}
                 </Alert>
                 
             </Snackbar>
+
+            {/* Modal to show order details */}
             {receipt.length > 0 && (
                 <OrderInfoPopup
                     showOrderInfo={showOrderInfo}
@@ -796,6 +809,8 @@ function Order() {
                     receiptTotal={receipt.length > 0 && receipt[receipt.length - 1]?.receiptTotal ? receipt[receipt.length - 1].receiptTotal : 0}
                 />
             )}
+
+            {/* Modal for handling payment */}
             <PaymentModal
                 open={paymentModalOpen}
                 onClose={() => setPaymentModalOpen(false)}
@@ -803,6 +818,8 @@ function Order() {
                 onPaymentSuccess={handlePaymentSuccess}
                 orderId={customer?.orderId}
             />
+
+            {/* Modal for creating a new order */}
             <NewOrderModal
                 open={newOrderModalOpen}
                 onClose={() => setNewOrderModalOpen(false)}
@@ -812,6 +829,8 @@ function Order() {
                 confirmButtonText="Yes, Create New Order"
                 cancelButtonText="No, Go Back"
             />
+
+            {/* Modal for editing table number */}
             <NewOrderModal
                 open={tableEditModalOpen}
                 onClose={() => {

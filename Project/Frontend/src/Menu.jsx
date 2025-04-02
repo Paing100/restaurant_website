@@ -5,28 +5,35 @@ import Filter from './Filter.jsx'
 import PropTypes from 'prop-types';
 
 function Menu({ isWaiterView }) {
-  const [selectedTab, setSelectedTab] = useState(0);
-  const [menuItems, setMenuItems] = useState([]);
-  const [selectedFilter, setSelectedFilter] = useState([]);
+  // State variables 
+  const [selectedTab, setSelectedTab] = useState(0); // trackes currently selected tab 
+  const [menuItems, setMenuItems] = useState([]); // stores the list of menu items 
+  const [selectedFilter, setSelectedFilter] = useState([]); // stores the selected fitlers 
 
+  // fetch all menu itmes when component loads 
   useEffect(() => {
     fetch('http://localhost:8080/MenuItems')
       .then(response => response.json())
       .then(data => {
-        setMenuItems(data);
+        setMenuItems(data); 
       })
       .catch(err => console.error(err));
   }, []);
 
+  // categories for the menu tabs 
   const categories = ["Appetizers", "Mains", "Desserts", "Drinks"];
 
+  // handle tab change (category selection)
   const handleTabChange = (event, newValue) => {
-    setSelectedTab(newValue);
+    setSelectedTab(newValue); // update the selected tab 
   };
+
+  // handle filter changes (dietary and allergens)
   const handleFilterChange = (event) => {
     const { dietaryRestrictions, allergens } = event.target.value;
-    setSelectedFilter(dietaryRestrictions);
+    setSelectedFilter(dietaryRestrictions); // update the selected dietary restrctions 
 
+    // fetch filtered menu items 
     fetch('http://localhost:8080/Menu/filter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -39,7 +46,7 @@ function Menu({ isWaiterView }) {
       .then(data => {
         if (!Array.isArray(data)) {
           console.error("Unexpected API response structure:", data);
-          setMenuItems([]);
+          setMenuItems([]); // clear menu item if response is invalid 
           return;
         }
 
@@ -47,19 +54,22 @@ function Menu({ isWaiterView }) {
       })
       .catch(err => {
         console.error('Error fetching filtered menu:', err);
-        setMenuItems([]);
+        setMenuItems([]); // clear menu item if response is invalid 
       });
   };
 
   return (
     <>
       <Box sx={{ padding: 3 }}>
+        {/* Display the filter component if not in waiter view */}
         {!isWaiterView && (
           <Filter
             selectedFilter={selectedFilter}
             onFilterChange={handleFilterChange}
           />
         )}
+
+        {/* Tabs for menu categories */}
         <Tabs
           value={selectedTab}
           onChange={handleTabChange}
@@ -78,20 +88,24 @@ function Menu({ isWaiterView }) {
             },
           }}
         >
+          {/* Render a tab for each category */}
           {categories.map((category, index) => (
             <Tab key={index} label={category} />
           ))}
         </Tabs>
+
+        {/* Display menu items or loading/error messages */}
         {menuItems === null ? (
-          <Typography>Loading ...</Typography>
+          <Typography>Loading ...</Typography> // show loading while fetching data
         ) : menuItems.length === 0 ? (
-          <Typography>No matching items found.</Typography>
+          <Typography>No matching items found.</Typography> // show not found if no items match the filters
         ) : (
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
+            {/* Filter and display menu items based on the selected category */}
             {menuItems.filter((item) => item.category === selectedTab)
               .map((item, index) => (
                 <Grid item xs={12} sm={6} md={4} key={index}>
-                  <MenuCard item={item} isWaiterView={isWaiterView}></MenuCard>
+                  <MenuCard item={item} isWaiterView={isWaiterView}></MenuCard> {/* Render a MenuCard for each item */}
                 </Grid>
               ))}
           </Grid>
@@ -101,6 +115,7 @@ function Menu({ isWaiterView }) {
   );
 }
 
+// PropTypes validation
 Menu.propTypes = {
   isWaiterView: PropTypes.bool.isRequired
 };
