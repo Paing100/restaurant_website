@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { Typography, Box, Button, Snackbar, Alert, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import NewOrderModal from "./NewOrderModal";
 
+// styling for button
 const buttonStyle = {
   margin: "0 8px",
   fontWeight: "bold",
@@ -15,28 +16,34 @@ const buttonStyle = {
 };
 
 function Manager() {
-  const [orders, setOrders] = useState([]);
-  const [stock, setStock] = useState("");
-  const [error, setError] = useState("");
-  const [tabIndex, setTabIndex] = useState(0);
-  const ws = useRef(null);
-  const [endOfDayOpen, setEndOfDayOpen] = useState(false);
-  const [totalSales, setTotalSales] = useState(0);
+  // state variables 
+  const [orders, setOrders] = useState([]); // stores outstanding orders
+  const [stock, setStock] = useState(""); // stores stock data 
+  const [error, setError] = useState(""); // stores error messages 
+  const [tabIndex, setTabIndex] = useState(0); // tracks the active tab 
+  const ws = useRef(null); // websocket reference 
+  const [endOfDayOpen, setEndOfDayOpen] = useState(false); // controls the visibility of the end-of-day modal 
+  const [totalSales, setTotalSales] = useState(0); // stores the total salses 
 
+  // fetch outstanding orders and stock data when the component mounts 
   useEffect(() => {
     fetchOutstandingOrders();
     fetchStock();
   }, []);
 
+  // Establish WebSocket connection 
   useEffect(() => {
     if (!ws.current) {
       ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
 
       ws.current.onopen = () => console.log("WebSocket connected");
       ws.current.onclose = () => console.log("WebSocket session closed");
+
+      // Refresh outstanding orders when a WebSocket message is received
       ws.current.onmessage = () => fetchOutstandingOrders();
     }
 
+    // Cleanup WebSocket connection on component unmount
     return () => {
       if (ws.current?.readyState === WebSocket.OPEN) {
         ws.current.close();
@@ -44,6 +51,7 @@ function Manager() {
     };
   }, []);
 
+  // Calculate total sales from the list of orders
   const calculateTotalSales = (orders) => {
     return orders.reduce((total, order) => {
       const orderTotal = order.orderMenuItems.reduce( 
@@ -52,6 +60,7 @@ function Manager() {
     }, 0);
   };
 
+  // Fetch outstanding orders from the server
   const fetchOutstandingOrders = async () => {
     try {
       const response = await fetch("http://localhost:8080/Manager/getOutstandingOrders");
@@ -64,6 +73,7 @@ function Manager() {
     }
   };
 
+  // Fetch stock data from the server
   const fetchStock = async () => {
     try {
       const response = await fetch("http://localhost:8080/Manager/showAllStock");
@@ -75,6 +85,7 @@ function Manager() {
     }
   };
 
+  // Handle the end-of-day button click
   const handleEndOfDayButton = async () => {
     try {
       const response = await fetch("http://localhost:8080/Manager/endOfDay", {
@@ -94,6 +105,7 @@ function Manager() {
         Welcome, Manager!
       </Typography>
 
+      {/* Navigation buttons */}
       <Box sx={{ marginBottom: 2 }}>
         <Link to="/waiter_menu">
           <Button variant="contained" sx={buttonStyle}>Edit Menu</Button>
@@ -116,6 +128,7 @@ function Manager() {
         </Button>
       </Box>
 
+      {/* Tabs for Outstanding Orders and Stock Status */}
       <Tabs
         value={tabIndex}
         onChange={(event, newValue) => setTabIndex(newValue)}
@@ -144,6 +157,7 @@ function Manager() {
         <Tab label="Stock Status" />
       </Tabs>
 
+      {/* Outstanding Orders Tab */}
       {tabIndex === 0 && (
         <Box sx={{ marginTop: 2 }}>
           <Typography variant="h6" sx={{ marginBottom: 2 }}>
@@ -197,6 +211,7 @@ function Manager() {
         </Box>
       )}
 
+      {/* Stock Status Tab */}
       {tabIndex === 1 && (
         <Box sx={{ marginTop: 2 }}>
           <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
@@ -237,6 +252,7 @@ function Manager() {
         </Box>
       )}
 
+      {/* Error Snackbar */}
       {error && (
         <Snackbar open autoHideDuration={6000} onClose={() => setError("")}>
           <Alert severity="error" onClose={() => setError("")}>
@@ -244,7 +260,8 @@ function Manager() {
           </Alert>
         </Snackbar>
       )}
-
+      
+      {/* End-of-Day Modal */}
       <NewOrderModal
         open={endOfDayOpen}
         onClose={() => setEndOfDayOpen(false)}

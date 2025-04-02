@@ -1,4 +1,3 @@
-/* eslint-disable */
 import * as React from 'react';
 import { IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,6 +24,7 @@ import {
   AddAlert as AddAlertIcon
 } from '@mui/icons-material';
 
+// Styled component for notification items
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: '#fff',
   ...theme.typography.body2,
@@ -40,12 +40,13 @@ function NotificationDrawer({ notifications = [], employeeId }) {
 
   const [alertStack, setalertStack] = useState(notifications);
   const ws = useRef(null);
-  const { playSound } = useWithSound(alertSound);
-
+  const { playSound } = useWithSound(alertSound); // Function to play alert sound
+// Function to play an alert sound when a new notification arrives
   const handleAlertSound = () => {
     playSound();
   }
 
+  // Function to remove a notification
   const removeAlert = async (index) => {
     const notiId = alertStack[index]?.notifId;
     console.log("Removing notification with id: " + notiId);
@@ -56,7 +57,7 @@ function NotificationDrawer({ notifications = [], employeeId }) {
 
     if (response.ok) {
       console.log("Notification deleted successfully");
-      setalertStack(alertStack.filter((_, i) => i !== index));
+      setalertStack(alertStack.filter((_, i) => i !== index)); // Remove the alert from the UI
 
       // send WebSocket message to all waiters, remove the alert
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
@@ -80,9 +81,10 @@ function NotificationDrawer({ notifications = [], employeeId }) {
       }
     }
   };
-
+  // Fetch notifications and setup WebSocket connection
   useEffect(() => {
     console.log("USE EFFECT RAN!");
+     // Fetch existing notifications from the server
     const getAlerts = async () => {
       const response = await fetch("http://localhost:8080/api/notification/getMessages", {
         method: "GET",
@@ -91,12 +93,13 @@ function NotificationDrawer({ notifications = [], employeeId }) {
       if (response.ok) {
         const data = await response.json();
         console.log("Data fetched: " + JSON.stringify(data));
-        setalertStack(data);
+        setalertStack(data); // Update notifications in state
       }
       console.log("Alerts fetched successfully");
       console.log("Alerts: " + JSON.stringify(alertStack));
     }
     getAlerts();
+     // Setup WebSocket connection if not already established
     if (!ws.current) {
       ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
 
@@ -114,6 +117,8 @@ function NotificationDrawer({ notifications = [], employeeId }) {
           const message = JSON.parse(event.data);
           console.log("WebSocket message received: ", message);
           console.log("NOTIF EMPLOYEEID: " + message.waiterId);
+
+          // Handle new alert notification
           if (message.type === "ALERT" && message.waiterId != employeeId) {
             setalertStack((prevStack) => [...prevStack, message]);
             getAlerts();
@@ -130,17 +135,18 @@ function NotificationDrawer({ notifications = [], employeeId }) {
         }
       };
     }
+    // Log WebSocket state
     if (ws.current) {
       console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
       getAlerts();
     }
   }, []);
-
+  // State to manage drawer open/close
   const [state, setState] = React.useState({
     right: false,
   });
 
-
+  // Function to toggle the drawer open/close
   const toggleDrawer = (anchor, open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
       return;
@@ -149,7 +155,7 @@ function NotificationDrawer({ notifications = [], employeeId }) {
     setState({ ...state, [anchor]: open });
   };
 
-
+   // Function to render the notification list inside the drawer
   const list = () => (
     <Box
       sx={{ width: 250 }}

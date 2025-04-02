@@ -2,6 +2,19 @@ import { Modal, Box, Typography, Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import './index.css';
 
+/**
+ * NewOrderModal Component
+ * Displays a modal dialog for confirming or canceling a new order.
+ * 
+ * Props:
+ * - open (bool): Controls whether the modal is open or closed.
+ * - onClose (func): Function to handle modal close action.
+ * - onConfirm (func): Function to handle confirmation action.
+ * - title (string): Title of the modal.
+ * - content (string): Message displayed inside the modal.
+ * - confirmButtonText (string): Text for the confirmation button.
+ * - cancelButtonText (string): Text for the cancel button.
+ */
 const NewOrderModal = ({ open, onClose, onConfirm, title, content, confirmButtonText, cancelButtonText }) => {
     return (
         <Modal
@@ -50,7 +63,7 @@ const NewOrderModal = ({ open, onClose, onConfirm, title, content, confirmButton
         </Modal>
     );
 };
-
+// Prop type validation to ensure correct usage of the component
 NewOrderModal.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,

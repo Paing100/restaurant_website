@@ -14,24 +14,27 @@ import {
 } from "@mui/material";
 
 function EditMenu() {
-  const [menuItem, setMenuItem] = useState(null);
-  const [imagePath, setImagePath] = useState("");
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [severity, setSeverity] = useState("success");
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState("");
+  // state variables 
+  const [menuItem, setMenuItem] = useState(null); // stores menu item being edited 
+  const [imagePath, setImagePath] = useState(""); // stores uploaded image path 
+  const { id } = useParams(); // get menu item id from the URL 
+  const navigate = useNavigate(); // hook for navigation 
+  const [severity, setSeverity] = useState("success");  // snack bar severity 
+  const [open, setOpen] = useState(false); // snackbar visibility 
+  const [message, setMessage] = useState(""); // snackbar message 
   const [errors, setErrors] = useState({
     name: false,
     description: false,
     price: false,
     calories: false,
     category: false
-  });
+  }); // validation errors for form fields 
 
+  // Options for allergens and dietary restrictions 
   const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
   const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETARIAN", "VEGAN", "HALAL"];
 
+  // fetch the menu item details when component loads
   useEffect(() => {
     fetch(`http://localhost:8080/MenuItems/get/${id}`)
       .then((response) => response.json())
@@ -67,6 +70,7 @@ function EditMenu() {
     return category >= 0 && category <= 3;
   };
 
+  // handle changes to the form fields 
   const handleChange = (event) => {
     const { name, value } = event.target;
     
@@ -86,6 +90,7 @@ function EditMenu() {
     setMenuItem({ ...menuItem, [name]: value });
   };
 
+  // handle image upload 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -111,6 +116,7 @@ function EditMenu() {
     }
   };
 
+  // handle drag-and-drop image upload 
   const handleDrop = (event) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
@@ -123,6 +129,7 @@ function EditMenu() {
     event.preventDefault();
   };
 
+  // handle form submission 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -163,7 +170,7 @@ function EditMenu() {
         setSeverity("success");
         setMessage("Menu Updated Successfully!");
         setOpen(true);
-        setTimeout(() => navigate("/waiter_menu"), 3000);
+        setTimeout(() => navigate("/waiter_menu"), 3000); // redirect to waiter menu pager after success after 3 seconds 
       } else {
         throw new Error("Failed to update menu item.");
       }
@@ -175,10 +182,12 @@ function EditMenu() {
     }
   };
 
+  // close the snackbar 
   const handleClose = () => {
     setOpen(false);
   };
 
+  // show loading message if the item is not yet loaded 
   if (!menuItem) return <Typography>Loading...</Typography>;
 
   return (

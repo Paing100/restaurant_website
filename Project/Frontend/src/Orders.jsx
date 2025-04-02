@@ -5,9 +5,9 @@ import PropTypes from "prop-types";
 function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, alertButton, forKitchen = false  }) {
   const [elapsedTime, setElapsedTime] = useState("");
 
-  // Update timer every second
+  // useEffect to update the elapsed time every second for orders that are not DELIVERED
   useEffect(() => {
-    // Only set up timer if order is not DELIVERED
+   // Only start the timer if the order is still in progress
     if (order.orderStatus !== "DELIVERED") {
       const updateTimer = () => {
         const now = new Date();
@@ -20,17 +20,18 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
         setElapsedTime(`${minutes} min ${seconds} sec`);
       };
 
-
+       // Initial call to update timer immediately
       updateTimer();
       
-      // Set up interval to update every second
+      // Set an interval to update the timer every second
       const timerId = setInterval(updateTimer, 1000);
       
-
+      // Cleanup function to clear the interval when the component unmounts or order status changes
       return () => clearInterval(timerId);
     }
   }, [order.orderPlaced, order.orderStatus]);
 
+  // Function to format the order date into a readable format
   const formatDate = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleString("en-GB", { 
@@ -38,7 +39,8 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
       hour: "2-digit", minute: "2-digit", second: "2-digit"
     });
   };
-
+  
+  // Function to handle order cancellation
   const handleCancelOrder = async(orderId) => {
       const response = await fetch(`http://localhost:8080/api/order/${orderId}/cancelOrder`,{
         method: "DELETE", 
@@ -102,7 +104,7 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
     </>
   )
 }
-
+// Prop type validation to ensure correct usage of component
 Orders.propTypes = {
   order: PropTypes.object.isRequired, 
   buttonName: PropTypes.string.isRequired, 

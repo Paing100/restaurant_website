@@ -1,18 +1,21 @@
-/* eslint-disable */
-import React, { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
 import { useRef } from 'react';
 
+// Create a context for the cart 
 export const CartContext = createContext();
 
+// CartProvider component to manage global cart state
 export const CartProvider = ({ children }) => {
-    const [cart, setCart] = useState({ orderedItems: {}, totalPrice: 0 });
-    const [customer, setCustomer] = useState(null);
-    const [tableNum, setTableNum] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [menuItems, setMenuItems] = useState([]);
-    const [suggestions, setSuggestions] = useState([]);
-    const ws = useRef(null);
+
+    // State variables 
+    const [cart, setCart] = useState({ orderedItems: {}, totalPrice: 0 }); // stores cart items and total price 
+    const [customer, setCustomer] = useState(null); // stores customer info 
+    const [tableNum, setTableNum] = useState(''); // stores table no. 
+    const [loading, setLoading] = useState(true); // indicates if the app is loading 
+    const [menuItems, setMenuItems] = useState([]); // stores menu items 
+    const [suggestions, setSuggestions] = useState([]); // stores suggested items 
+    const ws = useRef(null); // web socket reference 
 
     // Establish WebSocket connection
     useEffect(() => {
@@ -30,6 +33,7 @@ export const CartProvider = ({ children }) => {
             console.error("WebSocket error:", error);
         };
 
+        // Cleanup WebSocket connection on component unmount
         return () => {
             if (ws.current) {
                 ws.current.close();
@@ -50,6 +54,7 @@ export const CartProvider = ({ children }) => {
         }
     }, []);
 
+    // save customer data persistently in localStorage 
     const setPersistentCustomer = (customerData) => {
         setCustomer(customerData);
         setTableNum(customerData.tableNum || '');
@@ -57,6 +62,7 @@ export const CartProvider = ({ children }) => {
         localStorage.setItem('tableNum', customerData.tableNum || '');
     };
 
+    // Logout function to clear customer and cart data 
     const logout = () => {
         localStorage.removeItem('customer');
         localStorage.removeItem('orderInfo');
@@ -65,6 +71,7 @@ export const CartProvider = ({ children }) => {
         setCart({ orderedItems: {}, totalPrice: 0 });
     };
 
+    // fetch the cart data 
     const fetchCart = async () => {
         if (!customer) {
             console.error('Customer or order ID is not set');
@@ -104,6 +111,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // generate random menu item suggestions 
     const getRandomSuggestions = () => {
         try {
             const cartItemIds = Object.values(cart.orderedItems).map(item => item.itemId);
@@ -133,6 +141,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // replace a suggestion after the customer puts it in cart 
     const replaceSuggestion = (addedItemId) => {
         try {
             const cartItemIds = [...Object.values(cart.orderedItems).map(item => item.itemId), addedItemId];
@@ -168,6 +177,7 @@ export const CartProvider = ({ children }) => {
         }
     }, [menuItems]);
 
+    // function to add an item to cart 
     const addItemToCart = async (itemId, quantity) => {
         if (!customer) {
             console.error('Customer is not set');
@@ -224,6 +234,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // function to remove an item from cart 
     const removeItemFromCart = async (itemId, removeAll = false) => {
         if (!customer) {
             console.error('Customer is not set');
@@ -285,6 +296,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // function to clear the whole cart 
     const clearCart = async () => {
         if (!customer) {
             console.error('Customer is not set');
@@ -381,6 +393,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // create multiple orders 
     const createNewOrder = async () => {
         if (!customer || !customer.customerId) {
             throw new Error("Customer is not logged in or customer ID is missing.");
@@ -432,6 +445,7 @@ export const CartProvider = ({ children }) => {
         }
     };
 
+    // use API end point to fetch menu items 
     const fetchMenuItems = async () => {
         try {
             const response = await fetch('http://localhost:8080/MenuItems', {

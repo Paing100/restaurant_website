@@ -2,28 +2,30 @@ import { TextField, Button, Typography, Box } from "@mui/material";
 import { useState } from "react";
 
 function CalculatePrice() {
+  // State variables for cost, profit margin, result and error
   const [cost, setCost] = useState('');
   const [profitMargin, setProfitMargin] = useState('');
   const [result, setResult] = useState(null);
   const [errors, setErrors] = useState({
-    cost: '',
-    profitMargin: ''
+    cost: '', // error message for cost input 
+    profitMargin: '' // error message for profit margin input 
   });
 
+  // function to validate user inputs 
   const validateInputs = () => {
     const newErrors = {
       cost: '',
       profitMargin: ''
     };
 
-    // Validate cost
+    // Validate cost input 
     if (cost === '' || cost === null) {
       newErrors.cost = 'Cost is required';
     } else if (parseFloat(cost) < 0) {
       newErrors.cost = 'Cost cannot be negative';
     }
 
-    // Validate profit margin
+    // Validate profit margin input 
     if (profitMargin === '' || profitMargin === null) {
       newErrors.profitMargin = 'Profit margin is required';
     } else {
@@ -37,12 +39,14 @@ function CalculatePrice() {
       }
     }
 
+    // update error state and return validation result 
     setErrors(newErrors);
     return !newErrors.cost && !newErrors.profitMargin;
   };
 
+  // Function to handle form submission 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // prevent default form submission behavior 
     
     // Clear previous result
     setResult(null);
@@ -53,6 +57,7 @@ function CalculatePrice() {
     }
 
     try {
+      // API call to calculate the price 
       const response = await fetch(
         `http://localhost:8080/Manager/calculateRecommendedPrice?cost=${cost}&margin=${parseFloat(profitMargin)/100}`,
         {
@@ -63,7 +68,7 @@ function CalculatePrice() {
       if (response.ok) {
         const data = await response.json();
         console.log("Price calculated successfully " + data);
-        setResult(data);
+        setResult(data); // update the result with the calculated price 
       } else {
         console.error("Failed to calculate price:", response.statusText);
       }
@@ -83,6 +88,7 @@ function CalculatePrice() {
         padding: 3,
       }}
     >
+      {/* Back button */}
       <Button
         onClick={() => window.history.back()}
         sx={{
@@ -116,6 +122,7 @@ function CalculatePrice() {
           maxWidth: "400px",
         }}
       >
+        {/* Input field for cost */}
         <TextField
           label="Cost"
           name="cost"
@@ -154,6 +161,7 @@ function CalculatePrice() {
           }}
         />
         
+        {/* Input field for profit margin */}
         <TextField
           label="Profit Margin (in %)"
           name="profit-margin"
@@ -208,6 +216,7 @@ function CalculatePrice() {
         </Button>
       </form>
       
+      {/* Display the calculated recommended price */}
       <Typography
         variant="h6"
         sx={{ marginTop: 3, color: "white", fontWeight: "bold" }}

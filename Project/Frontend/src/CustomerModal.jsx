@@ -3,33 +3,38 @@ import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert 
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
-//import PropTypes from 'prop-types';
 
 const CustomerModal = () => {
+    // Access global state and functions from CartContext 
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
-    const [name, setName] = useState('');
-    const [tableNum, setTableNumState] = useState('');
-    const [open, setOpen] = useState(true);
-    const [error, setError] = useState('');
-    const [showAccountPrompt, setShowAccountPrompt] = useState(false);
-    const [showEmailPassword, setShowEmailPassword] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const navigate = useNavigate();
-    const nameInputRef = useRef(null);
+    
+    // state variables 
+    const [name, setName] = useState(''); // name input 
+    const [tableNum, setTableNumState] = useState(''); // table number input 
+    const [open, setOpen] = useState(true); // modal visibility 
+    const [error, setError] = useState(''); // error messages
+    const [showAccountPrompt, setShowAccountPrompt] = useState(false); // prompt for account createion 
+    const [showEmailPassword, setShowEmailPassword] = useState(false); // email/ password modal visibility 
+    const [email, setEmail] = useState(''); // email input 
+    const [password, setPassword] = useState(''); // password input 
+    const navigate = useNavigate(); // navigation hook 
+    const nameInputRef = useRef(null); // reference to the name input field 
 
+    // if a customer is set, close the modal 
     useEffect(() => {
         if (customer) {
             setOpen(false);
         }
     }, [customer]);
 
+    // focus on the name input field when the modal opens automatically 
     useEffect(() => {
         if (nameInputRef.current) {
             nameInputRef.current.focus();
         }
     }, []);
 
+    // function to validate inputs 
     const validateInputs = () => {
         // Trim inputs to remove leading/trailing whitespace
         const trimmedName = name.trim();
@@ -73,11 +78,13 @@ const CustomerModal = () => {
         return true;
     };
 
+    // validate emails 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
+    // validate passwords 
     const validatePassword = (pwd) => {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-[\]{};':"\\|,.<>?]).{8,}$/;
         return passwordRegex.test(pwd);
@@ -115,6 +122,7 @@ const CustomerModal = () => {
         }
     };
 
+    // handle account creation with email and password 
     const handleAccountCreation = async () => {
         if (!validateEmail(email)) {
             setError('Please enter a valid email address');
@@ -151,6 +159,7 @@ const CustomerModal = () => {
         }
     };
 
+    // handle staff login 
     const handleStaffLogin = async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/customers/add?name=staff&tableNum=1`, {
@@ -180,10 +189,12 @@ const CustomerModal = () => {
         }
     };
 
+    // close the modal 
     const handleClose = () => {
         setOpen(false);
     };
 
+    // close the error snackbar 
     const handleErrorClose = () => {
         setError('');
     };
@@ -220,6 +231,7 @@ const CustomerModal = () => {
                     <Typography variant="h6" component="h2" sx={{ color: 'white' }}>
                         Enter Your Details
                     </Typography>
+                    {/* Name Input */}
                     <TextField
                         label="Name"
                         fullWidth
@@ -252,6 +264,7 @@ const CustomerModal = () => {
                             },
                         }}
                     />
+                    {/* Table number input */}
                     <TextField
                         label="Table Number"
                         fullWidth
@@ -316,6 +329,7 @@ const CustomerModal = () => {
                 </Box>
             </Modal>
 
+            {/* Account creation prompt modal */}
             <Modal 
                 open={showAccountPrompt} 
                 onClose={() => {}}
@@ -380,7 +394,8 @@ const CustomerModal = () => {
                     </Box>
                 </Box>
             </Modal>
-
+    
+            {/* Email/password modal for account creation */}
             <Modal open={showEmailPassword} onClose={() => setShowEmailPassword(false)}>
                 <Box sx={{
                     position: 'absolute',
