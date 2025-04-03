@@ -142,7 +142,12 @@ const CustomerModal = ({ onClose }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create account');
+                if (response.status === 400) {
+                    setError('An account with this email already exists');
+                } else {
+                    throw new Error('Failed to create account');
+                }
+                return;
             }
 
             const updatedCustomer = await response.json();
