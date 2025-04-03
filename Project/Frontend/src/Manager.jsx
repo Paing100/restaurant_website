@@ -185,7 +185,6 @@ function Manager() {
                 </TableHead>
                 <TableBody>
                   {orders.map((order) => {
-                    console.log(order);
                     const orderTotal = order.orderMenuItems.reduce(
                       (total, item) => total + item.menuItem.price * item.quantity,
                       0
