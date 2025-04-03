@@ -436,6 +436,11 @@ export const CartProvider = ({ children }) => {
                 ...prevCustomer,
                 orderId: newOrderData.orderId
             }));
+            const storedCustomer = JSON.parse(localStorage.getItem('customer') || '{}');
+            localStorage.setItem('customer', JSON.stringify({
+                ...storedCustomer,
+                orderId: newOrderData.orderId
+            }));
             // Clear the cart for the new order
             setCart({ orderedItems: {} });
             return { success: true, message: 'New order created successfully!' };
