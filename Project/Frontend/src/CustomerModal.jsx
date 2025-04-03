@@ -164,36 +164,6 @@ const CustomerModal = ({ onClose }) => {
         }
     };
 
-    // handle staff login 
-    const handleStaffLogin = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/customers/add?name=staff&tableNum=1`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to add staff customer');
-            }
-
-            const newCustomer = await response.json();
-            const customerWithOrderId = {
-                ...newCustomer,
-                orderId: newCustomer.order.orderId,
-                tableNum: 1
-            };
-            setCustomer(customerWithOrderId);
-            setTableNum(1);
-            setOpen(false);
-            navigate('/login');
-        } catch (error) {
-            console.error('Error adding staff customer:', error);
-            setError('Failed to login. Please try again.');
-        }
-    };
-
     // close the modal 
     const handleClose = () => {
         setOpen(false);
@@ -302,7 +272,7 @@ const CustomerModal = ({ onClose }) => {
                             },
                         }}
                     />
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, gap: 0.1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -316,20 +286,6 @@ const CustomerModal = ({ onClose }) => {
                             }}
                         >
                             Submit
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={handleStaffLogin}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            Staff Login
                         </Button>
                     </Box>
                 </Box>
@@ -455,7 +411,7 @@ const CustomerModal = ({ onClose }) => {
                             '& .MuiInputBase-input': { color: 'white' },
                         }}
                     />
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button
                             variant="contained"
                             color="primary"
