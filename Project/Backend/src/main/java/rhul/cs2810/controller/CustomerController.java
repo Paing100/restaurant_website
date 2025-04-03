@@ -134,6 +134,12 @@ public class CustomerController {
     return ResponseEntity.ok(customers);
   }
 
+  /**
+   * Gets all orders for a specific customer.
+   * 
+   * @param customerId the ID of the customer
+   * @return a list of orders for the customer, or 404 if the customer is not found
+   */
   @GetMapping("/{customerId}/orders")
   public ResponseEntity<List<Order>> getCustomerOrders(@PathVariable int customerId) {
     Optional<Customer> customerOptional = customerRepository.findById(customerId);

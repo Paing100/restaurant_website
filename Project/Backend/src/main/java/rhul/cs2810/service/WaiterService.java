@@ -16,12 +16,23 @@ import java.util.stream.StreamSupport;
 import java.util.Arrays;
 import java.util.Set;
 
+/**
+ * Service class for handling waiter-related operations.
+ * This includes reassigning orders to the default waiter, finding waiters for tables,
+ * and getting active tables assigned to a waiter.
+ */
 @Service
 public class WaiterService {
 
+    /**
+     * Repository for accessing waiter data.
+     */
     @Autowired
     private WaiterRepository waiterRepository;
 
+    /**
+     * Repository for accessing order data.
+     */
     @Autowired
     private OrderRepository orderRepository;
 
