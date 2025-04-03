@@ -49,20 +49,17 @@ function NotificationDrawer({ notifications = [], employeeId }) {
   // Function to remove a notification
   const removeAlert = async (index) => {
     const notiId = alertStack[index]?.notifId;
-    console.log("Removing notification with id: " + notiId);
     const response = await fetch(`http://localhost:8080/api/notification/${notiId}/removeMessages`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
 
     if (response.ok) {
-      console.log("Notification deleted successfully");
       setalertStack(alertStack.filter((_, i) => i !== index)); // Remove the alert from the UI
 
       // send WebSocket message to all waiters, remove the alert
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         const messageDel = { notification_id: notiId, type: "REMOVE_ALERT", };
-        console.log("Delete message: " + JSON.stringify(messageDel));
         try {
           const sendAlert = await fetch('http://localhost:8080/api/notification/send', {
             method: "POST",
@@ -73,17 +70,14 @@ function NotificationDrawer({ notifications = [], employeeId }) {
           if (!sendAlert.ok) {
             throw new Error("Failed to send an alert");
           }
-          console.log("Alert sent via server");
         } catch (error) {
           console.error("Error from alert: " + error);
         }
-        console.log("Del message sent " + JSON.stringify(messageDel));
       }
     }
   };
   // Fetch notifications and setup WebSocket connection
   useEffect(() => {
-    console.log("USE EFFECT RAN!");
      // Fetch existing notifications from the server
     const getAlerts = async () => {
       const response = await fetch("http://localhost:8080/api/notification/getMessages", {
@@ -92,11 +86,8 @@ function NotificationDrawer({ notifications = [], employeeId }) {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log("Data fetched: " + JSON.stringify(data));
         setalertStack(data); // Update notifications in state
       }
-      console.log("Alerts fetched successfully");
-      console.log("Alerts: " + JSON.stringify(alertStack));
     }
     getAlerts();
      // Setup WebSocket connection if not already established
@@ -112,11 +103,8 @@ function NotificationDrawer({ notifications = [], employeeId }) {
       };
 
       ws.current.onmessage = (event) => {
-        console.log("Event IN NOTIFICATION" + event.data);
         try {
           const message = JSON.parse(event.data);
-          console.log("WebSocket message received: ", message);
-          console.log("NOTIF EMPLOYEEID: " + message.waiterId);
 
           // Handle new alert notification
           if (message.type === "ALERT" && message.waiterId != employeeId) {
@@ -127,7 +115,6 @@ function NotificationDrawer({ notifications = [], employeeId }) {
           // handle REMOVE_ALERT message
           if (message.type === "REMOVE_ALERT") {
             setalertStack((prevStack) => prevStack.filter(alert => alert.notification_id !== message.notification_id));
-            console.log("Alert removed via WebSocket: " + message.notifId);
             getAlerts();
           }
         } catch (error) {
@@ -137,7 +124,6 @@ function NotificationDrawer({ notifications = [], employeeId }) {
     }
     // Log WebSocket state
     if (ws.current) {
-      console.log("WebSocket readyState after creation:", ws.current.readyState); // Logs current WebSocket state after instantiation
       getAlerts();
     }
   }, []);

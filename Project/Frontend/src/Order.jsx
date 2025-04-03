@@ -221,8 +221,6 @@ function Order() {
             ws.current.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    console.log("DATA: " + data)
-                    //if (data.orderId && customer?.orderId && data.orderId === customer.orderId) {
                     updateOrderStatus(data.orderId, data.status);
                     fetchOrderStatus(data.orderId);
                     if (receipt.length === 0) {
@@ -254,7 +252,6 @@ function Order() {
             timerRef.current = null;
             setOrderTime(null);
             setElapsedTime('00:00:00');
-            console.log("Timer stopped.");
         }
     };
 
@@ -268,7 +265,7 @@ function Order() {
           message: `Table ${tableNumber} needs assistance`,
           userName: sessionStorage.getItem("userName")
         };
-        console.log("MESSAGE: " + JSON.stringify(alertMessage));
+
         try {
           const sendAlert = await fetch('http://localhost:8080/api/notification/send', {
             method: "POST",
@@ -279,7 +276,6 @@ function Order() {
           if (!sendAlert.ok) {
             throw new Error("Failed to send an alert");
           }
-          console.log("Alert sent via server");
           setMessage(`Assistance requested! A waiter will be with you shortly.`,);
           setOpen(true);
         } catch (error) {
@@ -301,7 +297,6 @@ function Order() {
 
     // remove the order based on its id 
     const removeOrderItem = (orderId) => {
-        console.log("Removing item from order: ", orderId);
         setReceipt((prevReceipt) => {
             const updatedReceipt = prevReceipt.filter((item) => item.orderId !== orderId);
 
@@ -311,7 +306,6 @@ function Order() {
                     setOrderTime(null);
                 } else {
                     setOrderStatus(updatedReceipt.status);
-                    console.log("REMOVE: " + orderStatus);
                 }
             }
             const updatedTotal = updatedReceipt.reduce(
@@ -319,7 +313,6 @@ function Order() {
                 0
             );
             setReceiptTotal(updatedTotal);
-            console.log("Updated RECEIPT:", JSON.stringify(updatedReceipt));
             setMessage(`Your Order #${orderId} is cancelled by the waiter!`);
             stopTimer();
             setSeverity('error');
@@ -504,8 +497,6 @@ function Order() {
 
             setCustomer(customerNullOrderID);
             localStorage.setItem('tableNum', customer.tableNum || tableNum);
-            console.log("RECEIPT: " + JSON.stringify(receipt));
-            console.log("Cart cleared after order submission.");
         } else {
             setMessage(result.message);
             setSeverity('error');
@@ -563,7 +554,6 @@ function Order() {
                     stopTimer();
                     setOrderTime(null);
                 }
-                console.log("NEW STATUS: ", orderData.orderStatus);
             }
             else {
                 console.error("Failed to fetch order status");

@@ -49,7 +49,6 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
             if (response.ok) {
                  // If the payment is successful, call the success callback and close the modal
                 onPaymentSuccess();
-                console.log('Order marked as paid');
                 onClose();
             } else {
                 console.error('Error marking order as paid:', response.statusText);

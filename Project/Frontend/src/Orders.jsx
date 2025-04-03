@@ -47,7 +47,6 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
         headers: {"Content-Type":"application/json"}
       });
       if (response.ok){
-        console.log("Order deleted successfully");
         fetchOrders();
       }
   }
