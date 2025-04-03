@@ -87,6 +87,12 @@ public class OrderController {
     return ResponseEntity.ok("Item removed from order");
   }
 
+  /**
+   * Cancels an order.
+   * 
+   * @param orderId of the order
+   * @return a response entity with a success or error message
+   */
   @Transactional
   @DeleteMapping("/order/{orderId}/cancelOrder")
   public ResponseEntity<String> cancelOrder(@PathVariable int orderId) {

@@ -125,10 +125,20 @@ public class OrderMenuItem {
     this.quantity = quantity;
   }
 
+  /**
+   * Gets the order submitted status.
+   * 
+   * @return true if order is submitted, false otherwise
+   */
   public boolean isOrderSubmitted() {
     return orderSubmitted;
   }
 
+  /**
+   * Sets the order submitted status.
+   *
+   * @param orderSubmitted true if order is submitted, false otherwise
+   */
   public void setOrderSubmitted(boolean orderSubmitted) {
     this.orderSubmitted = orderSubmitted;
   }
