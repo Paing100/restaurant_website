@@ -10,10 +10,20 @@ public enum DietaryRestrictions {
 
   private final String description;
 
+  /**
+   * Constructor for DietaryRestrictions enum.
+   * 
+   * @param description the description of the dietary restriction
+   */
   private DietaryRestrictions(String description) {
     this.description = description;
   }
 
+  /**
+   * Get the description of the dietary restriction.
+   * 
+   * @return the description of the dietary restriction
+   */
   public String getDescription() {
     return this.description;
   }

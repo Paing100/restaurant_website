@@ -178,6 +178,7 @@ function Manager() {
                   <TableRow>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order ID</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order Status</TableCell>
+                    <TableCell sx={{color: "white", fontWeight: "bold"}}>Waiter</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Table Number</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order Placed</TableCell>
                     <TableCell sx={{ color: "white", fontWeight: "bold" }}>Total</TableCell>
@@ -193,6 +194,7 @@ function Manager() {
                       <TableRow key={order.orderId}>
                         <TableCell sx={{ color: "white" }}>{order.orderId}</TableCell>
                         <TableCell sx={{ color: "white" }}>{order.orderStatus}</TableCell>
+                        <TableCell sx={{ color: "white" }}>{order.waiter.employee.firstName}</TableCell>
                         <TableCell sx={{ color: "white" }}>{order.tableNum}</TableCell>
                         <TableCell sx={{ color: "white" }}>
                           {new Date(order.orderPlaced).toLocaleString()}

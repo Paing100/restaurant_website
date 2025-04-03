@@ -3,9 +3,9 @@ import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert 
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
+import PropTypes from "prop-types";
 
-const CustomerModal = () => {
-    // Access global state and functions from CartContext 
+const CustomerModal = ({ onClose }) => {
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
     
     // state variables 
@@ -192,6 +192,7 @@ const CustomerModal = () => {
     // close the modal 
     const handleClose = () => {
         setOpen(false);
+        onClose && onClose();
     };
 
     // close the error snackbar 
@@ -485,6 +486,10 @@ const CustomerModal = () => {
             </Snackbar>
         </>
     );
+};
+
+CustomerModal.propTypes = {
+    onClose: PropTypes.func.isRequired,
 };
 
 export default CustomerModal;
