@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect, useRef } from 'react';
 import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
 import PropTypes from "prop-types";
 
@@ -17,7 +16,6 @@ const CustomerModal = ({ onClose }) => {
     const [showEmailPassword, setShowEmailPassword] = useState(false); // email/ password modal visibility 
     const [email, setEmail] = useState(''); // email input 
     const [password, setPassword] = useState(''); // password input 
-    const navigate = useNavigate(); // navigation hook 
     const nameInputRef = useRef(null); // reference to the name input field 
 
     // if a customer is set, close the modal 
