@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Controller class for handling waiter-related API endpoints.
+ * Provides endpoints for retrieving waiter tables and orders.
+ */
 @RestController
 @RequestMapping("/api/waiter")
 public class WaiterController {
@@ -21,6 +25,13 @@ public class WaiterController {
     private final EmployeeRepository employeeRepository;
     private final WaiterService waiterService;
 
+    /**
+     * Constructs a new WaiterController.
+     *
+     * @param waiterRepository the repository for accessing waiter data
+     * @param employeeRepository the repository for accessing employee data
+     * @param waiterService the service for waiter  operations
+     */
     public WaiterController(WaiterRepository waiterRepository, 
                           EmployeeRepository employeeRepository,
                           WaiterService waiterService) {
@@ -29,6 +40,12 @@ public class WaiterController {
         this.waiterService = waiterService;
     }
 
+    /**
+     * Retrieves the tables assigned to a waiter.
+     *
+     * @param employeeId the ID of the employee (waiter)
+     * @return a ResponseEntity with a map containing the default and active tables.
+     */
     @GetMapping("/{employeeId}/tables")
     public ResponseEntity<Map<String, Object>> getWaiterTables(@PathVariable String employeeId) {
         Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
@@ -48,6 +65,12 @@ public class WaiterController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Retrieves the orders assigned to a waiter.
+     *
+     * @param employeeId the ID of the employee (waiter)
+     * @return a ResponseEntity containing a list of orders.
+     */
     @GetMapping("/{employeeId}/orders")
     public ResponseEntity<List<Order>> getWaiterOrders(@PathVariable String employeeId) {
         Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
@@ -63,7 +86,4 @@ public class WaiterController {
         List<Order> orders = waiterService.getWaiterOrders(waiter.get());
         return ResponseEntity.ok(orders);
     }
-
-
-
-} 
+}

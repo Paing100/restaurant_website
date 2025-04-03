@@ -58,11 +58,6 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         }
     };
 
-    const handleSkipPayment = () => {
-        onPaymentSuccess();
-        onClose();
-    };
-
     return (
         <Modal
             open={open}
@@ -73,8 +68,6 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
                 <Typography
                     variant="h6"
                     component="h2"
-                    onClick={handleSkipPayment}
-                    style={{ cursor: 'pointer', textAlign: 'center' }}
                 >
                     Enter Payment Details
                 </Typography>

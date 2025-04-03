@@ -59,11 +59,21 @@ public class Order {
   @Column(name = "order_paid", nullable = false)
   private boolean orderPaid;
 
+  /**
+   * Default constructor for the Order class.
+   */
   public Order() {
     this.orderStatus = OrderStatus.CREATED;
     this.orderPaid = false;
   }
 
+  /**
+   * Constructs an Order object with the specified parameters.
+   * 
+   * @param tableNum 
+   * @param orderPlaced
+   * @param customer
+   */
   public Order(int tableNum, LocalDateTime orderPlaced, Customer customer) {
     this.customer = customer;
     this.orderPlaced = LocalDateTime.now();
@@ -72,50 +82,110 @@ public class Order {
     this.orderPaid = false;
   }
 
+  /**
+   * Gets the order ID.
+   * 
+   * @return the order ID
+   */
   public int getOrderId() {
     return orderId;
   }
 
+  /**
+   * Sets the order ID.
+   * 
+   * @param orderId the order ID to be set
+   */
   public void setOrderId(int orderId) {
     this.orderId = orderId;
   }
 
+  /**
+   * Gets the customer associated to the order.
+   * 
+   * @return the customer associated to the order
+   */
   public Customer getCustomer() {
     return customer;
   }
 
+  /**
+   * Sets the customer associated to the order.
+   * 
+   * @param customer the customer to be set
+   */
   public void setCustomer(Customer customer) {
     this.customer = customer;
   }
 
+  /**
+   * Gets the table number associated to the order.
+   * 
+   * @return the table number associated to the order
+   */
   public int getTableNum() {
     return tableNum;
   }
 
+  /**
+   * Sets the table number associated to the order.
+   * 
+   * @param tableNum the table number to be set
+   */
   public void setTableNum(int tableNum) {
     this.tableNum = tableNum;
   }
 
+  /**
+   * Gets the waiter associated to the order.
+   * 
+   * @return the waiter associated to the order
+   */
   public Waiter getWaiter() {
     return waiter;
   }
 
+  /**
+   *  Sets the waiter associated to the order.
+   * 
+   * @param waiter the waiter to be set
+   */
   public void setWaiter(Waiter waiter) {
     this.waiter = waiter;
   }
 
+  /**
+   * Gets the date and time when the order was placed.
+   * 
+   * @return the date and time when the order was placed
+   */
   public LocalDateTime getOrderPlaced() {
     return orderPlaced;
   }
 
+  /**
+   * Sets the date and time when the order was placed.
+   * 
+   * @param orderPlaced the date and time to be set
+   */
   public void setOrderPlaced(LocalDateTime orderPlaced) {
     this.orderPlaced = orderPlaced;
   }
 
+  /**
+   * Gets the list of menu items associated to the order.
+   * 
+   * @return the list of menu items associated to the order
+   */
   public List<OrderMenuItem> getOrderMenuItems() {
     return orderMenuItems;
   }
 
+  /**
+   * Sets the list of menu items associated to the order.
+   * 
+   * @param orderMenuItems the list of menu items to be set
+   */
   public void setOrderMenuItems(List<OrderMenuItem> orderMenuItems) {
     this.orderMenuItems = orderMenuItems;
   }
@@ -131,14 +201,30 @@ public class Order {
     this.orderMenuItems.add(orderMenuItem);
   }
 
+  /**
+   * Gets the order status.
+   * 
+   * @return the order status
+   */
   public OrderStatus getOrderStatus() {
     return orderStatus;
   }
 
+  /**
+   * Sets the order status.
+   * 
+   * @param orderStatus the order status to be set
+   */
   public void setOrderStatus(OrderStatus orderStatus) {
     this.orderStatus = orderStatus;
   }
 
+  /**
+   * Checks if two orders are equal based on order ID, table number, and order placement time.
+   * 
+   * @param o the object to compare
+   * @return true if the orders are equal, if they are not, return false
+   */
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -152,17 +238,31 @@ public class Order {
         && Objects.equals(orderPlaced, order.orderPlaced);
   }
 
+  /**
+   * Generates a hash code for the order based on order ID, table number, and order placement time.
+   * 
+   * @return the hash code of the order
+   */
   @Override
   public int hashCode() {
     return Objects.hash(orderId, tableNum, orderPlaced);
   }
 
+  /**
+   * Checks if the order is paid.
+   * 
+   * @return true if the order is paid, otherwise it returns false
+   */
   public boolean isOrderPaid() {
     return orderPaid;
   }
 
+  /**
+   * Sets the order paid status.
+   * 
+   * @param orderPaid the order paid status to be set
+   */
   public void setOrderPaid(boolean orderPaid) {
     this.orderPaid = orderPaid;
   }
-
 }

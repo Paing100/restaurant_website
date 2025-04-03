@@ -137,6 +137,12 @@ public class OrderService {
     orderRepository.save(order);
   }
 
+  /**
+   * Retrieves all menu items within an order.
+   * 
+   * @param orderId the ID of the order
+   * @return a list of menu items within the order
+   */
   public List<OrderMenuItem> getOrderedItems(int orderId) {
     Optional<Order> optionalOrder = orderRepository.findById(orderId);
     if (optionalOrder.isPresent()) {

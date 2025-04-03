@@ -3,7 +3,7 @@ package rhul.cs2810.service;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired; 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -101,6 +101,12 @@ public class EmployeeService {
     return true;
   }
 
+  /**
+   * Validates the role of the employee. If the role is null or empty, it defaults to "WAITER".
+   * 
+   * @param role the role of the employee
+   * @return the validated role
+   */
   private String validateRole(String role){
     if (role == null || role.trim().isEmpty()) {
       return "WAITER";
@@ -108,6 +114,12 @@ public class EmployeeService {
     return role.trim().toUpperCase();
   }
 
+  /**
+   * Updates the existing employee with new details.
+   * 
+   * @param existingEmployee the existing employee
+   * @param newEmployee the new employee with updated details
+   */
   private void updateExistingEmployee(Employee existingEmployee, Employee newEmployee){
     String encodedPasswordString = bCryptPasswordEncoder.encode(newEmployee.getPassword());
     existingEmployee.setPassword(encodedPasswordString);
@@ -118,6 +130,11 @@ public class EmployeeService {
     employeeRepository.save(existingEmployee);
   }
 
+  /**
+   * Saves a new employee to the database.
+   * 
+   * @param employee the new employee to be saved
+   */
   private void saveNewEmployee(Employee employee){
     String encodedPasswordString = bCryptPasswordEncoder.encode(employee.getPassword());
     employee.setPassword(encodedPasswordString);

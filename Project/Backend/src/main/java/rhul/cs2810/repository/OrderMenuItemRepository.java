@@ -11,7 +11,9 @@ import rhul.cs2810.model.MenuItem;
 
 import java.util.List;
 
-
+/**
+ * Repository for managing OrderMenuItem entities.
+ */
 public interface OrderMenuItemRepository extends CrudRepository<OrderMenuItem, OrderMenuItemId> {
 
 

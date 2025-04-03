@@ -258,12 +258,12 @@ function Order() {
     // function to alert others 
     const alertOthers = async (tableNumber, orderId) => {
         const alertMessage = {
-        // Define the userName variable
-          type: "ALERT",
-          orderId: orderId,
-          recipient: "waiter",
-          message: `Table ${tableNumber} needs assistance`,
-          userName: sessionStorage.getItem("userName")
+            // Define the userName variable
+            type: "ALERT",
+            orderId: orderId,
+            recipient: "waiter",
+            message: `Table ${tableNumber} needs assistance`,
+            userName: sessionStorage.getItem("userName")
         };
 
         try {
@@ -279,9 +279,9 @@ function Order() {
           setMessage(`Assistance requested! A waiter will be with you shortly.`,);
           setOpen(true);
         } catch (error) {
-          console.error("Error from alert: " + error);
+            console.error("Error from alert: " + error);
         }
-      };
+    };
 
     // update the status of an order that accepts two arguments
     const updateOrderStatus = (orderId, newStatus) => {
@@ -605,7 +605,7 @@ function Order() {
             <Button
                 onClick={() => alertOthers(tableNum, customer.orderId)}
                 variant="contained"
-                sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' }, display: 'block', marginLeft: 'auto', marginTop: 2}}
+                sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' }, display: 'block', marginLeft: 'auto', marginTop: 2 }}
             >
                 Call Assistance
             </Button>
@@ -687,23 +687,24 @@ function Order() {
                             >
                                 Remove All
                             </Button>
-                            
-                            
+
+
                         </ListItem>
                     );
                 })}
             </List>
-            
-            {/* Section for displaying suggestions from waiter if available */}
+            <Typography variant="h6" sx={{ marginTop: 2 }}>
+                Total Price: £{(cart.totalPrice || 0).toFixed(2)}
+            </Typography>
             {suggestions && suggestions.length > 0 && customer?.orderId > 0 && Object.keys(orderedItems).length > 0 && (
-                <Box sx={{ 
+                <Box sx={{
                     mb: 4,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     width: '100%'
                 }}>
-                    <Typography variant="h5" sx={{ 
+                    <Typography variant="h5" sx={{
                         padding: '15px',
                         borderBottom: '1px solid #333',
                         textAlign: 'center',
@@ -732,7 +733,7 @@ function Order() {
                             },
                         }}
                     >
-                        <Box sx={{ 
+                        <Box sx={{
                             display: 'flex',
                             gap: 2,
                             px: 2,
@@ -751,9 +752,6 @@ function Order() {
 
             {/* Section for displaying total price and options to clear cart or submit */}
             <Box sx={{ mt: 2 }}>
-                <Typography variant="h6" sx={{ marginTop: 2  }}>
-                    Total Price: £{(cart.totalPrice || 0).toFixed(2)}
-                </Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={6}>
                         <Button
@@ -782,7 +780,7 @@ function Order() {
                 <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
                     {message}
                 </Alert>
-                
+
             </Snackbar>
 
             {/* Modal to show order details */}
