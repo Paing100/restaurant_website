@@ -17,6 +17,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { useEffect, useState, useRef } from "react";
 
@@ -36,15 +38,25 @@ const Item = styled(Paper)(({ theme }) => ({
   }),
 }));
 
-function NotificationDrawer({ notifications = [], employeeId }) {
+function NotificationDrawer({ notifications = [] }) {
 
   const [alertStack, setalertStack] = useState(notifications);
   const ws = useRef(null);
   const { playSound } = useWithSound(alertSound); // Function to play alert sound
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
 // Function to play an alert sound when a new notification arrives
   const handleAlertSound = () => {
     playSound();
   }
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
 
   // Function to remove a notification
   const removeAlert = async (index) => {
@@ -107,10 +119,12 @@ function NotificationDrawer({ notifications = [], employeeId }) {
           const message = JSON.parse(event.data);
 
           // Handle new alert notification
-          if (message.type === "ALERT" && message.waiterId != employeeId) {
+          if (message.type === "ALERT") {
             setalertStack((prevStack) => [...prevStack, message]);
             getAlerts();
             handleAlertSound();
+            setSnackbarMessage(message.message);
+            setSnackbarOpen(true);
           }
           // handle REMOVE_ALERT message
           if (message.type === "REMOVE_ALERT") {
@@ -194,13 +208,34 @@ function NotificationDrawer({ notifications = [], employeeId }) {
       >
         {list('right')}
       </Drawer>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          sx={{
+            width: '100%',
+            backgroundColor: '#5762d5',
+            color: 'white',
+            borderRadius: '8px',
+            '& .MuiAlert-icon': {
+              color: 'white',
+            },
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
 
 NotificationDrawer.propTypes = {
   notifications: PropTypes.array,
-  employeeId: PropTypes.string.isRequired,
 };
 
 export default NotificationDrawer;

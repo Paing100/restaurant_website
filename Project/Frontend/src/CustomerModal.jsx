@@ -1,7 +1,6 @@
 import { useState, useContext, useEffect, useRef } from 'react';
 import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate } from 'react-router-dom';
 import { CartContext } from './CartContext';
 import PropTypes from "prop-types";
 
@@ -17,7 +16,6 @@ const CustomerModal = ({ onClose }) => {
     const [showEmailPassword, setShowEmailPassword] = useState(false); // email/ password modal visibility 
     const [email, setEmail] = useState(''); // email input 
     const [password, setPassword] = useState(''); // password input 
-    const navigate = useNavigate(); // navigation hook 
     const nameInputRef = useRef(null); // reference to the name input field 
 
     // if a customer is set, close the modal 
@@ -142,7 +140,12 @@ const CustomerModal = ({ onClose }) => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create account');
+                if (response.status === 400) {
+                    setError('An account with this email already exists');
+                } else {
+                    throw new Error('Failed to create account');
+                }
+                return;
             }
 
             const updatedCustomer = await response.json();
@@ -156,36 +159,6 @@ const CustomerModal = ({ onClose }) => {
         } catch (error) {
             console.error('Error creating account:', error);
             setError('Failed to create account. Please try again.');
-        }
-    };
-
-    // handle staff login 
-    const handleStaffLogin = async () => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/customers/add?name=staff&tableNum=1`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to add staff customer');
-            }
-
-            const newCustomer = await response.json();
-            const customerWithOrderId = {
-                ...newCustomer,
-                orderId: newCustomer.order.orderId,
-                tableNum: 1
-            };
-            setCustomer(customerWithOrderId);
-            setTableNum(1);
-            setOpen(false);
-            navigate('/login');
-        } catch (error) {
-            console.error('Error adding staff customer:', error);
-            setError('Failed to login. Please try again.');
         }
     };
 
@@ -297,7 +270,7 @@ const CustomerModal = ({ onClose }) => {
                             },
                         }}
                     />
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, gap: 0.1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button
                             variant="contained"
                             color="primary"
@@ -311,20 +284,6 @@ const CustomerModal = ({ onClose }) => {
                             }}
                         >
                             Submit
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={handleStaffLogin}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            Staff Login
                         </Button>
                     </Box>
                 </Box>
@@ -450,7 +409,7 @@ const CustomerModal = ({ onClose }) => {
                             '& .MuiInputBase-input': { color: 'white' },
                         }}
                     />
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                         <Button
                             variant="contained"
                             color="primary"
