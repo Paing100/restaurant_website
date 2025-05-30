@@ -1,11 +1,16 @@
 package rhul.cs2810.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import rhul.cs2810.model.Customer;
+import rhul.cs2810.model.Order;
+import rhul.cs2810.model.OrderStatus;
+import rhul.cs2810.model.Waiter;
 import rhul.cs2810.repository.CustomerRepository;
+import rhul.cs2810.repository.OrderRepository;
 
 import java.util.Optional;
 
@@ -17,6 +22,15 @@ public class CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private WaiterService waiterService;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -33,6 +47,76 @@ public class CustomerService {
         this.customerRepository = customerRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
+
+    public Customer createCustomerAndAdd(String name, int tableNum, String email, String password) throws IllegalArgumentException {
+        // Check if email is provided and already exists
+        if (email != null && customerRepository.findByEmail(email) != null) {
+            throw new IllegalArgumentException("Email already exists!");
+        }
+
+        // Create and save customer with hashed password
+        Customer newCustomer = saveCustomer(email, password, name);
+        newCustomer = this.saveCustomer(newCustomer); // with hashed password
+
+        // Create order linked to the persisted customer
+        Order order = createOrder(tableNum, newCustomer);
+
+        // Try to assign a waiter
+        Optional<Waiter> waiter = waiterService.findWaiterForTable(tableNum);
+        if (waiter.isEmpty()) {
+            throw new IllegalArgumentException("No waiter available!"); // No waiter available
+        }
+        order.setWaiter(waiter.get());
+
+        newCustomer.addOrder(order);
+
+        // Save the order
+        orderRepository.save(order);
+
+        return newCustomer;
+    }
+
+
+    private Customer saveCustomer(String email, String password, String name) {
+        Customer customer = (email != null && password != null)
+          ? new Customer(name, email, password)
+          : new Customer(name);
+        return customer;
+    }
+
+    private Order createOrder(int tableNum, Customer customer) {
+        Order order = new Order();
+        order.setTableNum(tableNum);
+        order.setCustomer(customer);
+        order.setOrderStatus(OrderStatus.CREATED);
+        return order;
+    }
+
+    public Order createNeworder(int customerId, int tableNum) throws IllegalArgumentException{
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        if (customerOptional.isEmpty()) {
+            throw new IllegalArgumentException("No such customer exists!");
+        }
+
+        Customer customer = customerOptional.get();
+
+        // Create a new order for the existing customer
+        Order newOrder = createOrder(tableNum, customer);
+
+        // Try to assign a waiter
+        Optional<Waiter> waiter = waiterService.findWaiterForTable(tableNum);
+        if (waiter.isEmpty()) {
+            throw new IllegalArgumentException("No waiter available!"); // No waiter available
+        }
+        newOrder.setWaiter(waiter.get());
+
+        // Save the new order
+        Order savedOrder = orderRepository.save(newOrder);
+
+        return savedOrder;
+    }
+
 
     /**
      * Authenticate a customer based on email and password.
