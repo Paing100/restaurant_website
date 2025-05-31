@@ -69,10 +69,15 @@ public class CustomerController {
    * @return the newly created order, or 400 if customer not found or no waiter available
    */
   @PostMapping("/{customerId}/newOrder")
-  public ResponseEntity<Order> createNewOrder(@PathVariable int customerId,
+  public ResponseEntity<?> createNewOrder(@PathVariable int customerId,
       @RequestParam int tableNum) {
-    Order order = customerService.createNeworder(customerId, tableNum);
-    return ResponseEntity.ok(order);
+    try {
+      Order order = customerService.createNeworder(customerId, tableNum);
+      return ResponseEntity.ok(order);
+    }
+    catch (IllegalArgumentException e){
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
   }
 
   /**
