@@ -1,3 +1,7 @@
+name: CI Pipeline 
+
+on: push 
+
 stages:
   - build-backend
   - test
