@@ -48,6 +48,15 @@ public class CustomerService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    /**
+     * Create a new customer and add it to the repository.
+     * @param name name of the customer
+     * @param tableNum table number of the customer
+     * @param email email of the customer
+     * @param password customer's password
+     * @return Customer object
+     * @throws IllegalArgumentException
+     */
     public Customer createCustomerAndAdd(String name, int tableNum, String email, String password) throws IllegalArgumentException {
         // Check if email is provided and already exists
         if (email != null && customerRepository.findByEmail(email) != null) {
@@ -77,6 +86,13 @@ public class CustomerService {
     }
 
 
+    /**
+     * Create a customer object with the necessary attributes
+     * @param email customer's email
+     * @param password customer's password
+     * @param name customer's name
+     * @return Customer object
+     */
     private Customer saveCustomer(String email, String password, String name) {
         Customer customer = (email != null && password != null)
           ? new Customer(name, email, password)
@@ -84,6 +100,12 @@ public class CustomerService {
         return customer;
     }
 
+    /**
+     * Create a order object with required attributes
+     * @param tableNum customer's table number
+     * @param customer customer object
+     * @return Order object
+     */
     private Order createOrder(int tableNum, Customer customer) {
         Order order = new Order();
         order.setTableNum(tableNum);
@@ -92,6 +114,13 @@ public class CustomerService {
         return order;
     }
 
+    /**
+     * Create a new order from the existing customer
+     * @param customerId existing customer's id
+     * @param tableNum customer's table number
+     * @return Order object 
+     * @throws IllegalArgumentException
+     */
     public Order createNeworder(int customerId, int tableNum) throws IllegalArgumentException{
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
