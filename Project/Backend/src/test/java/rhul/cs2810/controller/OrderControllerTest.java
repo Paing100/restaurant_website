@@ -190,6 +190,23 @@ class OrderControllerTest {
   }
 
   @Test
+  void testSubmitOrder_IllegalState() throws Exception {
+    doThrow(new IllegalStateException("Order already submitted")).when(orderService).submitOrder(1);
+    mockMvc.perform(post("/api/order/{orderId}/submitOrder", 1))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Order already submitted"));
+  }
+
+  @Test
+  void testSubmitOrder_GenericException() throws Exception {
+    doThrow(new RuntimeException("Unexpected Error")).when(orderService).submitOrder(1);
+    mockMvc.perform(post("/api/order/{orderId}/submitOrder", 1))
+      .andExpect(status().isInternalServerError())
+      .andExpect(content().string("Error submitting order: Unexpected Error"));
+
+  }
+
+  @Test
   void testSubmitOrder_IllegalStateException() throws Exception {
     Order mockOrder = new Order();
     mockOrder.setOrderId(1);
@@ -213,12 +230,25 @@ class OrderControllerTest {
   void testUpdateOrderStatus_OrderNotFound() throws Exception {
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "CREATED");
-    when(orderService.updateOrderStatus(1, map)).thenThrow(new NoSuchElementException("Order not found!"));
+    when(orderService.updateOrderStatus(1, map)).thenThrow(
+      new NoSuchElementException("Order not found!"));
 
-    mockMvc
-      .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
+    mockMvc.perform(
+        post("/api/order/{orderId}/updateOrderStatus", 1).contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(map))).andExpect(status().isNotFound())
+      .andExpect(content().string("Order not found!"));
+  }
+
+  @Test
+  void testUpdateOrderStatus_GenericException() throws Exception {
+    Map<String, String> map = new HashMap<>();
+    map.put("orderStatus", "CREATED");
+    doThrow(new RuntimeException("Unexpected Error")).when(orderService).updateOrderStatus(1, map);
+    mockMvc.perform(post("/api/order/{orderId}/updateOrderStatus", 1)
         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
-      .andExpect(status().isNotFound()).andExpect(content().string("Order not found!"));
+      .andExpect(status().isInternalServerError())
+      .andExpect(content().string("Unexpected Error"));
+
   }
 
   @Test
@@ -252,12 +282,30 @@ class OrderControllerTest {
   }
 
   @Test
+  void testMarkOrderAsPaid_GenericException() throws Exception {
+    Map<String, String> map = new HashMap<>();
+    map.put("orderStatus", "CREATED");
+    doThrow(new RuntimeException("Unexpected error")).when(orderService).markOrderAsPaid(1);
+    mockMvc.perform(post("/api/order/{orderId}/markAsPaid", 1))
+      .andExpect(status().isInternalServerError())
+      .andExpect(content().string("Unexpected error"));
+  }
+
+  @Test
   void testCancelOrder_OrderNotFound() throws Exception {
     doThrow(new NoSuchElementException("Order not found")).when(orderService).cancelOrder(1);
 
     mockMvc.perform(delete("/api/order/1/cancelOrder")).andExpect(status().isNotFound())
       .andExpect(content().string("Order not found"));
     verify(orderService, times(1)).cancelOrder(1);
+  }
+
+  @Test
+  void testCancelOrder_GenericException() throws Exception {
+    doThrow(new RuntimeException("Unexpected Error")).when(orderService).cancelOrder(1);
+    mockMvc.perform(delete("/api/order/{orderId}/cancelOrder", 1))
+      .andExpect(status().isInternalServerError())
+      .andExpect(content().string("Unexpected Error"));
   }
 
   @Test
@@ -303,6 +351,36 @@ class OrderControllerTest {
   }
 
   @Test
+  void testUpdateOrder_IllegalArgumentException() throws Exception {
+    Map<String, Integer> updateRequest = new HashMap<>();
+    updateRequest.put("tableNum", 10);
+    doThrow(new IllegalArgumentException("Illegal argument")).when(orderService).updateOrderDetails(1, updateRequest);
+
+    mockMvc.perform(post("/api/orders/{orderId}/updateOrder", 1)
+      .contentType(MediaType.APPLICATION_JSON)
+      .content(objectMapper.writeValueAsString(updateRequest)))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Illegal argument"));
+
+    verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
+  }
+
+  @Test
+  void testUpdateOrder_GenericException() throws Exception {
+    Map<String, Integer> updateRequest = new HashMap<>();
+    updateRequest.put("tableNum", 10);
+    doThrow(new RuntimeException("Unexpected Exception")).when(orderService).updateOrderDetails(1, updateRequest);
+
+    mockMvc.perform(post("/api/orders/{orderId}/updateOrder", 1)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(updateRequest)))
+      .andExpect(status().isInternalServerError())
+      .andExpect(content().string("Unexpected Exception"));
+
+    verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
+  }
+
+  @Test
   void testUpdateOrder_NoTableNumber() throws Exception {
     Order mockOrder = new Order();
     mockOrder.setOrderId(1);
@@ -339,8 +417,7 @@ class OrderControllerTest {
         .content(objectMapper.writeValueAsString(updateRequest)))
       .andExpect(status().isNotFound())
       .andExpect(content().string("No waiter available for the new table"));
-
     verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
-
   }
+
 }
