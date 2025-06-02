@@ -9,10 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -160,6 +157,9 @@ class OrderServiceTest {
   @Test
   void testSubmitOrder() {
     Order mockOrder = new Order();
+    mockOrder.setWaiter(new Waiter());
+    mockOrder.getWaiter().setEmployee(new Employee());
+    mockOrder.setTableNum(1);
 
     doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(), anyString(), anyString());
 
@@ -199,9 +199,9 @@ class OrderServiceTest {
   void testSubmitOrder_OrderNotFound() {
     when(orderRepository.findById(1)).thenReturn(Optional.empty());
     
-    Exception exception = assertThrows(IllegalArgumentException.class, 
+    Exception exception = assertThrows(NoSuchElementException.class,
         () -> orderService.submitOrder(1));
-    assertEquals("Order with ID 1 not found.", exception.getMessage());
+    assertEquals("Order not found", exception.getMessage());
     
     verify(orderRepository, never()).save(any(Order.class));
     verify(orderMenuItemRepository, never()).saveAll(anyList());
@@ -210,6 +210,9 @@ class OrderServiceTest {
   @Test
   void testSubmitOrder_UpdatesOrderItemsStatus() {
     Order mockOrder = new Order();
+    mockOrder.setWaiter(new Waiter());
+    mockOrder.getWaiter().setEmployee(new Employee());
+    mockOrder.setTableNum(1);
     List<OrderMenuItem> orderItems = new ArrayList<>();
     OrderMenuItem item1 = new OrderMenuItem();
     OrderMenuItem item2 = new OrderMenuItem();
