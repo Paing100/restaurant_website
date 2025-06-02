@@ -221,6 +221,22 @@ public class OrderService {
         orderId + " is ready to be delivered", waiterId);
     } else {
       notificationService.sendNotification(status, orderId, "kitchen",
+    }
+    OrderStatus orderStatus = OrderStatus.valueOf(status);
+    Employee employee = order.getWaiter().getEmployee();
+    String waiterId = employee.getEmployeeId();
+    order.setOrderStatus(orderStatus);
+    this.saveUpdatedOrder(order);
+    notifyOrderStatusChanges(orderId, waiterId, param);
+    return order;
+  }
+
+  private void notifyOrderStatusChanges(int orderId, String waiterId, Map<String, String> param){
+    if (param.get("orderStatus").equals("READY")) {
+      notificationService.sendNotification("READY", orderId, "waiter",
+        orderId + " is ready to be delivered", waiterId);
+    } else {
+      notificationService.sendNotification(param.get("orderStatus"), orderId, "kitchen",
         "Order # " + orderId + " has been confirmed", waiterId);
     }
   }

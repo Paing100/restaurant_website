@@ -1,7 +1,5 @@
 package rhul.cs2810;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +15,8 @@ import rhul.cs2810.model.DietaryRestrictions;
 import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderMenuItem;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrderTest {
 
@@ -95,6 +95,34 @@ public class OrderTest {
     assertEquals(orderMenuItems.get(0), orderTest.getOrderMenuItems().get(0));
   }
 
+  @Test
+  void testEqualsSameObject(){
+    Order order = new Order();
+    assertEquals(order, order);
+    assertTrue(order.equals(order));
+  }
 
+  @Test
+  void testEqualsDiffObject(){
+    Order order1 = new Order();
+    order1.setOrderId(1);
+    Order order2 = new Order();
+    order2.setOrderId(2);
+    assertNotEquals(order1, order2);
+    assertFalse(order1.equals(order2));
+  }
+
+  @Test
+  void testEqualsNullObject(){
+    Order order = new Order();
+    assertFalse(order.equals(null));
+  }
+
+  @Test
+  void testEqualsDifferentClass(){
+    Order order = new Order();
+    Customer customer = new Customer();
+    assertFalse(order.equals(customer));
+  }
 
 }

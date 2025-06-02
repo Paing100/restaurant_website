@@ -110,7 +110,8 @@ class OrderControllerTest {
     when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(mockOrder);
     doNothing().when(orderService).submitOrder(1);
 
-    mockMvc.perform(
+    mockMvc
+      .perform(
         post("/api/order/{orderId}/submitOrder", mockOrder.getOrderId()).param("orderId", "1"))
       .andExpect(status().isOk()).andExpect(content().string("Order submitted successfully"));
 
@@ -188,7 +189,6 @@ class OrderControllerTest {
       .andExpect(content().string("Order not found"));
   }
 
-
   @Test
   void testSubmitOrder_IllegalState() throws Exception {
     doThrow(new IllegalStateException("Order already submitted")).when(orderService).submitOrder(1);
@@ -203,6 +203,7 @@ class OrderControllerTest {
     mockMvc.perform(post("/api/order/{orderId}/submitOrder", 1))
       .andExpect(status().isInternalServerError())
       .andExpect(content().string("Error submitting order: Unexpected Error"));
+
   }
 
   @Test
@@ -235,8 +236,6 @@ class OrderControllerTest {
       .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
       .andExpect(status().isNotFound()).andExpect(content().string("Order not found!"));
-  }
-
 
   @Test
   void testUpdateOrderStatus_GenericException() throws Exception {
@@ -247,6 +246,7 @@ class OrderControllerTest {
         .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
       .andExpect(status().isInternalServerError())
       .andExpect(content().string("Unexpected Error"));
+
   }
 
   @Test
@@ -415,7 +415,6 @@ class OrderControllerTest {
         .content(objectMapper.writeValueAsString(updateRequest)))
       .andExpect(status().isNotFound())
       .andExpect(content().string("No waiter available for the new table"));
-
     verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
   }
 
