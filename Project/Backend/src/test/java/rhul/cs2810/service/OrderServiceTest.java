@@ -11,6 +11,8 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -36,8 +38,14 @@ class OrderServiceTest {
   @Mock
   private NotificationService notificationService;
 
+  @Mock
+  private WaiterService waiterService;
+
   @InjectMocks
   private OrderService orderService;
+
+  @Mock
+  private EntityManager entityManager;
 
   private List<Order> orders = new ArrayList<>();
 
@@ -291,4 +299,155 @@ class OrderServiceTest {
     
     verify(orderRepository, never()).save(any(Order.class));
   }
+
+  @Test
+  void testUpdateOrderStatus(){
+    Waiter waiter = new Waiter();
+    Employee employee = new Employee();
+    employee.setEmployeeId("E001");
+    waiter.setEmployee(employee);
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.IN_PROGRESS);
+    order.setWaiter(waiter);
+    order.getWaiter().setEmployee(employee);
+    Map<String, String> param = new HashMap<>();
+    param.put("orderStatus", String.valueOf(OrderStatus.READY));
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    orderService.updateOrderStatus(1, param);
+    verify(notificationService).sendNotification("READY", 1, "waiter", "1 is ready to be delivered", "E001");
+    assertEquals(order.getOrderStatus(), OrderStatus.READY);
+  }
+
+  @Test
+  void testUpdateOrderStatus_NullStatus() {
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.IN_PROGRESS);
+    order.setWaiter(new Waiter());
+    order.getWaiter().setEmployee(new Employee());
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+
+    Map<String, String> param = new HashMap<>();
+    assertThrows(NoSuchElementException.class,
+      () -> orderService.updateOrderStatus(1, param));
+  }
+
+  @Test
+  void testCancelOrder_Successful() {
+    Waiter waiter = new Waiter();
+    Employee employee = new Employee();
+    employee.setEmployeeId("E001");
+    waiter.setEmployee(employee);
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.IN_PROGRESS);
+    order.setWaiter(waiter);
+    order.getWaiter().setEmployee(employee);
+
+    Query mockQuery = mock(Query.class);
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    when(entityManager.createNativeQuery("DELETE FROM orders WHERE order_id = :orderId")).thenReturn(mockQuery);
+    when(mockQuery.setParameter("orderId", 1)).thenReturn(mockQuery);
+    when(mockQuery.executeUpdate()).thenReturn(1);
+
+    orderService.cancelOrder(1);
+    verify(notificationService).sendNotification("ORDER_CANCELLED", 1, "customer", "#1 is cancelled by waiter", "E001");
+    verify(mockQuery).executeUpdate();
+  }
+
+  @Test
+  void testCancelOrder_OrderNotFound() {
+    Waiter waiter = new Waiter();
+    Employee employee = new Employee();
+    employee.setEmployeeId("E001");
+    waiter.setEmployee(employee);
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.IN_PROGRESS);
+    order.setWaiter(waiter);
+    order.getWaiter().setEmployee(employee);
+
+    Query mockQuery = mock(Query.class);
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    when(entityManager.createNativeQuery("DELETE FROM orders WHERE order_id = :orderId")).thenReturn(mockQuery);
+    when(mockQuery.setParameter("orderId", 1)).thenReturn(mockQuery);
+    when(mockQuery.executeUpdate()).thenReturn(0);
+    assertThrows(NoSuchElementException.class,
+      () -> orderService.cancelOrder(1));
+  }
+
+  @Test
+  void testMarkOrderAsPaid() {
+    Waiter waiter = new Waiter();
+    Employee employee = new Employee();
+    employee.setEmployeeId("E001");
+    waiter.setEmployee(employee);
+    Order order = new Order();
+    order.setWaiter(waiter);
+    order.getWaiter().setEmployee(employee);
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    orderService.markOrderAsPaid(1);
+    assertTrue(order.isOrderPaid());
+  }
+
+  @Test
+  void testUpdateOrderDetails_Successful() {
+    Waiter waiter = new Waiter();
+    Employee employee = new Employee();
+    employee.setEmployeeId("E001");
+    waiter.setEmployee(employee);
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setWaiter(waiter);
+    order.getWaiter().setEmployee(employee);
+    order.setTableNum(10);
+
+    Map<String, Integer> map = new HashMap<>();
+    map.put("tableNum", 20);
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    when(waiterService.findWaiterForTable(10)).thenReturn(Optional.of(waiter));
+    when(waiterService.findWaiterForTable(20)).thenReturn(Optional.of(waiter));
+
+    orderService.updateOrderDetails(order.getOrderId(), map);
+
+    assertEquals(20, order.getTableNum());
+  }
+
+  @Test
+  void testUpdateOrderDetails_NullTableNumber() {
+    Order order = new Order();
+    order.setOrderId(1);
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    Map<String, Integer> map = new HashMap<>();
+
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+      () -> orderService.updateOrderDetails(1, map));
+
+    assertEquals("Table number is required", exception.getMessage());
+  }
+
+  @Test
+  void testUpdateOrderDetails_NoWaiter() {
+    Order order = new Order();
+    order.setOrderId(1);
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    Map<String, Integer> map = new HashMap<>();
+    map.put("tableNum", 20);
+
+    when(waiterService.findWaiterForTable(20)).thenReturn(Optional.empty());
+
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+      () -> orderService.updateOrderDetails(1, map));
+
+    assertEquals("No waiter available for the new table", exception.getMessage());
+
+  }
+
 }

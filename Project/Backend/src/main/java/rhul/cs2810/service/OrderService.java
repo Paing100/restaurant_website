@@ -202,22 +202,25 @@ public class OrderService {
     String status = param.get("orderStatus");
     if (status != null) {
       status = status.toUpperCase();
+      OrderStatus orderStatus = OrderStatus.valueOf(status);
+      order.setOrderStatus(orderStatus);
+      Employee employee = order.getWaiter().getEmployee();
+      String waiterId = employee.getEmployeeId();
+      this.saveUpdatedOrder(order);
+      notifyOrderStatusChanges(orderId, waiterId, status);
     }
-    OrderStatus orderStatus = OrderStatus.valueOf(status);
-    Employee employee = order.getWaiter().getEmployee();
-    String waiterId = employee.getEmployeeId();
-    order.setOrderStatus(orderStatus);
-    this.saveUpdatedOrder(order);
-    notifyOrderStatusChanges(orderId, waiterId, param);
+    else{
+      throw new NoSuchElementException("Order status is null!");
+    }
     return order;
   }
 
-  private void notifyOrderStatusChanges(int orderId, String waiterId, Map<String, String> param){
-    if (param.get("orderStatus").equals("READY")) {
+  private void notifyOrderStatusChanges(int orderId, String waiterId, String status){
+    if (status.equals("READY")) {
       notificationService.sendNotification("READY", orderId, "waiter",
         orderId + " is ready to be delivered", waiterId);
     } else {
-      notificationService.sendNotification(param.get("orderStatus"), orderId, "kitchen",
+      notificationService.sendNotification(status, orderId, "kitchen",
         "Order # " + orderId + " has been confirmed", waiterId);
     }
   }
