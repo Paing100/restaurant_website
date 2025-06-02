@@ -3,6 +3,7 @@ package rhul.cs2810.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
@@ -96,25 +97,15 @@ public class OrderController {
   @Transactional
   @DeleteMapping("/order/{orderId}/cancelOrder")
   public ResponseEntity<String> cancelOrder(@PathVariable int orderId) {
-    Order order = orderService.getOrder(orderId);
-    if (order == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
-    }
-
-    if (order.getWaiter() != null && order.getWaiter().getEmployee() != null) {
-      String waiterId = order.getWaiter().getEmployee().getEmployeeId();
-      notificationService.sendNotification("ORDER_CANCELLED", orderId, "customer",
-        "#" + orderId + " is cancelled by waiter", waiterId);
-    }
-
-    Query query = entityManager.createNativeQuery("DELETE FROM orders WHERE order_id = :orderId");
-    query.setParameter("orderId", orderId);
-    int rowDeleted = query.executeUpdate();
-
-    if (rowDeleted > 0) {
+    try {
+      orderService.cancelOrder(orderId);
       return ResponseEntity.ok("Order deleted successfully");
-    } else {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+    }
+    catch(NoSuchElementException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+    catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
   }
 
@@ -127,28 +118,16 @@ public class OrderController {
   @PostMapping("/order/{orderId}/submitOrder")
   public ResponseEntity<String> submitOrder(@PathVariable int orderId) {
     try {
-        Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
-        if (orderOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
-        }
-
-        Order order = orderOptional.get();
-
-        order.setOrderPlaced(LocalDateTime.now());
-        orderService.saveUpdatedOrder(order);
-
-        orderService.submitOrder(orderId);
-
-        if (order.getWaiter() != null && order.getWaiter().getEmployee() != null) {
-            String waiterId = order.getWaiter().getEmployee().getEmployeeId();
-            notificationService.sendNotification("ORDER_SUBMITTED", orderId, "kitchen", "A new order has been submitted", waiterId);
-        }
-        
-        return ResponseEntity.ok("Order submitted successfully");
-    } catch (IllegalStateException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      orderService.submitOrder(orderId);
+      return ResponseEntity.ok("Order submitted successfully");
+    }
+    catch(NoSuchElementException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+    catch (IllegalStateException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     } catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error submitting order: " + e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error submitting order: " + e.getMessage());
     }
   }
 
@@ -172,46 +151,18 @@ public class OrderController {
    */
   @PostMapping("/order/{orderId}/updateOrderStatus")
   public ResponseEntity<String> updateOrderStatus(@PathVariable int orderId,
-      @RequestBody Map<String, String> param) {
-    Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
-
-    if (!orderOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found!");
+    @RequestBody Map<String, String> param) {
+    try {
+      Order order = orderService.updateOrderStatus(orderId, param);
+      return ResponseEntity.ok("Order Status changed to " + order.getOrderStatus());
     }
-
-    Order order = orderOptional.get();
-    String status = param.get("orderStatus");
-    if (status != null) {
-      status = status.toUpperCase();
+    catch (NoSuchElementException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
-    OrderStatus orderStatus = OrderStatus.valueOf(status);
-    Employee employee = order.getWaiter().getEmployee();
-    String waiterId = employee.getEmployeeId();
-    order.setOrderStatus(orderStatus);
-    orderService.saveUpdatedOrder(order);
-    if (param.get("orderStatus").equals("READY")) {
-      notificationService.sendNotification("READY", orderId, "waiter",
-          orderId + " is ready to be delivered", waiterId);
-    } else {
-      notificationService.sendNotification(param.get("orderStatus"), orderId, "kitchen",
-          "Order # " + orderId + " has been confirmed", waiterId);
+    catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
-    return ResponseEntity.ok("Order Status changed to " + order.getOrderStatus());
   }
-
-  // @GetMapping("/order/{orderId}/getOrderStatus")
-  // public ResponseEntity<OrderStatus> getOrderStatus(@PathVariable int orderId){
-  // Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
-  //
-  // if (!orderOptional.isPresent()){
-  // // do something
-  // }
-  //
-  // Order order = orderOptional.get();
-  // OrderStatus status = order.getOrderStatus();
-  // return ResponseEntity.ok(status);
-  // }
-
 
   /**
    * Update the status of order paid for.
@@ -221,17 +172,16 @@ public class OrderController {
    */
   @PostMapping("/order/{orderId}/markAsPaid")
   public ResponseEntity<String> markOrderAsPaid(@PathVariable int orderId) {
-    Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
-
-    if (!orderOptional.isPresent()) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found!");
+    try {
+      orderService.markOrderAsPaid(orderId);
+      return ResponseEntity.ok("Order marked as paid successfully");
     }
-
-    Order order = orderOptional.get();
-    order.setOrderPaid(true);
-    orderService.saveUpdatedOrder(order);
-
-    return ResponseEntity.ok("Order marked as paid successfully");
+    catch (NoSuchElementException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+    catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
   }
 
   /**
@@ -243,33 +193,18 @@ public class OrderController {
    */
   @PostMapping("/orders/{orderId}/updateOrder")
   public ResponseEntity<String> updateOrder(@PathVariable int orderId, @RequestBody Map<String, Integer> updateRequest) {
-      try {
-          Optional<Order> orderOptional = Optional.ofNullable(orderService.getOrder(orderId));
-          if (orderOptional.isEmpty()) {
-              return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
-          }
-
-          Order order = orderOptional.get();
-          Integer newTableNum = updateRequest.get("tableNum");
-          
-          if (newTableNum == null) {
-              return ResponseEntity.badRequest().body("Table number is required");
-          }
-
-          // Try to find a waiter for the new table
-          Optional<Waiter> newWaiter = waiterService.findWaiterForTable(newTableNum);
-          if (newWaiter.isEmpty()) {
-              return ResponseEntity.badRequest().body("No waiter available for the new table");
-          }
-
-          order.setTableNum(newTableNum);
-          order.setWaiter(newWaiter.get());
-          orderService.saveUpdatedOrder(order);
-
-          return ResponseEntity.ok("Order updated successfully");
-      } catch (Exception e) {
-          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                  .body("Error updating order: " + e.getMessage());
-      }
+    try {
+      orderService.updateOrderDetails(orderId, updateRequest);
+      return ResponseEntity.ok("Order updated successfully");
+    }
+    catch(NoSuchElementException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+    catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+    catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
   }
 }

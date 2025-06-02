@@ -1,10 +1,10 @@
 package rhul.cs2810.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +30,12 @@ public class OrderService {
 
   @Autowired
   private NotificationService notificationService;
+
+  @Autowired
+  private WaiterService waiterService;
+
+  @Autowired
+  private EntityManager entityManager;
 
   /**
    * Retrieves a specific order from the given id.
@@ -97,23 +103,29 @@ public class OrderService {
    * @param orderId of the order
    */
   public void submitOrder(int orderId) {
-    Optional<Order> orderOptional = orderRepository.findById(orderId);
 
-    if (orderOptional.isPresent()) {
-        Order order = orderOptional.get();
-        order.setOrderStatus(OrderStatus.SUBMITTED);
-        orderRepository.save(order);
+    Order order = getExistingOrderOrThrow(orderId);
+    order.setOrderStatus(OrderStatus.SUBMITTED);
+    order.setOrderPlaced(LocalDateTime.now());
+    orderRepository.save(order);
 
-        List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
-        for (OrderMenuItem item : orderItems) {
-            item.setOrderSubmitted(true);
-        }
-        orderMenuItemRepository.saveAll(orderItems);
-    } else {
-        throw new IllegalArgumentException("Order with ID " + orderId + " not found.");
+    List<OrderMenuItem> orderItems = orderMenuItemRepository.findByOrder(order);
+    for (OrderMenuItem item : orderItems) {
+      item.setOrderSubmitted(true);
     }
+    orderMenuItemRepository.saveAll(orderItems);
+    notifyOrderDetails("ORDER_SUBMITTED", orderId, order, "kitchen", "A new order has been submitted");
   }
 
+  private void notifyOrderDetails(String type, int orderId, Order order, String recipient, String message) {
+    if (order.getWaiter() != null && order.getWaiter().getEmployee() != null) {
+      String waiterId = order.getWaiter().getEmployee().getEmployeeId();
+      notificationService.sendNotification(type, orderId, recipient, message, waiterId);
+    }
+    else {
+      throw new IllegalArgumentException("Cannot notify: missing waiter or employee information for order ID " + orderId);
+    }
+  }
 
   /**
    * Retrieves all orders.
@@ -149,6 +161,77 @@ public class OrderService {
       return optionalOrder.get().getOrderMenuItems();
     }
     return List.of();
+  }
+
+  public void updateOrderDetails(int orderId, Map<String, Integer> updateRequest){
+    Order order = getExistingOrderOrThrow(orderId);
+
+    Integer newTableNum = updateRequest.get("tableNum");
+
+    if (newTableNum == null) {
+      throw new IllegalArgumentException("Table number is required");
+    }
+
+    // Try to find a waiter for the new table
+    Waiter newWaiter = getExistingWaiterOrThrow(newTableNum);
+
+    order.setTableNum(newTableNum);
+    order.setWaiter(newWaiter);
+    this.saveUpdatedOrder(order);
+  }
+
+  private Order getExistingOrderOrThrow (int orderId) {
+    return Optional.ofNullable(this.getOrder(orderId))
+      .orElseThrow(() -> new NoSuchElementException("Order not found"));
+  }
+
+  private Waiter getExistingWaiterOrThrow (int tableNum) {
+    return waiterService.findWaiterForTable(tableNum)
+      .orElseThrow(() -> new IllegalArgumentException("No waiter available for the new table"));
+  }
+
+  public void markOrderAsPaid (int orderId) {
+    Order order = getExistingOrderOrThrow(orderId);
+    order.setOrderPaid(true);
+    this.saveUpdatedOrder(order);
+    this.submitOrder(orderId);
+  }
+
+  public Order updateOrderStatus(int orderId, Map<String, String> param) {
+    Order order = getExistingOrderOrThrow(orderId);
+    String status = param.get("orderStatus");
+    if (status != null) {
+      status = status.toUpperCase();
+    }
+    OrderStatus orderStatus = OrderStatus.valueOf(status);
+    Employee employee = order.getWaiter().getEmployee();
+    String waiterId = employee.getEmployeeId();
+    order.setOrderStatus(orderStatus);
+    this.saveUpdatedOrder(order);
+    notifyOrderStatusChanges(orderId, waiterId, param);
+    return order;
+  }
+
+  private void notifyOrderStatusChanges(int orderId, String waiterId, Map<String, String> param){
+    if (param.get("orderStatus").equals("READY")) {
+      notificationService.sendNotification("READY", orderId, "waiter",
+        orderId + " is ready to be delivered", waiterId);
+    } else {
+      notificationService.sendNotification(param.get("orderStatus"), orderId, "kitchen",
+        "Order # " + orderId + " has been confirmed", waiterId);
+    }
+  }
+
+  public void cancelOrder(int orderId) {
+    Order order = getExistingOrderOrThrow(orderId);
+    notifyOrderDetails("ORDER_CANCELLED", orderId, order, "customer", "#" + orderId + " is cancelled by waiter");
+    Query query = entityManager.createNativeQuery("DELETE FROM orders WHERE order_id = :orderId");
+    query.setParameter("orderId", orderId);
+    int rowDeleted = query.executeUpdate();
+
+    if (rowDeleted == 0) {
+      throw new NoSuchElementException("Order not found for deletion");
+    }
   }
 
 }
