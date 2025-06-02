@@ -152,7 +152,7 @@ public class CustomerService {
      *
      * @param email the customer's email
      * @param password the customer's password
-     * @return Optional<Customer> if authentication successful, empty Optional otherwise
+     * @return Customer if authentication successful, empty Optional otherwise
      */
     public Optional<Customer> authenticateCustomer(String email, String password) {
         Customer customer = customerRepository.findByEmail(email);
@@ -182,7 +182,7 @@ public class CustomerService {
      * @param customerId the ID of the customer
      * @param email the email for the account
      * @param password the password for the account
-     * @return Optional<Customer> if successful, empty Optional if customer not found or email exists
+     * @return Customer if successful, empty Optional if customer not found or email exists
      */
     public Optional<Customer> createAccount(int customerId, String email, String password) {
         if (customerRepository.findByEmail(email) != null) {

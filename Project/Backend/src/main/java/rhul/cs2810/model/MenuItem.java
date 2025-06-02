@@ -72,13 +72,11 @@ public class MenuItem {
    *
    * @param name the name of the item
    * @param description the description of the item
-   * @param price the price of the item
    * @param allergens the list of allergens present in the item
    * @param calories the calorie count of the item
    * @param dietaryRestrictions the set of dietary restrictions applicable to the item
    * @param available the availability status of the item
    * @param imagePath the image path of the menuItem
-   * @param the category of the item
    */
   public MenuItem(String name, String description, double d, Set<Allergen> allergens, int calories,
       Set<DietaryRestrictions> dietaryRestrictions, boolean available, String imagePath,
