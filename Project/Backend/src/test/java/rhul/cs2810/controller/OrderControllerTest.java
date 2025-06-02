@@ -230,12 +230,14 @@ class OrderControllerTest {
   void testUpdateOrderStatus_OrderNotFound() throws Exception {
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "CREATED");
-    when(orderService.updateOrderStatus(1, map)).thenThrow(new NoSuchElementException("Order not found!"));
+    when(orderService.updateOrderStatus(1, map)).thenThrow(
+      new NoSuchElementException("Order not found!"));
 
-    mockMvc
-      .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
-        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
-      .andExpect(status().isNotFound()).andExpect(content().string("Order not found!"));
+    mockMvc.perform(
+        post("/api/order/{orderId}/updateOrderStatus", 1).contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(map))).andExpect(status().isNotFound())
+      .andExpect(content().string("Order not found!"));
+  }
 
   @Test
   void testUpdateOrderStatus_GenericException() throws Exception {
