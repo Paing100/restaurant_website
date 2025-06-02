@@ -4,21 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -37,6 +31,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.model.Order;
+import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.model.Waiter;
 import rhul.cs2810.service.NotificationService;
 import rhul.cs2810.service.OrderService;
@@ -116,9 +111,9 @@ class OrderControllerTest {
     doNothing().when(orderService).submitOrder(1);
 
     mockMvc
-        .perform(
-            post("/api/order/{orderId}/submitOrder", mockOrder.getOrderId()).param("orderId", "1"))
-        .andExpect(status().isOk()).andExpect(content().string("Order submitted successfully"));
+      .perform(
+        post("/api/order/{orderId}/submitOrder", mockOrder.getOrderId()).param("orderId", "1"))
+      .andExpect(status().isOk()).andExpect(content().string("Order submitted successfully"));
 
     verify(orderService, times(1)).submitOrder(1);
   }
@@ -143,18 +138,15 @@ class OrderControllerTest {
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "CREATED");
 
-    when(orderService.getOrder(mockOrder.getOrderId())).thenReturn(mockOrder);
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
-        anyString(), anyString());
-    doNothing().when(orderService).saveUpdatedOrder(mockOrder);
+    when(orderService.updateOrderStatus(mockOrder.getOrderId(), map)).thenReturn(mockOrder);
     MvcResult result =
-        mockMvc
-            .perform(post("/api/order/{orderId}/updateOrderStatus", mockOrder.getOrderId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(map)).accept(MediaType.APPLICATION_JSON))
-            .andReturn();
+      mockMvc
+        .perform(post("/api/order/{orderId}/updateOrderStatus", mockOrder.getOrderId())
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(map)).accept(MediaType.APPLICATION_JSON))
+        .andReturn();
     assertEquals(HttpStatus.OK.value(), result.getResponse().getStatus());
-    verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
+    verify(orderService, times(1)).updateOrderStatus(1, map);
   }
 
   @Test
@@ -167,21 +159,12 @@ class OrderControllerTest {
     mockWaiter.setEmployee(mockEmployee);
     mockOrder.setWaiter(mockWaiter);
 
-    when(orderService.getOrder(1)).thenReturn(mockOrder);
-    Query mockQuery = Mockito.mock(Query.class);
-    when(entityManager.createNativeQuery(anyString())).thenReturn(mockQuery);
-    when(mockQuery.setParameter(anyString(), any())).thenReturn(mockQuery);
-    when(mockQuery.executeUpdate()).thenReturn(1);
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
-        anyString(), anyString());
+    doNothing().when(orderService).cancelOrder(mockOrder.getOrderId());
 
     mockMvc.perform(delete("/api/order/1/cancelOrder")).andExpect(status().isOk())
-        .andExpect(content().string("Order deleted successfully"));
+      .andExpect(content().string("Order deleted successfully"));
 
-    verify(orderService, times(1)).getOrder(1);
-    verify(notificationService, times(1)).sendNotification(anyString(), anyInt(), anyString(),
-        anyString(), anyString());
-    verify(mockQuery, times(1)).executeUpdate();
+    verify(orderService, times(1)).cancelOrder(mockOrder.getOrderId());
   }
 
   @Test
@@ -189,24 +172,21 @@ class OrderControllerTest {
     Order mockOrder = new Order();
     mockOrder.setOrderId(1);
     mockOrder.setOrderPaid(false);
-    when(orderService.getOrder(1)).thenReturn(mockOrder);
-    doNothing().when(orderService).saveUpdatedOrder(mockOrder);
+    doNothing().when(orderService).markOrderAsPaid(mockOrder.getOrderId());
 
     mockMvc
-        .perform(post("/api/order/{orderId}/markAsPaid", 1).contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Order marked as paid successfully"));
+      .perform(post("/api/order/{orderId}/markAsPaid", 1).contentType(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(content().string("Order marked as paid successfully"));
 
-    verify(orderService, times(1)).getOrder(1);
-    verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
+    verify(orderService, times(1)).markOrderAsPaid(mockOrder.getOrderId());
   }
 
   @Test
   void testSubmitOrder_OrderNotFound() throws Exception {
-    when(orderService.getOrder(1)).thenReturn(null);
-
-    mockMvc.perform(post("/api/order/{orderId}/submitOrder", 1)).andExpect(status().isNotFound())
-        .andExpect(content().string("Order not found"));
+    doThrow(new NoSuchElementException("Order not found")).when(orderService).submitOrder(100);
+    mockMvc.perform(post("/api/order/{orderId}/submitOrder", 100)).andExpect(status().isNotFound())
+      .andExpect(content().string("Order not found"));
   }
 
   @Test
@@ -223,29 +203,29 @@ class OrderControllerTest {
     doNothing().when(orderService).saveUpdatedOrder(mockOrder);
     doNothing().when(orderService).submitOrder(1);
     doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
-        anyString(), anyString());
+      anyString(), anyString());
 
     mockMvc.perform(post("/api/order/{orderId}/submitOrder", 1)).andExpect(status().isOk())
-        .andExpect(content().string("Order submitted successfully"));
+      .andExpect(content().string("Order submitted successfully"));
   }
 
   @Test
   void testUpdateOrderStatus_OrderNotFound() throws Exception {
-    when(orderService.getOrder(1)).thenReturn(null);
-
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "CREATED");
+    when(orderService.updateOrderStatus(1, map)).thenThrow(new NoSuchElementException("Order not found!"));
 
     mockMvc
-        .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
-            .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
-        .andExpect(status().isNotFound()).andExpect(content().string("Order not found!"));
+      .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
+        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
+      .andExpect(status().isNotFound()).andExpect(content().string("Order not found!"));
   }
 
   @Test
   void testUpdateOrderStatus_ReadyStatus() throws Exception {
     Order mockOrder = new Order();
     mockOrder.setOrderId(1);
+    mockOrder.setOrderStatus(OrderStatus.READY);
     Waiter mockWaiter = new Waiter();
     Employee mockEmployee = new Employee();
     mockEmployee.setEmployeeId("123");
@@ -255,35 +235,29 @@ class OrderControllerTest {
     Map<String, String> map = new HashMap<>();
     map.put("orderStatus", "READY");
 
-    when(orderService.getOrder(1)).thenReturn(mockOrder);
-    doNothing().when(notificationService).sendNotification(anyString(), anyInt(), anyString(),
-        anyString(), anyString());
-    doNothing().when(orderService).saveUpdatedOrder(mockOrder);
+    when(orderService.updateOrderStatus(1, map)).thenReturn(mockOrder);
 
     mockMvc
-        .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
-            .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
-        .andExpect(status().isOk()).andExpect(content().string("Order Status changed to READY"));
+      .perform(post("/api/order/{orderId}/updateOrderStatus", 1)
+        .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(map)))
+      .andExpect(status().isOk()).andExpect(content().string("Order Status changed to READY"));
   }
 
   @Test
   void testMarkOrderAsPaid_OrderNotFound() throws Exception {
-    when(orderService.getOrder(1)).thenReturn(null);
+    doThrow(new NoSuchElementException("Order not found!")).when(orderService).markOrderAsPaid(1);
 
     mockMvc.perform(post("/api/order/{orderId}/markAsPaid", 1)).andExpect(status().isNotFound())
-        .andExpect(content().string("Order not found!"));
+      .andExpect(content().string("Order not found!"));
   }
 
   @Test
   void testCancelOrder_OrderNotFound() throws Exception {
-    when(orderService.getOrder(1)).thenReturn(null);
+    doThrow(new NoSuchElementException("Order not found")).when(orderService).cancelOrder(1);
 
     mockMvc.perform(delete("/api/order/1/cancelOrder")).andExpect(status().isNotFound())
-        .andExpect(content().string("Order not found"));
-
-    verify(orderService, times(1)).getOrder(1);
-    verify(notificationService, never()).sendNotification(anyString(), anyInt(), anyString(),
-        anyString(), anyString());
+      .andExpect(content().string("Order not found"));
+    verify(orderService, times(1)).cancelOrder(1);
   }
 
   @Test
@@ -300,20 +274,15 @@ class OrderControllerTest {
     Map<String, Integer> updateRequest = new HashMap<>();
     updateRequest.put("tableNum", 10);
 
-    when(orderService.getOrder(1)).thenReturn(mockOrder);
-    when(waiterService.findWaiterForTable(10)).thenReturn(Optional.of(mockWaiter));
-    doNothing().when(orderService).saveUpdatedOrder(mockOrder);
+    doNothing().when(orderService).updateOrderDetails(1, updateRequest);
 
     mockMvc
-        .perform(post("/api/orders/{orderId}/updateOrder", 1)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Order updated successfully"));
-
-    verify(orderService, times(1)).getOrder(1);
-    verify(waiterService, times(1)).findWaiterForTable(10);
-    verify(orderService, times(1)).saveUpdatedOrder(mockOrder);
+      .perform(post("/api/orders/{orderId}/updateOrder", 1)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(updateRequest)))
+      .andExpect(status().isOk())
+      .andExpect(content().string("Order updated successfully"));
+    verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
   }
 
   @Test
@@ -321,40 +290,36 @@ class OrderControllerTest {
     Map<String, Integer> updateRequest = new HashMap<>();
     updateRequest.put("tableNum", 10);
 
-    when(orderService.getOrder(1)).thenReturn(null);
+    doThrow(new NoSuchElementException("Order not found")).when(orderService).updateOrderDetails(1, updateRequest);
 
     mockMvc
-        .perform(post("/api/orders/{orderId}/updateOrder", 1)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
-        .andExpect(status().isNotFound())
-        .andExpect(content().string("Order not found"));
+      .perform(post("/api/orders/{orderId}/updateOrder", 1)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(updateRequest)))
+      .andExpect(status().isNotFound())
+      .andExpect(content().string("Order not found"));
 
-    verify(orderService, times(1)).getOrder(1);
-    verify(waiterService, never()).findWaiterForTable(anyInt());
-    verify(orderService, never()).saveUpdatedOrder(any(Order.class));
+    verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
   }
 
   @Test
   void testUpdateOrder_NoTableNumber() throws Exception {
     Order mockOrder = new Order();
     mockOrder.setOrderId(1);
-    
-    Map<String, Integer> updateRequest = new HashMap<>();
-    // No tableNum in request
 
-    when(orderService.getOrder(1)).thenReturn(mockOrder);
+    Map<String, Integer> updateRequest = new HashMap<>();
+    updateRequest.put("tableNum", null);
+
+    doThrow(new NoSuchElementException("Table number is required")).when(orderService).updateOrderDetails(1, updateRequest);
 
     mockMvc
-        .perform(post("/api/orders/{orderId}/updateOrder", 1)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string("Table number is required"));
+      .perform(post("/api/orders/{orderId}/updateOrder", 1)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(updateRequest)))
+      .andExpect(status().isNotFound())
+      .andExpect(content().string("Table number is required"));
 
-    verify(orderService, times(1)).getOrder(1);
-    verify(waiterService, never()).findWaiterForTable(anyInt());
-    verify(orderService, never()).saveUpdatedOrder(any(Order.class));
+    verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
   }
 
   @Test
@@ -366,18 +331,16 @@ class OrderControllerTest {
     Map<String, Integer> updateRequest = new HashMap<>();
     updateRequest.put("tableNum", 10);
 
-    when(orderService.getOrder(1)).thenReturn(mockOrder);
-    when(waiterService.findWaiterForTable(10)).thenReturn(Optional.empty());
+    doThrow(new NoSuchElementException("No waiter available for the new table")).when(orderService).updateOrderDetails(1, updateRequest);
 
     mockMvc
-        .perform(post("/api/orders/{orderId}/updateOrder", 1)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(updateRequest)))
-        .andExpect(status().isBadRequest())
-        .andExpect(content().string("No waiter available for the new table"));
+      .perform(post("/api/orders/{orderId}/updateOrder", 1)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(updateRequest)))
+      .andExpect(status().isNotFound())
+      .andExpect(content().string("No waiter available for the new table"));
 
-    verify(orderService, times(1)).getOrder(1);
-    verify(waiterService, times(1)).findWaiterForTable(10);
-    verify(orderService, never()).saveUpdatedOrder(any(Order.class));
+    verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
+
   }
 }
