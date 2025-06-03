@@ -71,15 +71,41 @@ class WaiterServiceTest {
 
     @Test
     void testGetWaiterOrders() {
+        Employee employee = new Employee();
+        employee.setEmployeeId("1");
         Waiter waiter = new Waiter();
+        waiter.setEmployee(employee);
         List<Order> expectedOrders = Arrays.asList(new Order(), new Order());
         
         when(orderRepository.findByWaiter(waiter)).thenReturn(expectedOrders);
-        
-        List<Order> actualOrders = waiterService.getWaiterOrders(waiter);
+        when(employeeRepository.findByEmployeeId(employee.getEmployeeId())).thenReturn(Optional.of(employee));
+        when(waiterRepository.findByEmployee(employee)).thenReturn(Optional.of(waiter));
+
+        List<Order> actualOrders = waiterService.getWaiterOrders(employee.getEmployeeId());
         
         assertEquals(expectedOrders, actualOrders);
         verify(orderRepository).findByWaiter(waiter);
+    }
+
+    @Test
+    void testGetWaiterOrders_EmployeeNotFound() {
+        Employee employee = new Employee();
+        employee.setEmployeeId("1");
+        when(employeeRepository.findByEmployeeId(employee.getEmployeeId())).thenReturn(Optional.empty());
+        Exception e = assertThrows(IllegalArgumentException.class,
+          () -> waiterService.getWaiterTables("1"));
+
+        assertEquals("Employee not found", e.getMessage());
+    }
+
+    @Test
+    void testGetWaiterOrders_WaiterNotFound() {
+        Employee employee = new Employee();
+        when(employeeRepository.findByEmployeeId("1")).thenReturn(Optional.of(employee));
+        when(waiterRepository.findByEmployee(employee)).thenReturn(Optional.empty());
+        Exception e = assertThrows(IllegalArgumentException.class,
+          () -> waiterService.getWaiterOrders("1"));
+        assertEquals("Waiter not found", e.getMessage());
     }
 
     @Test
