@@ -3,9 +3,7 @@ package rhul.cs2810.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +15,7 @@ import rhul.cs2810.model.Employee;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.model.Waiter;
+import rhul.cs2810.repository.EmployeeRepository;
 import rhul.cs2810.repository.OrderRepository;
 import rhul.cs2810.repository.WaiterRepository;
 
@@ -30,6 +29,9 @@ class WaiterServiceTest {
 
     @InjectMocks
     private WaiterService waiterService;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
 
     @BeforeEach
     void setUp() {
@@ -141,4 +143,52 @@ class WaiterServiceTest {
         assertTrue(activeTables.contains(6)); // Active order outside default section
         assertFalse(activeTables.contains(7)); // Delivered order should not be included
     }
+
+    @Test
+    void testGetWaiterTables_EmployeeNotFound() {
+        when(employeeRepository.findByEmployeeId("1")).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class,
+          () -> waiterService.getWaiterTables("1"));
+    }
+
+    @Test
+    void testGetWaiterTables_WaiterNotFound() {
+        when(employeeRepository.findByEmployeeId("1")).thenReturn(Optional.of(new Employee()));
+        when(employeeRepository.findByEmployeeId("1")).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+          () -> waiterService.getWaiterTables("1"));
+    }
+
+    @Test
+    void getsWaiterTables_Successful() {
+        Waiter waiter = new Waiter();
+        waiter.setWaiterId(1);
+        Employee employee = new Employee();
+        employee.setEmployeeId("1");
+        waiter.setEmployee(employee);
+
+        List<Order> orders = new ArrayList<>();
+        Order order1 = new Order();
+        order1.setTableNum(6);
+        order1.setOrderStatus(OrderStatus.SUBMITTED);
+        order1.setWaiter(waiter);
+        orders.add(order1);
+
+        Order order2 = new Order();
+        order2.setTableNum(7);
+        order2.setOrderStatus(OrderStatus.SUBMITTED);
+        order2.setWaiter(waiter);
+        orders.add(order2);
+
+        when(employeeRepository.findByEmployeeId("1")).thenReturn(Optional.of(employee));
+        when(waiterRepository.findByEmployee(employee)).thenReturn(Optional.of(waiter));
+        when(orderRepository.findByWaiter(waiter)).thenReturn(orders);
+
+        Map<String, Object> response = waiterService.getWaiterTables("1");
+
+        assertArrayEquals(waiter.getDefaultSectionTables(), (int[]) response.get("defaultTables"));
+        assertEquals(List.of(6, 7), response.get("activeTables"));
+    }
+
 } 
