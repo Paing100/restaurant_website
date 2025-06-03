@@ -62,16 +62,9 @@ public class WaiterService {
      * @return list of orders assigned to the waiter
      */
     public List<Order> getWaiterOrders(String employeeId) {
-        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
-        if (employee.isEmpty()) {
-            throw new IllegalArgumentException("Employee not found");
-        }
-
-        Optional<Waiter> waiter = waiterRepository.findByEmployee(employee.get());
-        if (waiter.isEmpty()) {
-            throw new IllegalArgumentException("Waiter not found");
-        }
-      return orderRepository.findByWaiter(waiter.get());
+        Employee employee = findEmployee(employeeId);
+        Waiter waiter = findWaiter(employee);
+      return orderRepository.findByWaiter(waiter);
     }
 
     /**
@@ -128,21 +121,24 @@ public class WaiterService {
     }
 
     public Map<String, Object> getWaiterTables(String employeeId) {
-        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
-        if (employee.isEmpty()) {
-            throw new IllegalArgumentException("Employee not found");
-        }
+        Employee employee = findEmployee(employeeId);
+        Waiter waiter = findWaiter(employee);
 
-        Optional<Waiter> waiter = waiterRepository.findByEmployee(employee.get());
-        if (waiter.isEmpty()) {
-            throw new IllegalArgumentException("Waiter not found");
-        }
         Map<String, Object> response = new HashMap<>();
-        response.put("defaultTables", waiter.get().getDefaultSectionTables());
-        response.put("activeTables", this.getWaiterActiveTables(waiter.get()));
+        response.put("defaultTables", waiter.getDefaultSectionTables());
+        response.put("activeTables", this.getWaiterActiveTables(waiter));
 
         return response;
     }
 
+    private Employee findEmployee(String employeeId) {
+        return employeeRepository.findByEmployeeId(employeeId)
+          .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+    }
+
+    private Waiter findWaiter(Employee employee) {
+        return waiterRepository.findByEmployee(employee)
+          .orElseThrow(() -> new IllegalArgumentException("Waiter not found"));
+    }
 
 } 
