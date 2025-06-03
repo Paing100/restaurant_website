@@ -1,8 +1,9 @@
 package rhul.cs2810.controller;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +21,11 @@ import rhul.cs2810.model.MenuItem;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.repository.MenuItemRepository;
+import rhul.cs2810.service.ManagerService;
 import rhul.cs2810.service.OrderService;
 import rhul.cs2810.model.Employee;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -38,6 +41,9 @@ public class ManagerControllerTest {
   @Mock
   private OrderService orderService;
 
+  @Mock
+  private ManagerService managerService;
+
   @Autowired
   private MenuItemRepository menuItemRepository;
 
@@ -52,11 +58,18 @@ public class ManagerControllerTest {
 
   @Test
   void testGetOutstandingOrders() throws JsonProcessingException, Exception {
-    Order mockOrder = new Order();
-    mockOrder.setOrderStatus(OrderStatus.IN_PROGRESS);
-    orderService.saveUpdatedOrder(mockOrder);
+    Order mockOrder1 = new Order();
+    mockOrder1.setOrderId(1);
+    Order mockOrder2 = new Order();
+    mockOrder2.setOrderId(2);
 
-    mockMvc.perform(get("/Manager/getOutstandingOrders")).andExpect(status().isOk()).andReturn();
+    when(managerService.getOutstandingOrders()).thenReturn(List.of(mockOrder1, mockOrder2));
+    mockMvc.perform(get("/Manager/getOutstandingOrders"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.length()").value(2))
+      .andExpect(jsonPath("$[0].orderId").value(1))
+      .andExpect(jsonPath("$[1].orderId").value(2));
+    verify(managerService,times(1)).getOutstandingOrders();
   }
 
   @Test

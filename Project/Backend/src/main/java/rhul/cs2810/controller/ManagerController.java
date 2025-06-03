@@ -13,6 +13,7 @@ import rhul.cs2810.model.Employee;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
 import rhul.cs2810.repository.*;
+import rhul.cs2810.service.ManagerService;
 import rhul.cs2810.service.OrderService;
 
 /**
@@ -24,32 +25,17 @@ public class ManagerController {
   @Autowired
   private OrderService orderService;
   @Autowired
-
-  private final CustomerRepository customerRepository;
-  private final EmployeeRepository employeeRepository;
-  private final OrderRepository orderRepository;
-  private final MenuItemRepository menuItemRepository;
-  private final OrderMenuItemRepository orderMenuItemRepository;
-
-
-  /**
-   * Constructor for ManagerController.
-   * 
-   * @param customerRepository the repository for customers.
-   * @param employeeRepository the repository for employees.
-   * @param orderRepository the repository for orders.
-   * @param menuItemRepository the repository for menuItems.
-   * @param orderMenuItemRepository the repository for orderMenuItems.
-   */
-  public ManagerController(CustomerRepository customerRepository,
-      EmployeeRepository employeeRepository, OrderRepository orderRepository,
-      MenuItemRepository menuItemRepository, OrderMenuItemRepository orderMenuItemRepository) {
-    this.customerRepository = customerRepository;
-    this.orderRepository = orderRepository;
-    this.menuItemRepository = menuItemRepository;
-    this.employeeRepository = employeeRepository;
-    this.orderMenuItemRepository = orderMenuItemRepository;
-  }
+  private CustomerRepository customerRepository;
+  @Autowired
+  private EmployeeRepository employeeRepository;
+  @Autowired
+  private OrderRepository orderRepository;
+  @Autowired
+  private MenuItemRepository menuItemRepository;
+  @Autowired
+  private OrderMenuItemRepository orderMenuItemRepository;
+  @Autowired
+  private ManagerService managerService;
 
   /**
    * Retrieves all outstanding orders in the system.
@@ -58,13 +44,7 @@ public class ManagerController {
    */
   @GetMapping("/Manager/getOutstandingOrders")
   public ResponseEntity<List<Order>> getOutstandingOrders() {
-
-    List<Order> orders = orderService.getAllOrders();
-    List<Order> outstandingOrders = new ArrayList<Order>();
-
-    for (Order order : orders) {
-        outstandingOrders.add(order);
-    }
+    List<Order> outstandingOrders = managerService.getOutstandingOrders();
     return ResponseEntity.ok(outstandingOrders);
   }
 
