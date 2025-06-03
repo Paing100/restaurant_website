@@ -1,5 +1,7 @@
 package rhul.cs2810.controller;
 
+import com.sun.net.httpserver.HttpsServer;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import rhul.cs2810.model.Order;
@@ -47,22 +49,14 @@ public class WaiterController {
      * @return a ResponseEntity with a map containing the default and active tables.
      */
     @GetMapping("/{employeeId}/tables")
-    public ResponseEntity<Map<String, Object>> getWaiterTables(@PathVariable String employeeId) {
-        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
-        if (employee.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getWaiterTables(@PathVariable String employeeId) {
+        try{
+            Map<String, Object> tables = waiterService.getWaiterTables(employeeId);
+            return ResponseEntity.ok(tables);
         }
-
-        Optional<Waiter> waiter = waiterRepository.findByEmployee(employee.get());
-        if (waiter.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("defaultTables", waiter.get().getDefaultSectionTables());
-        response.put("activeTables", waiterService.getWaiterActiveTables(waiter.get()));
-        
-        return ResponseEntity.ok(response);
     }
 
     /**

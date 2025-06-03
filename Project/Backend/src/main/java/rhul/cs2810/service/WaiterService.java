@@ -1,20 +1,19 @@
 package rhul.cs2810.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import rhul.cs2810.model.Employee;
 import rhul.cs2810.model.Waiter;
 import rhul.cs2810.model.Order;
 import rhul.cs2810.model.OrderStatus;
+import rhul.cs2810.repository.EmployeeRepository;
 import rhul.cs2810.repository.WaiterRepository;
 import rhul.cs2810.repository.OrderRepository;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import java.util.Arrays;
-import java.util.Set;
 
 /**
  * Service class for handling waiter-related operations.
@@ -29,6 +28,9 @@ public class WaiterService {
      */
     @Autowired
     private WaiterRepository waiterRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     /**
      * Repository for accessing order data.
@@ -114,5 +116,22 @@ public class WaiterService {
                 .map(Order::getTableNum)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, Object> getWaiterTables(String employeeId) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
+        if (employee.isEmpty()) {
+            throw new IllegalArgumentException("Employee not found");
+        }
+
+        Optional<Waiter> waiter = waiterRepository.findByEmployee(employee.get());
+        if (waiter.isEmpty()) {
+            throw new IllegalArgumentException("Waiter not found");
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("defaultTables", waiter.get().getDefaultSectionTables());
+        response.put("activeTables", this.getWaiterActiveTables(waiter.get()));
+
+        return response;
     }
 } 
