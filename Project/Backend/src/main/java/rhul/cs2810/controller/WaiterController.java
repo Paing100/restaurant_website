@@ -66,18 +66,13 @@ public class WaiterController {
      * @return a ResponseEntity containing a list of orders.
      */
     @GetMapping("/{employeeId}/orders")
-    public ResponseEntity<List<Order>> getWaiterOrders(@PathVariable String employeeId) {
-        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
-        if (employee.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getWaiterOrders(@PathVariable String employeeId) {
+        try {
+            List<Order> orders = waiterService.getWaiterOrders(employeeId);
+            return ResponseEntity.ok(orders);
         }
-
-        Optional<Waiter> waiter = waiterRepository.findByEmployee(employee.get());
-        if (waiter.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
-        List<Order> orders = waiterService.getWaiterOrders(waiter.get());
-        return ResponseEntity.ok(orders);
     }
 }

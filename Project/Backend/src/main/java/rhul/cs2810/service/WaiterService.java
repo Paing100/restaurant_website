@@ -58,11 +58,20 @@ public class WaiterService {
 
     /**
      * Gets all orders assigned to a specific waiter.
-     * @param waiter the waiter to get orders for
+     * @param employeeId the id of the employee.
      * @return list of orders assigned to the waiter
      */
-    public List<Order> getWaiterOrders(Waiter waiter) {
-        return orderRepository.findByWaiter(waiter);
+    public List<Order> getWaiterOrders(String employeeId) {
+        Optional<Employee> employee = employeeRepository.findByEmployeeId(employeeId);
+        if (employee.isEmpty()) {
+            throw new IllegalArgumentException("Employee not found");
+        }
+
+        Optional<Waiter> waiter = waiterRepository.findByEmployee(employee.get());
+        if (waiter.isEmpty()) {
+            throw new IllegalArgumentException("Waiter not found");
+        }
+      return orderRepository.findByWaiter(waiter.get());
     }
 
     /**
@@ -134,4 +143,6 @@ public class WaiterService {
 
         return response;
     }
+
+
 } 
