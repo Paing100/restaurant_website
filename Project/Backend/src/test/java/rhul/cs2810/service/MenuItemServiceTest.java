@@ -118,4 +118,22 @@ class MenuItemServiceTest {
     MenuItem actualItem = menuItemService.addMenuItem(params);
     assertEquals(expectedItem, actualItem);
   }
+
+  @Test
+  void testGetMenu() {
+    MenuItem item1 = new MenuItem();
+    item1.setItemId(1);
+    MenuItem item2 = new MenuItem();
+    item2.setItemId(2);
+    List<MenuItem> expectedList = new ArrayList<>();
+    expectedList.add(item1);
+    expectedList.add(item2);
+
+    when(menuItemRepository.findAll()).thenReturn(expectedList);
+    List<MenuItem> actualList = menuItemService.getMenu();
+
+    assertEquals(expectedList.get(0), actualList.get(0));
+    assertEquals(expectedList.get(1), actualList.get(1));
+
+  }
 }

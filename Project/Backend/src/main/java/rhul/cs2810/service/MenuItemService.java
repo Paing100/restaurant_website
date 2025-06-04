@@ -112,4 +112,11 @@ public class MenuItemService {
     return item;
   }
 
+  public List<MenuItem> getMenu() {
+    Iterable<MenuItem> menuItemsIterable = menuItemRepository.findAll();
+    List<MenuItem> menuItems = new ArrayList<>();
+    menuItemsIterable.forEach(menuItems::add);
+    return menuItems;
+  }
+
 }
