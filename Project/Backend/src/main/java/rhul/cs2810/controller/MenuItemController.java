@@ -67,9 +67,7 @@ public class MenuItemController {
    */
   @GetMapping(value = "/MenuItems")
   public ResponseEntity<List<MenuItem>> getMenu() {
-    Iterable<MenuItem> menuItemsIterable = menuItemRepository.findAll();
-    List<MenuItem> menuItems = new ArrayList<>();
-    menuItemsIterable.forEach(menuItems::add);
+    List<MenuItem> menuItems = menuItemService.getMenu();
     return ResponseEntity.ok(menuItems);
   }
 
