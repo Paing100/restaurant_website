@@ -92,4 +92,30 @@ class MenuItemServiceTest {
 
     assertEquals(3, filteredItems.size());
   }
+
+  @Test
+  void testAddMenuItem() {
+    Map<String, String> params = new HashMap<>();
+    params.put("name", "Vegan Burger");
+    params.put("description", "Delicious plant-based burger");
+    params.put("price", "9.99");
+    params.put("calories", "450");
+    params.put("available", "true");
+    params.put("imagePath", "/images/veganburger.jpg");
+    params.put("category", "1");
+    params.put("allergens", "dairy");
+    params.put("dietaryRestrictions", "vegan");
+
+    Set<Allergen> allergens = EnumSet.of(Allergen.DAIRY);
+    Set<DietaryRestrictions> restrictions = EnumSet.of(DietaryRestrictions.VEGAN);
+
+    MenuItem expectedItem = new MenuItem(
+      "Vegan Burger", "Delicious plant-based burger", 9.99f,
+      allergens, 450, restrictions, true, "/images/veganburger.jpg", 1
+    );
+
+    when(menuItemRepository.save(any(MenuItem.class))).thenReturn(expectedItem);
+    MenuItem actualItem = menuItemService.addMenuItem(params);
+    assertEquals(expectedItem, actualItem);
+  }
 }
