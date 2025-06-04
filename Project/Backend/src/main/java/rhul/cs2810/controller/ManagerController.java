@@ -25,18 +25,35 @@ public class ManagerController {
   @Autowired
   private OrderService orderService;
   @Autowired
-  private CustomerRepository customerRepository;
-  @Autowired
-  private EmployeeRepository employeeRepository;
-  @Autowired
-  private OrderRepository orderRepository;
-  @Autowired
-  private MenuItemRepository menuItemRepository;
-  @Autowired
-  private OrderMenuItemRepository orderMenuItemRepository;
-  @Autowired
-  private ManagerService managerService;
 
+  private final CustomerRepository customerRepository;
+  private final EmployeeRepository employeeRepository;
+  private final OrderRepository orderRepository;
+  private final MenuItemRepository menuItemRepository;
+  private final OrderMenuItemRepository orderMenuItemRepository;
+  private final ManagerService managerService;
+
+
+  /**
+   * Constructor for ManagerController.
+   *
+   * @param customerRepository the repository for customers.
+   * @param employeeRepository the repository for employees.
+   * @param orderRepository the repository for orders.
+   * @param menuItemRepository the repository for menuItems.
+   * @param orderMenuItemRepository the repository for orderMenuItems.
+   */
+  public ManagerController(CustomerRepository customerRepository,
+    EmployeeRepository employeeRepository, OrderRepository orderRepository,
+    MenuItemRepository menuItemRepository, OrderMenuItemRepository orderMenuItemRepository,
+    ManagerService managerService) {
+    this.customerRepository = customerRepository;
+    this.orderRepository = orderRepository;
+    this.menuItemRepository = menuItemRepository;
+    this.employeeRepository = employeeRepository;
+    this.orderMenuItemRepository = orderMenuItemRepository;
+    this.managerService = managerService;
+  }
   /**
    * Retrieves all outstanding orders in the system.
    * 
