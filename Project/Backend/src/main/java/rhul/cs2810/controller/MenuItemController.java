@@ -1,11 +1,6 @@
 package rhul.cs2810.controller;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -79,9 +74,13 @@ public class MenuItemController {
    */
   @GetMapping("/MenuItems/get/{id}")
   public ResponseEntity<MenuItem> getMenuItemById(@PathVariable String id) {
-    int idInt = Integer.parseInt(id);
-    return menuItemRepository.findById(idInt).map(ResponseEntity::ok)
-        .orElseGet(() -> ResponseEntity.notFound().build());
+    try {
+      MenuItem menuItem = menuItemService.getMenuItemById(id);
+      return ResponseEntity.ok(menuItem);
+    }
+    catch(NoSuchElementException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
   /**

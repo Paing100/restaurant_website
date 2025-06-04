@@ -134,6 +134,15 @@ class MenuItemServiceTest {
 
     assertEquals(expectedList.get(0), actualList.get(0));
     assertEquals(expectedList.get(1), actualList.get(1));
+  }
 
+  @Test
+  void getMenuItemById() {
+    MenuItem item1 = new MenuItem();
+    item1.setItemId(1);
+    when(menuItemRepository.findById(1)).thenReturn(Optional.of(item1));
+    MenuItem result = menuItemService.getMenuItemById("1");
+
+    assertEquals(item1.getItemId(), result.getItemId());
   }
 }

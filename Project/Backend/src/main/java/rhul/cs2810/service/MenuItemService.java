@@ -1,10 +1,6 @@
 package rhul.cs2810.service;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +113,12 @@ public class MenuItemService {
     List<MenuItem> menuItems = new ArrayList<>();
     menuItemsIterable.forEach(menuItems::add);
     return menuItems;
+  }
+
+  public MenuItem getMenuItemById(String id) {
+    int idInt = Integer.parseInt(id);
+    return menuItemRepository.findById(idInt)
+      .orElseThrow(() -> new NoSuchElementException("MenuItem with id " + idInt + " not found"));
   }
 
 }
