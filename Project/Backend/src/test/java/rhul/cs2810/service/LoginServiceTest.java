@@ -3,9 +3,12 @@ package rhul.cs2810.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -129,6 +132,28 @@ public class LoginServiceTest {
     Employee mockEmployee = new Employee();
     assertFalse(mockLoginService.registerUser(mockEmployee));
   }
+
+  @Test
+  void testLogin() {
+    Employee inputEmployee = new Employee();
+    inputEmployee.setEmployeeId("1");
+    inputEmployee.setPassword("abc");
+
+    Employee storedEmployee = new Employee();
+    storedEmployee.setEmployeeId("1");
+    storedEmployee.setPassword("hashed_password");
+    storedEmployee.setFirstName("A");
+    storedEmployee.setRole("Waiter");
+
+    when(mockEmployeeRepository.findByEmployeeId("1")).thenReturn(Optional.of(storedEmployee));
+    when(mockBCryptPasswordEncoder.matches("abc", "hashed_password")).thenReturn(true);
+
+    Map<String, String> response = mockLoginService.login(inputEmployee);
+
+    assertEquals("A", response.get("firstName"));
+    assertEquals("WAITER", response.get("role"));
+  }
+
 
 }
 

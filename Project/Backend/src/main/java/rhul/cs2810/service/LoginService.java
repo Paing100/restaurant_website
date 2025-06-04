@@ -1,8 +1,12 @@
 package rhul.cs2810.service;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired; 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -143,4 +147,26 @@ public class LoginService {
     employee.setRole(employee.getRole());
     employeeRepository.save(employee);
   }
+
+  public Map<String, String> login(Employee employee) {
+    String employeeIdString = employee.getEmployeeId();
+    String passwordString = employee.getPassword();
+    Optional<Employee> employeeOptional =
+      this.authenticateUser(employeeIdString, passwordString);
+    Map<String, String> response = new HashMap<>();
+    if (employeeOptional.isPresent()) {
+      populateResponse(response, employeeOptional.get());
+      return response;
+    } else {
+      throw new NoSuchElementException("No such employee exist!");
+    }
+  }
+
+  private void populateResponse(Map<String, String> response, Employee authenticatedEmployee) {
+    response.put("message", "Login Successful!");
+    response.put("firstName", authenticatedEmployee.getFirstName());
+    response.put("role", authenticatedEmployee.getRole());
+  }
+
+
 }
