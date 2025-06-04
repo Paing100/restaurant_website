@@ -56,44 +56,7 @@ public class MenuItemController {
    */
   @PostMapping(value = "/MenuItems/addMenuItem")
   public ResponseEntity<MenuItem> addMenuItem(@RequestBody Map<String, String> params) {
-    String allergensString = params.get("allergens");
-    String[] allergensArray =
-        (allergensString != null) ? allergensString.split(",") : new String[0];
-    Set<Allergen> allergens = EnumSet.noneOf(Allergen.class);
-
-    for (String allergenStr : allergensArray) {
-      try {
-        Allergen allergen = Allergen.valueOf(allergenStr.trim().toUpperCase());
-        allergens.add(allergen);
-      } catch (IllegalArgumentException e) {
-        System.out.println("Invalid allergen: " + allergenStr);
-      }
-    }
-
-    String dietaryRestrictionsStr = params.get("dietaryRestrictions");
-    String[] dietaryRestrictionsArray =
-        (dietaryRestrictionsStr != null) ? dietaryRestrictionsStr.split(",") : new String[0];
-    Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
-
-    for (String dietaryRestrict : dietaryRestrictionsArray) {
-      try {
-        DietaryRestrictions restrict =
-            DietaryRestrictions.valueOf(dietaryRestrict.trim().toUpperCase());
-        dietaryRestrictions.add(restrict);
-      } catch (IllegalArgumentException e) {
-        System.out.println("Invalid dietary restriction: " + dietaryRestrict);
-      }
-    }
-
-    String imagePath = params.get("imagePath");
-    String categoryStr = params.get("category");
-
-    MenuItem item = new MenuItem(params.get("name"), params.get("description"),
-        Float.parseFloat(params.get("price")), allergens, Integer.parseInt(params.get("calories")),
-        dietaryRestrictions, Boolean.parseBoolean(params.get("available")), imagePath,
-        categoryStr != null ? Integer.parseInt(categoryStr) : 0);
-
-    item = menuItemRepository.save(item);
+    MenuItem item = menuItemService.addMenuItem(params);
     return ResponseEntity.ok(item);
   }
 
