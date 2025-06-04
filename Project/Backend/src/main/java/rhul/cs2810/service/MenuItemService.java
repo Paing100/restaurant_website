@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import rhul.cs2810.model.Allergen;
@@ -28,25 +29,8 @@ public class MenuItemService {
    * @return A list of menu items that matches the given parameter
    */
   public List<MenuItem> filterMenu(Map<String, String> params) {
-    Set<DietaryRestrictions> dietaryRestrictions = EnumSet.noneOf(DietaryRestrictions.class);
-    if (params.containsKey("dietary_restrictions")
-        && !params.get("dietary_restrictions").isEmpty()) {
-      String[] dietaryStr = params.get("dietary_restrictions").split(",");
-      for (String dietaryRestrict : dietaryStr) {
-        DietaryRestrictions restrict =
-            DietaryRestrictions.valueOf((dietaryRestrict.trim().replace("-", "").toUpperCase()));
-        dietaryRestrictions.add(restrict);
-      }
-    }
-
-    Set<Allergen> allergens = EnumSet.noneOf(Allergen.class);
-    if (params.containsKey("allergens") && !params.get("allergens").isEmpty()) {
-      String[] allergensStr = params.get("allergens").split(",");
-      for (String allergen : allergensStr) {
-        Allergen allergy = Allergen.valueOf(allergen.trim().toUpperCase());
-        allergens.add(allergy);
-      }
-    }
+    Set<Allergen> allergens = this.getAllergens(params);
+    Set<DietaryRestrictions> dietaryRestrictions = this.getDietaryRestrictions(params);
 
     List<MenuItem> menuItems = new ArrayList<>();
     menuItemRepository.findAll().forEach(menuItems::add);
@@ -119,6 +103,30 @@ public class MenuItemService {
     int idInt = Integer.parseInt(id);
     return menuItemRepository.findById(idInt)
       .orElseThrow(() -> new NoSuchElementException("MenuItem with id " + idInt + " not found"));
+  }
+
+  public MenuItem updateMenuItems(String id, MenuItem updateItem){
+    int idInt = Integer.parseInt(id);
+    Optional<MenuItem> editedMenuItem = menuItemRepository.findById(idInt);
+    if (editedMenuItem.isEmpty()) {
+      throw new NoSuchElementException("No such menu item exists");
+    }
+    return createNewMenuItem(updateItem, editedMenuItem.get());
+  }
+  
+  private MenuItem createNewMenuItem(MenuItem updateItem, MenuItem editedMenuItem) {
+    editedMenuItem.setName(updateItem.getName());
+    editedMenuItem.setDescription(updateItem.getDescription());
+    editedMenuItem.setPrice(updateItem.getPrice());
+    editedMenuItem.setAllergens(updateItem.getAllergens());
+    editedMenuItem.setCalories(updateItem.getCalories());
+    editedMenuItem.setDietaryRestrictions(updateItem.getDietaryRestrictions());
+    editedMenuItem.setAvailable(updateItem.isAvailable());
+    editedMenuItem.setImagePath(updateItem.getImagePath());
+    editedMenuItem.setCategory(updateItem.getCategory());
+    menuItemRepository.save(editedMenuItem);
+
+    return editedMenuItem;
   }
 
 }

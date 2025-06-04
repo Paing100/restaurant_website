@@ -182,6 +182,28 @@ public class MenuItemControllerTest {
   }
 
   @Test
+  void testUpdateMenuItems_NoSuchElement() throws Exception {
+    MenuItem menuItem =
+      new MenuItem("Guacamole", "Classic Mexican dip made with avocados, cilantro, and lime", 5.99,
+        EnumSet.noneOf(Allergen.class), 150, EnumSet.noneOf(DietaryRestrictions.class), true,
+        "guac.src", 1);
+
+    MenuItem savedMenuItem = menuItemRepository.save(menuItem);
+
+    MenuItem updatedMenuItem =
+      new MenuItem("Guacamole", "Updated description", 6.99, EnumSet.noneOf(Allergen.class), 180,
+        EnumSet.noneOf(DietaryRestrictions.class), true, "guac_updated.src",
+        savedMenuItem.getItemId());
+
+    when(menuItemService.updateMenuItems("1", updatedMenuItem)).thenThrow(new NoSuchElementException());
+
+    mockMvc.perform(put("/MenuItems/edit/{id}", "1")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(updatedMenuItem)))
+      .andExpect(status().isNotFound());
+  }
+
+  @Test
   void testFilterMenu() throws Exception {
     Map<String, String> params = new HashMap<>();
     params.put("allergens", "DAIRY");
@@ -249,4 +271,6 @@ public class MenuItemControllerTest {
     assertEquals(0, customerRepository.count());
     assertEquals(0, orderMenuItemRepository.count());
   }
+
+
 }

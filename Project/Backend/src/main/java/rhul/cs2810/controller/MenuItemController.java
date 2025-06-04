@@ -2,6 +2,7 @@ package rhul.cs2810.controller;
 
 import java.util.*;
 
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,24 +94,13 @@ public class MenuItemController {
   @PutMapping("/MenuItems/edit/{id}")
   public ResponseEntity<MenuItem> updateMenuItems(@PathVariable String id,
       @RequestBody MenuItem updateItem) {
-    int idInt = Integer.parseInt(id);
-    Optional<MenuItem> editedMenuItem = menuItemRepository.findById(idInt);
-    if (editedMenuItem.isEmpty()) {
+    try {
+      MenuItem existingMenuItem = menuItemService.updateMenuItems(id, updateItem);
+      return ResponseEntity.ok(existingMenuItem);
+    }
+    catch (NoSuchElementException e) {
       return ResponseEntity.notFound().build();
     }
-
-    MenuItem existingMenuItem = editedMenuItem.get();
-    existingMenuItem.setName(updateItem.getName());
-    existingMenuItem.setDescription(updateItem.getDescription());
-    existingMenuItem.setPrice(updateItem.getPrice());
-    existingMenuItem.setAllergens(updateItem.getAllergens());
-    existingMenuItem.setCalories(updateItem.getCalories());
-    existingMenuItem.setDietaryRestrictions(updateItem.getDietaryRestrictions());
-    existingMenuItem.setAvailable(updateItem.isAvailable());
-    existingMenuItem.setImagePath(updateItem.getImagePath());
-    existingMenuItem.setCategory(updateItem.getCategory());
-
-    return ResponseEntity.ok(menuItemRepository.save(existingMenuItem));
   }
 
 }
