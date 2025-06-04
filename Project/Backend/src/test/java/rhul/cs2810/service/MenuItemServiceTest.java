@@ -54,7 +54,7 @@ class MenuItemServiceTest {
   @Test
   void testFilterMenu_WithDietaryRestrictions() {
     Map<String, String> params = new HashMap<>();
-    params.put("dietary_restrictions", "VEGAN");
+    params.put("dietaryRestrictions", "VEGAN");
 
     List<MenuItem> filteredItems = menuItemService.filterMenu(params);
 
@@ -76,7 +76,7 @@ class MenuItemServiceTest {
   @Test
   void testFilterMenu_WithMultipleFilters() {
     Map<String, String> params = new HashMap<>();
-    params.put("dietary_restrictions", "VEGETARIAN");
+    params.put("dietaryRestrictions", "VEGETARIAN");
     params.put("allergens", "DAIRY");
 
     List<MenuItem> filteredItems = menuItemService.filterMenu(params);
@@ -137,12 +137,39 @@ class MenuItemServiceTest {
   }
 
   @Test
-  void getMenuItemById() {
+  void testGetMenuItemById() {
     MenuItem item1 = new MenuItem();
     item1.setItemId(1);
     when(menuItemRepository.findById(1)).thenReturn(Optional.of(item1));
     MenuItem result = menuItemService.getMenuItemById("1");
 
     assertEquals(item1.getItemId(), result.getItemId());
+  }
+
+  @Test
+  void testUpdateMenuItems() {
+    MenuItem item1 = new MenuItem();
+    item1.setItemId(1);
+    item1.setName("A");
+    MenuItem item2 = new MenuItem();
+    item2.setItemId(2);
+    item2.setName("B");
+
+    when(menuItemRepository.findById(1)).thenReturn(Optional.of(item1));
+    MenuItem result = menuItemService.updateMenuItems("1", item2);
+
+    assertEquals(result.getName(), item2.getName());
+  }
+
+  @Test
+  void testUpdateMenuItems_NoSuchElement() {
+    MenuItem item1 = new MenuItem();
+    item1.setItemId(1);
+    item1.setName("A");
+
+    when(menuItemRepository.findById(2)).thenReturn(Optional.empty());
+    assertThrows(NoSuchElementException.class, () -> {
+      menuItemService.updateMenuItems("2", item1);
+    });
   }
 }
