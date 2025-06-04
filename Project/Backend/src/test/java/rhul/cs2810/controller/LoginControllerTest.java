@@ -100,7 +100,7 @@ public class LoginControllerTest {
       .accept(MediaType.APPLICATION_JSON))
       .andReturn();
 
-    assertEquals(HttpStatus.UNAUTHORIZED.value(), result.getResponse().getStatus());
+    assertEquals(HttpStatus.NOT_FOUND.value(), result.getResponse().getStatus());
   }
 
   @Test

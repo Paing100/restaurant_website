@@ -2,6 +2,7 @@ package rhul.cs2810.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,23 +32,12 @@ public class LoginController {
    */
   @PostMapping("/login")
   public ResponseEntity<Map<String, String>> login(@RequestBody Employee employee) {
-    String employeeIdString = employee.getEmployeeId();
-    String passwordString = employee.getPassword();
-
-    Optional<Employee> employeeOptional =
-        loginService.authenticateUser(employeeIdString, passwordString);
-    Map<String, String> response = new HashMap<>();
-
-    if (employeeOptional.isPresent()) {
-      Employee authenticatedEmployee = employeeOptional.get();
-
-      response.put("message", "Login Successful!");
-      response.put("firstName", authenticatedEmployee.getFirstName());
-      response.put("role", authenticatedEmployee.getRole());
+    try {
+      Map<String, String> response = loginService.login(employee);
       return ResponseEntity.ok(response);
-    } else {
-      // 401 Unauthorized status
-      return ResponseEntity.status(401).body(response);
+    }
+    catch (NoSuchElementException e) {
+      return ResponseEntity.notFound().build();
     }
   }
 
