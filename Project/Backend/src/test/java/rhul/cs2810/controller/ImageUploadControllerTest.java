@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
-import rhul.cs2810.service.EmployeeService;
+import rhul.cs2810.service.LoginService;
 
 
 @SpringBootTest
@@ -36,7 +36,7 @@ public class ImageUploadControllerTest {
   private EmployeeRepository employeeRepository;
 
   @Autowired
-  private EmployeeService employeeService;
+  private LoginService loginService;
 
   private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
@@ -62,7 +62,7 @@ public class ImageUploadControllerTest {
     employee.setRole("WAITER");
 
     // Register the employee
-    employeeService.registerUser(employee);
+    loginService.registerUser(employee);
     employeeRepository.save(employee);
   }
 

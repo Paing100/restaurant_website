@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import rhul.cs2810.model.Employee;
-import rhul.cs2810.service.EmployeeService;
+import rhul.cs2810.service.LoginService;
 
 /**
  * A class responsible for login related operations.
@@ -21,7 +21,7 @@ import rhul.cs2810.service.EmployeeService;
 @RequestMapping("/auth")
 public class LoginController {
   @Autowired
-  private EmployeeService employeeService;
+  private LoginService loginService;
 
   /**
    * Log an employee in using credentials (employeeId and password)
@@ -35,7 +35,7 @@ public class LoginController {
     String passwordString = employee.getPassword();
 
     Optional<Employee> employeeOptional =
-        employeeService.authenticateUser(employeeIdString, passwordString);
+        loginService.authenticateUser(employeeIdString, passwordString);
     Map<String, String> response = new HashMap<>();
 
     if (employeeOptional.isPresent()) {
@@ -59,7 +59,7 @@ public class LoginController {
    */
   @PostMapping("/register")
   public ResponseEntity<Map<String, String>> register(@RequestBody Employee employee) {
-    boolean created = employeeService.registerUser(employee);
+    boolean created = loginService.registerUser(employee);
     Map<String, String> response = new HashMap<>();
     if (created) {
       response.put("message", "Register Successful");

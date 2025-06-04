@@ -1,6 +1,5 @@
 package rhul.cs2810.service;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired; 
@@ -16,7 +15,7 @@ import rhul.cs2810.repository.WaiterRepository;
  * A class containing business logic of the employee login system.
  */
 @Service
-public class EmployeeService {
+public class LoginService {
 
   @Autowired
   private EmployeeRepository employeeRepository;
@@ -39,7 +38,7 @@ public class EmployeeService {
    * @param waiterService Service for waiter management
    */
   @Autowired
-  public EmployeeService(EmployeeRepository employeeRepository,
+  public LoginService(EmployeeRepository employeeRepository,
       WaiterRepository waiterRepository,
       BCryptPasswordEncoder bCryptPasswordEncoder,
       WaiterService waiterService) {

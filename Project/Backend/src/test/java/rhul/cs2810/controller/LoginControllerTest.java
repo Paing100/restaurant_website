@@ -1,7 +1,6 @@
 package rhul.cs2810.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -15,16 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
-import rhul.cs2810.service.EmployeeService;
-
-import java.util.Optional;
+import rhul.cs2810.service.LoginService;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -39,7 +35,7 @@ public class LoginControllerTest {
   EmployeeRepository employeeRepository;
 
   @Autowired
-  EmployeeService employeeService;
+  LoginService loginService;
 
   Employee employee;
 
@@ -51,7 +47,7 @@ public class LoginControllerTest {
     employee.setFirstName("Williams");
     employee.setLastName("James");
     employee.setRole("WAITER");
-    employeeService.registerUser(employee);
+    loginService.registerUser(employee);
     employeeRepository.save(employee);
   }
 

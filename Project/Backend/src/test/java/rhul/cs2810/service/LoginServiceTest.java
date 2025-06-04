@@ -20,7 +20,7 @@ import rhul.cs2810.model.Waiter;
 import rhul.cs2810.repository.EmployeeRepository;
 import rhul.cs2810.repository.WaiterRepository;
 
-public class EmployeeServiceTest {
+public class LoginServiceTest {
 
   @Mock
   EmployeeRepository mockEmployeeRepository;
@@ -35,7 +35,7 @@ public class EmployeeServiceTest {
   WaiterService mockWaiterService;
 
   @InjectMocks
-  EmployeeService mockEmployeeService;
+  LoginService mockLoginService;
 
   @BeforeEach
   void beforeEach() {
@@ -52,7 +52,7 @@ public class EmployeeServiceTest {
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.of(mockEmployee));
     when(mockBCryptPasswordEncoder.matches("123", mockEmployee.getPassword())).thenReturn(true);
 
-    Optional<Employee> employeeOptional = mockEmployeeService.authenticateUser("101", "123");
+    Optional<Employee> employeeOptional = mockLoginService.authenticateUser("101", "123");
 
     assertTrue(employeeOptional.isPresent());
     assertEquals("101", employeeOptional.get().getEmployeeId());
@@ -69,7 +69,7 @@ public class EmployeeServiceTest {
     when(mockBCryptPasswordEncoder.matches("Wrong password", "Wrong")).thenReturn(false);
 
     Optional<Employee> employeeOptional =
-        mockEmployeeService.authenticateUser("111", "Wrong password");
+        mockLoginService.authenticateUser("111", "Wrong password");
 
     assertFalse(employeeOptional.isPresent());
   }
@@ -80,7 +80,7 @@ public class EmployeeServiceTest {
 
     when(mockEmployeeRepository.findByEmployeeId("Wrong User")).thenReturn(Optional.empty());
 
-    Optional<Employee> employeeOptional = mockEmployeeService.authenticateUser("Wrong User", "123");
+    Optional<Employee> employeeOptional = mockLoginService.authenticateUser("Wrong User", "123");
 
     assertFalse(employeeOptional.isPresent());
   }
@@ -97,7 +97,7 @@ public class EmployeeServiceTest {
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.empty());
     when(mockBCryptPasswordEncoder.encode(mockEmployee.getPassword())).thenReturn("123");
 
-    boolean registered = mockEmployeeService.registerUser(mockEmployee);
+    boolean registered = mockLoginService.registerUser(mockEmployee);
 
     assertTrue(registered);
     assertEquals(mockBCryptPasswordEncoder.encode("123"), mockEmployee.getPassword());
@@ -114,20 +114,20 @@ public class EmployeeServiceTest {
 
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.empty());
 
-    boolean firstRegistered = mockEmployeeService.registerUser(mockEmployee);
+    boolean firstRegistered = mockLoginService.registerUser(mockEmployee);
     assertTrue(firstRegistered);
 
     mockEmployee.setPassword("111");
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.of(mockEmployee));
 
-    boolean secondRegistered = mockEmployeeService.registerUser(mockEmployee);
+    boolean secondRegistered = mockLoginService.registerUser(mockEmployee);
     assertTrue(secondRegistered);
   }
 
   @Test
   void testRegisterUserNullCredentials() {
     Employee mockEmployee = new Employee();
-    assertFalse(mockEmployeeService.registerUser(mockEmployee));
+    assertFalse(mockLoginService.registerUser(mockEmployee));
   }
 
 }
