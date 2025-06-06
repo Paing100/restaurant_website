@@ -47,7 +47,7 @@ public class LoginControllerTest {
     employee.setFirstName("Williams");
     employee.setLastName("James");
     employee.setRole("WAITER");
-    loginService.registerUser(employee);
+    loginService.register(employee);
     employeeRepository.save(employee);
   }
 
@@ -111,7 +111,7 @@ public class LoginControllerTest {
         .accept(MediaType.APPLICATION_JSON))
       .andReturn();
 
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.getResponse().getStatus());
+    assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
   }
 
 }

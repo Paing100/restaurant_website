@@ -49,19 +49,14 @@ public class LoginController {
    */
   @PostMapping("/register")
   public ResponseEntity<Map<String, String>> register(@RequestBody Employee employee) {
-    boolean created = loginService.registerUser(employee);
     Map<String, String> response = new HashMap<>();
-    if (created) {
-      response.put("message", "Register Successful");
-      response.put("firstName", employee.getFirstName());
-      response.put("role", employee.getRole());
-      response.put("employeeId", employee.getEmployeeId());
-
+    try {
+      response = loginService.register(employee);
       return ResponseEntity.ok(response);
-    } else {
-      // 500 Internal Server Error status
-      return ResponseEntity.status(500).body(response);
+    } catch (IllegalArgumentException e) {
+      Map<String, String> error = new HashMap<>();
+      error.put("error", "Invalid employee data.");
+      return ResponseEntity.badRequest().body(error);
     }
   }
-
 }
