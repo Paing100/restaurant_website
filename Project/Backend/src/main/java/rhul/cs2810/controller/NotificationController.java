@@ -22,23 +22,11 @@ import rhul.cs2810.service.NotificationService;
 @RestController
 @RequestMapping("/api/notification")
 public class NotificationController {
-  private final NotificationService notificationService;
+  @Autowired
+  private NotificationService notificationService;
 
   @Autowired
-  private final NotificationRepository notificationRepository;
-
-  /**
-   * Creates a new NotificationController.
-   *
-   * @param notificationService the service for handling notification logic
-   * @param notificationRepository the repository for accessing notification data
-   */
-  @Autowired
-  public NotificationController(NotificationService notificationService,
-      NotificationRepository notificationRepository) {
-    this.notificationService = notificationService;
-    this.notificationRepository = notificationRepository;
-  }
+  private NotificationRepository notificationRepository;
 
   /**
    * Sends a notification and then saves it to the repository.
@@ -48,10 +36,7 @@ public class NotificationController {
    */
   @PostMapping("/send")
   public ResponseEntity<Void> sendNotification(@RequestBody Notification notification) {
-    notificationService.sendNotification(notification.getType(), notification.getOrderId(),
-        notification.getRecipient(), notification.getMessage(), notification.getWaiterId());
-    notificationRepository.save(notification);
-
+    notificationService.processNotification(notification);
     return ResponseEntity.ok().build();
   }
 
@@ -62,10 +47,7 @@ public class NotificationController {
    */
   @GetMapping("/getMessages")
   public ResponseEntity<List<Notification>> getMessages() {
-    Iterable<Notification> notifsIterable = notificationRepository.findAll();
-    List<Notification> notifItems = new ArrayList<>();
-    notifsIterable.forEach(notifItems::add);
-    return ResponseEntity.ok(notifItems);
+    return ResponseEntity.ok(notificationService.getMessages());
   }
 
   /**
@@ -75,11 +57,6 @@ public class NotificationController {
    */
   @DeleteMapping("{notiId}/removeMessages")
   public void removeMessages(@PathVariable int notiId) {
-    // Optional<Notification> notificationOptional = notificationRepository.findById(notiId);
-    // if (notificationOptional.isEmpty()){
-    // System.out.println("Notification not found");
-    // }
-    // Notification notification = notificationOptional.get();
     notificationRepository.deleteById(notiId);
   }
 }
