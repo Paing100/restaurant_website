@@ -27,7 +27,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
    * @param message the message to be sent
    * @param waiterId the ID of the waiter
    */
-  public static void sendNotification(String type, int orderId, String recipient, String message, String waiterId){
+  public void sendNotification(String type, int orderId, String recipient, String message, String waiterId){
     String jsonMessage = String.format(
       "{\"type\":\"%s\", \"orderId\":%d, \"recipient\":\"%s\", \"message\":\"%s\", \"waiterId\":\"%s\"}",
       type, orderId, recipient, message, waiterId
