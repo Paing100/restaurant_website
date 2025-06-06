@@ -1,5 +1,8 @@
 package rhul.cs2810.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -8,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,22 +20,29 @@ import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.multipart.MultipartFile;
 import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
+import rhul.cs2810.service.ImageUploaderService;
 import rhul.cs2810.service.LoginService;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ImageUploadControllerTest {
+public class ImageUploaderControllerTest {
 
+  @Autowired
   private MockMvc mockMvc;
 
   @InjectMocks
-  private ImageUploadController imageUploadController;
+  private ImageUploaderController imageUploadController;
+
+  @MockBean
+  private ImageUploaderService imageUploaderService;
 
   @Autowired
   private EmployeeRepository employeeRepository;
@@ -50,7 +62,6 @@ public class ImageUploadControllerTest {
    */
   @BeforeEach
   void setUp() throws Exception {
-    mockMvc = MockMvcBuilders.standaloneSetup(imageUploadController).build();
     Files.createDirectories(Paths.get(UPLOAD_DIR)); // Ensure test directory exists
 
     // Create and register the employee
@@ -68,7 +79,7 @@ public class ImageUploadControllerTest {
 
   /**
    * Cleans up the test environment after each test.
-   * 
+   *
    * @throws Exception if an error occurs while deleting test files or removing the employee
    */
   @AfterEach
@@ -79,25 +90,28 @@ public class ImageUploadControllerTest {
     employeeRepository.deleteAll(); // Clean up the employee records
   }
 
-  /**
-   * Test #1: Uploads a valid image file and verifies a successful response.
-   * 
-   * @throws Exception if an error occurs during the request
-   */
   @Test
   void uploadImageTest() throws Exception {
     MockMultipartFile file =
         new MockMultipartFile("image", "test.jpg", "image/jpeg", "image-data".getBytes());
 
+    when(imageUploaderService.uploadImage(file)).thenReturn("http://localhost:8080/api/images/view/test.jpg");
+
     mockMvc.perform(multipart("/api/images/upload").file(file)).andExpect(status().isOk())
-        .andExpect(content().string(
-            org.hamcrest.Matchers.containsString("http://localhost:8080/api/images/view/")));
+      .andExpect(content().string(containsString("http://localhost:8080/api/images/view/test.jpg")));
+
+    verify(imageUploaderService, times(1)).uploadImage(file);
   }
-  /**
-   * Test #2: Attempts to upload an empty file and expects a bad request response.
-   * 
-   * @throws Exception if an error occurs during the request
-   */
+
+  @Test
+  void uploadImageTest_IllegalArgumentException() throws Exception {
+    MockMultipartFile file = new MockMultipartFile("image", "test.jpg", "image/jpeg", "image-data".getBytes());
+    when(imageUploaderService.uploadImage(file)).thenThrow(IllegalArgumentException.class);
+
+    mockMvc.perform(multipart("/api/images/upload").file(file)).andExpect(status().isNotFound());
+    verify(imageUploaderService, times(1)).uploadImage(file);
+  }
+
   @Test
   void uploadImageEmptyTest() throws Exception {
     MockMultipartFile file = new MockMultipartFile("image", "", "image/jpeg", new byte[0]);
@@ -106,11 +120,6 @@ public class ImageUploadControllerTest {
         .andExpect(content().string("No file uploaded"));
   }
 
-  /**
-   * Test #3: Retrieves an existing image file and verifies a successful response.
-   * 
-   * @throws Exception if an error occurs during the request
-   */
   @Test
   void getImageTest() throws Exception {
     String filename = "test.jpg";
@@ -121,11 +130,6 @@ public class ImageUploadControllerTest {
         .andExpect(header().exists("Content-Type"));
   }
 
-  /**
-   * Test #4: Attempts to retrieve a non-existent image file and expects a 404 response.
-   * 
-   * @throws Exception if an error occurs during the request
-   */
   @Test
   void getImageNotFoundTest() throws Exception {
     mockMvc.perform(get("/api/images/view/nonexistent.jpg")).andExpect(status().isNotFound());

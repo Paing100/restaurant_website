@@ -1,9 +1,12 @@
 package rhul.cs2810.controller;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import rhul.cs2810.service.ImageUploaderService;
 
 /**
  * Controller for handling image upload and retrieval.
@@ -24,9 +28,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/images")
 @CrossOrigin(origins = "*") // Allow frontend access
-public class ImageUploadController {
+public class ImageUploaderController {
 
   private static final String UPLOAD_DIR = "src/main/resources/static/uploads/";
+
+  @Autowired
+  private ImageUploaderService imageUploaderService;
 
   /**
    * Handles the upload of an image file.
@@ -37,29 +44,17 @@ public class ImageUploadController {
    */
   @PostMapping("/upload")
   public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile file) {
-    if (file.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded");
-    }
-
     try {
-      // Ensure the upload directory exists
-      Files.createDirectories(Paths.get(UPLOAD_DIR));
-
-      // Generate a unique filename
-      String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-      Path filePath = Paths.get(UPLOAD_DIR + filename);
-
-      // Save the file
-      Files.write(filePath, file.getBytes());
-
-      // Return the full image URL
-      String imageUrl = "http://localhost:8080/api/images/view/" + filename;
+      String imageUrl = imageUploaderService.uploadImage(file);
       return ResponseEntity.ok(imageUrl);
-
-    } catch (IOException e) {
+    }
+    catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Empty file");
+    }
+    catch (IOException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File upload failed");
     }
-    }
+  }
 
   /**
    * Retrieves an image file by its filename.
