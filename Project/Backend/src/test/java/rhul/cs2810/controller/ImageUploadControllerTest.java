@@ -62,7 +62,7 @@ public class ImageUploadControllerTest {
     employee.setRole("WAITER");
 
     // Register the employee
-    loginService.registerUser(employee);
+    loginService.register(employee);
     employeeRepository.save(employee);
   }
 

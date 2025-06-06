@@ -77,32 +77,50 @@ public class LoginService {
    * @param employee An employee object
    * @return true if all details are present or false if not
    */
-  public boolean registerUser(Employee employee) {
-
+  private boolean registerUser(Employee employee) {
     if (employee == null || employee.getEmployeeId() == null || employee.getPassword() == null){
       return false;
     }
-
     String roleString = validateRole(employee.getRole());
     employee.setRole(roleString);
-    
+    registerFunction(employee);
+    return true;
+  }
+
+  public Map<String, String> register(Employee employee) {
+    if(registerUser(employee)) {
+      return getRegisterResponse(employee);
+    }
+    else{
+      throw new IllegalArgumentException("Invalid input");
+    }
+  }
+
+  private void registerFunction(Employee employee) {
     Optional<Employee> existingUserOptional = employeeRepository.findByEmployeeId(employee.getEmployeeId());
     if (existingUserOptional.isPresent()) {
       Employee existingEmployee = existingUserOptional.get();
       updateExistingEmployee(existingEmployee, employee);
-      System.out.println("Password Overriden");
     }
     else{
       saveNewEmployee(employee);
-      
       if ("WAITER".equals(employee.getRole())) {
         Waiter waiter = new Waiter(employee);
         waiter = waiterRepository.save(waiter);
         waiterService.reassignOrdersToDefaultWaiter(waiter);
       }
     }
-    return true;
   }
+
+  private Map<String, String> getRegisterResponse(Employee employee) {
+    Map<String, String> response = new HashMap<>();
+    response.put("message", "Register Successful");
+    response.put("firstName", employee.getFirstName());
+    response.put("role", employee.getRole());
+    response.put("employeeId", employee.getEmployeeId());
+    return response;
+  }
+
 
   /**
    * Validates the role of the employee. If the role is null or empty, it defaults to "WAITER".

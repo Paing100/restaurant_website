@@ -1,8 +1,6 @@
 package rhul.cs2810.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
@@ -100,9 +98,9 @@ public class LoginServiceTest {
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.empty());
     when(mockBCryptPasswordEncoder.encode(mockEmployee.getPassword())).thenReturn("123");
 
-    boolean registered = mockLoginService.registerUser(mockEmployee);
+    Map<String, String> response = mockLoginService.register(mockEmployee);
 
-    assertTrue(registered);
+    assertEquals(mockEmployee.getEmployeeId(), response.get("employeeId"));
     assertEquals(mockBCryptPasswordEncoder.encode("123"), mockEmployee.getPassword());
   }
 
@@ -117,20 +115,22 @@ public class LoginServiceTest {
 
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.empty());
 
-    boolean firstRegistered = mockLoginService.registerUser(mockEmployee);
-    assertTrue(firstRegistered);
+    Map<String, String> response1 = mockLoginService.register(mockEmployee);
+    assertEquals("101", response1.get("employeeId"));
 
     mockEmployee.setPassword("111");
     when(mockEmployeeRepository.findByEmployeeId("101")).thenReturn(Optional.of(mockEmployee));
 
-    boolean secondRegistered = mockLoginService.registerUser(mockEmployee);
-    assertTrue(secondRegistered);
+    Map<String, String> response2 = mockLoginService.register(mockEmployee);
+    assertEquals(mockEmployee.getPassword(), response2.get("password"));
   }
 
   @Test
   void testRegisterUserNullCredentials() {
     Employee mockEmployee = new Employee();
-    assertFalse(mockLoginService.registerUser(mockEmployee));
+    assertThrows(IllegalArgumentException.class, () -> {
+      mockLoginService.register(mockEmployee);
+    });
   }
 
   @Test
