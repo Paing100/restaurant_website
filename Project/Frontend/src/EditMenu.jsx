@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  TextField,
   Button,
   Box,
   Typography,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   Snackbar,
   Alert,
 } from "@mui/material";
@@ -22,6 +17,7 @@ import {
 } from "./EditMenu/menuValidations";
 
 import ImageUpload from "./EditMenu/ImageUpload";
+import EditMenuForm from "./EditMenu/EditMenuForm";
 
 function EditMenu() {
   // state variables 
@@ -39,10 +35,6 @@ function EditMenu() {
     calories: false,
     category: false
   }); // validation errors for form fields 
-
-  // Options for allergens and dietary restrictions 
-  const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
-  const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETARIAN", "VEGAN", "HALAL"];
 
   // fetch the menu item details when component loads
   useEffect(() => {
@@ -181,148 +173,17 @@ function EditMenu() {
       <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 3 }}>
         Edit Menu Item
       </Typography>
-
+    
       {/* Form */}
-      <form onSubmit={handleSubmit}>
-        {/* Name Field */}
-        <TextField
-          label="Name"
-          name="name"
-          value={menuItem.name}
-          onChange={handleChange}
-          fullWidth
-          required
-          error={errors.name}
-          helperText={errors.name ? "Name must be 3-50 characters, only letters, spaces, and hyphens" : ""}
-          sx={textFieldStyles}
-        />
-
-        {/* Description Field */}
-        <TextField
-          label="Description"
-          name="description"
-          value={menuItem.description}
-          onChange={handleChange}
-          fullWidth
-          required
-          multiline
-          rows={3}
-          error={errors.description}
-          helperText={errors.description ? "Description must be 10-250 characters" : ""}
-          sx={textFieldStyles}
-        />
-
-        {/* Price Field */}
-        <TextField
-          label="Price"
-          name="price"
-          type="number"
-          value={menuItem.price}
-          onChange={handleChange}
-          fullWidth
-          required
-          error={errors.price}
-          helperText={errors.price ? "Price must be between 0 and 21" : ""}
-          inputProps={{ step: "0.01", min: "0", max: "1000" }}
-          sx={textFieldStyles}
-        />
-
-        {/* Image Upload */}
-        <ImageUpload imagePath={imagePath} onImageChange={handleImageUpload}></ImageUpload>
-
-        {/* Calories Field */}
-        <TextField
-          label="Calories"
-          name="calories"
-          type="number"
-          value={menuItem.calories}
-          onChange={handleChange}
-          fullWidth
-          required
-          error={errors.calories}
-          helperText={errors.calories ? "Calories must be between 0 and 2000" : ""}
-          inputProps={{ min: "0", max: "2000" }}
-          sx={textFieldStyles}
-        />
-
-        {/* Category Field */}
-        <TextField
-          label="Category"
-          name="category"
-          type="number"
-          value={menuItem.category}
-          onChange={handleChange}
-          fullWidth
-          required
-          error={errors.category}
-          helperText={errors.category ? "Category must be between 0 and 3" : ""}
-          inputProps={{ min: "0", max: "3" }}
-          sx={textFieldStyles}
-        />
-
-        {/* Allergens Multi-Select */}
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel sx={{ color: "white" }}>Allergens</InputLabel>
-          <Select
-            name="allergens"
-            multiple
-            value={menuItem.allergens}
-            onChange={handleChange}
-            sx={selectStyles}
-          >
-            {ALLERGENS_OPTIONS.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* Dietary Restrictions Multi-Select */}
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel sx={{ color: "white" }}>Dietary Restrictions</InputLabel>
-          <Select
-            name="dietaryRestrictions"
-            multiple
-            value={menuItem.dietaryRestrictions}
-            onChange={handleChange}
-            sx={selectStyles}
-          >
-            {DIETARY_RESTRICTIONS_OPTIONS.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* Availability Dropdown */}
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel sx={{ color: "white" }}>Available</InputLabel>
-          <Select
-            name="available"
-            value={menuItem.available}
-            onChange={handleChange}
-            sx={selectStyles}
-          >
-            <MenuItem value={true}>Available</MenuItem>
-            <MenuItem value={false}>Not Available</MenuItem>
-          </Select>
-        </FormControl>
-
-        {/* Submit Button */}
-        <Button
-          type="submit" 
-          variant="contained"
-          sx={{
-            backgroundColor: "#5762d5",
-            color: "white",
-            "&:hover": { backgroundColor: "#4751b3" },
-          }}
-        >
-          Save Changes
-        </Button>
-      </form>
+      <EditMenuForm 
+          imageComponent={
+              <ImageUpload imagePath={imagePath} onImageChange={handleImageUpload}></ImageUpload>
+          }
+          handleSubmit={handleSubmit}
+          menuItem={menuItem}
+          handleChange={handleChange}
+          errors={errors}
+      ></EditMenuForm>
 
       {/* Snackbar for Notifications */}
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
@@ -333,21 +194,5 @@ function EditMenu() {
     </Box>
   );
 }
-
-const textFieldStyles = {
-  mb: 2,
-  "& .MuiInputBase-input": { color: "white" },
-  "& .MuiInputLabel-root": { color: "white" },
-  "& .MuiOutlinedInput-root": {
-    "& fieldset": { borderColor: "white" },
-    "&:hover fieldset": { borderColor: "white" },
-    "&.Mui-focused fieldset": { borderColor: "white" },
-  },
-};
-
-const selectStyles = {
-  color: "white",
-  "& .MuiOutlinedInput-notchedOutline": { borderColor: "white" },
-};
 
 export default EditMenu;
