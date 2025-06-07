@@ -1,4 +1,5 @@
 import { Box, Button, Typography } from "@mui/material";
+import PropTypes from "prop-types";
 
 function ImageUpload({imagePath, onImageChange}) {
   
@@ -52,7 +53,11 @@ function ImageUpload({imagePath, onImageChange}) {
             </Box>
     
   )
+}
 
+ImageUpload.propTypes = {
+  imagePath: PropTypes.string.isRequired,
+  onImageChange: PropTypes.func.isRequired
 }
 
 export default ImageUpload;
