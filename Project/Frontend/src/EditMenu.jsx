@@ -13,6 +13,16 @@ import {
   Alert,
 } from "@mui/material";
 
+import {
+  validateName,
+  validateDescription,
+  validatePrice,  
+  validateCalories, 
+  validateCategory
+} from "./EditMenu/menuValidations";
+
+import ImageUpload from "./EditMenu/ImageUpload";
+
 function EditMenu() {
   // state variables 
   const [menuItem, setMenuItem] = useState(null); // stores menu item being edited 
@@ -45,32 +55,8 @@ function EditMenu() {
       .catch((error) => console.error("Error fetching menu item:", error));
   }, [id]);
 
-  const validateName = (name) => {
-    // Name should be 3-50 characters, only letters, spaces, and hyphens
-    return /^[A-Za-z\s-]{3,50}$/.test(name);
-  };
-
-  const validateDescription = (description) => {
-    // Description should be 10-250 characters
-    return description.length >= 10 && description.length <= 250;
-  };
-
-  const validatePrice = (price) => {
-    // Price should be a positive number between 0 and 21
-    return price > 0 && price < 21;
-  };
-
-  const validateCalories = (calories) => {
-    // Calories should be between 0 and 2000
-    return calories >= 0 && calories <= 2000;
-  };
-
-  const validateCategory = (category) => {
-    // Category should be between 0 and 3
-    return category >= 0 && category <= 3;
-  };
-
   // handle changes to the form fields 
+  // validate functions are imported from EditMenu/ 
   const handleChange = (event) => {
     const { name, value } = event.target;
     
@@ -91,10 +77,9 @@ function EditMenu() {
   };
 
   // handle image upload 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
+  const handleImageUpload = async (file) => {
     if (!file) return;
-
+    
     const formData = new FormData();
     formData.append("image", file);
 
@@ -114,19 +99,6 @@ function EditMenu() {
     } catch (error) {
       console.error("Error uploading image:", error);
     }
-  };
-
-  // handle drag-and-drop image upload 
-  const handleDrop = (event) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    if (file) {
-      handleImageUpload({ target: { files: [file] } });
-    }
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
   };
 
   // handle form submission 
@@ -256,34 +228,7 @@ function EditMenu() {
         />
 
         {/* Image Upload */}
-        <Box
-          sx={{
-            border: "2px dashed white",
-            padding: "20px",
-            textAlign: "center",
-            cursor: "pointer",
-            mb: 2,
-          }}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
-          <Typography sx={{ color: "white" }}>
-            Drag & drop an image here, or click to select
-          </Typography>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            style={{ display: "none" }}
-            id="file-upload"
-          />
-          <label htmlFor="file-upload">
-            <Button variant="outlined" component="span" sx={{ mt: 1, color: "white", borderColor: "white" }}>
-              Select File
-            </Button>
-          </label>
-        </Box>
-        {imagePath && <img src={imagePath} alt="Menu Item" width="150px" />}
+        <ImageUpload imagePath={imagePath} onImageChange={handleImageUpload}></ImageUpload>
 
         {/* Calories Field */}
         <TextField
@@ -367,7 +312,7 @@ function EditMenu() {
 
         {/* Submit Button */}
         <Button
-          type="submit"
+          type="submit" 
           variant="contained"
           sx={{
             backgroundColor: "#5762d5",
