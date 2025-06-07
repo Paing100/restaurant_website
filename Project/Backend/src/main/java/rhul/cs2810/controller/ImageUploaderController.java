@@ -1,6 +1,8 @@
 package rhul.cs2810.controller;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -65,25 +67,22 @@ public class ImageUploaderController {
   @GetMapping("/view/{filename}")
   public ResponseEntity<Resource> getImage(@PathVariable String filename) {
     try {
-      Path imagePath = Paths.get(UPLOAD_DIR + filename);
-      Resource resource = new UrlResource(imagePath.toUri());
-
-      if (resource.exists() || resource.isReadable()) {
+        Resource resource = imageUploaderService.getImage(filename);
         // Automatically determine the content type for any image format
-        String contentType = Files.probeContentType(imagePath);
+        String contentType = Files.probeContentType(resource.getFile().toPath());
+
         if (contentType == null) {
           contentType = "application/octet-stream"; // Default if content type can't be determined
         }
 
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)) // Dynamically
-                                                                                      // set content
-                                                                                      // type
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
             .body(resource);
-      } else {
-        return ResponseEntity.notFound().build();
       }
-    } catch (Exception e) {
-      return ResponseEntity.internalServerError().build();
-        }
+    catch (FileNotFoundException e) {
+      return ResponseEntity.notFound().build();
     }
+    catch (IOException e) {
+      return ResponseEntity.internalServerError().build();
+    }
+  }
 }

@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -29,7 +33,6 @@ import rhul.cs2810.model.Employee;
 import rhul.cs2810.repository.EmployeeRepository;
 import rhul.cs2810.service.ImageUploaderService;
 import rhul.cs2810.service.LoginService;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -115,23 +118,35 @@ public class ImageUploaderControllerTest {
   @Test
   void uploadImageEmptyTest() throws Exception {
     MockMultipartFile file = new MockMultipartFile("image", "", "image/jpeg", new byte[0]);
-
-    mockMvc.perform(multipart("/api/images/upload").file(file)).andExpect(status().isBadRequest())
-        .andExpect(content().string("No file uploaded"));
+    when(imageUploaderService.uploadImage(any())).thenThrow(new IllegalArgumentException("Empty file!"));
+    mockMvc.perform(multipart("/api/images/upload").file(file)).andExpect(status().isNotFound())
+        .andExpect(content().string("Empty file"));
   }
 
   @Test
   void getImageTest() throws Exception {
     String filename = "test.jpg";
     Path filePath = Paths.get(UPLOAD_DIR + filename);
+
+    // Write test file to disk
     Files.write(filePath, "image-data".getBytes());
 
-    mockMvc.perform(get("/api/images/view/" + filename)).andExpect(status().isOk())
-        .andExpect(header().exists("Content-Type"));
+    // Create a Resource pointing to the file
+    Resource resource = new FileSystemResource(filePath.toFile());
+
+    // Mock the service to return the Resource
+    when(imageUploaderService.getImage(filename)).thenReturn(resource);
+
+    // Perform the GET request and verify response
+    mockMvc.perform(get("/api/images/view/" + filename))
+      .andExpect(status().isOk())
+      .andExpect(header().exists("Content-Type"))
+      .andExpect(header().string("Content-Type", containsString("image/")));
   }
 
   @Test
   void getImageNotFoundTest() throws Exception {
+    when(imageUploaderService.getImage("nonexistent.jpg")).thenThrow(new FileNotFoundException());
     mockMvc.perform(get("/api/images/view/nonexistent.jpg")).andExpect(status().isNotFound());
   }
 
