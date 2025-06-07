@@ -32,12 +32,16 @@ public class WebSocketHandler extends TextWebSocketHandler {
       "{\"type\":\"%s\", \"orderId\":%d, \"recipient\":\"%s\", \"message\":\"%s\", \"waiterId\":\"%s\"}",
       type, orderId, recipient, message, waiterId
     );
-    for(WebSocketSession session: sessions){
-      if (session.isOpen()) {
-        try {
-          session.sendMessage(new TextMessage(jsonMessage));
-        } catch (IOException e) {
-          e.printStackTrace();
+
+    synchronized(sessions) {
+      sessions.removeIf(session -> session == null || !session.isOpen());
+      for (WebSocketSession session : sessions) {
+        if (session.isOpen()) {
+          try {
+            session.sendMessage(new TextMessage(jsonMessage));
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
         }
       }
     }
