@@ -1,5 +1,5 @@
-import React from 'react';
 import { Alert, Snackbar } from '@mui/material';
+import PropTypes from 'prop-types';
 
 function ErrorBar({error, setError}) {
   return(
@@ -9,6 +9,11 @@ function ErrorBar({error, setError}) {
           </Alert>
         </Snackbar>
   );
+}
+
+ErrorBar.propTypes = {
+  error: PropTypes.string.isRequired,
+  setError: PropTypes.func.isRequired
 }
 
 export default ErrorBar;

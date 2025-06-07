@@ -1,20 +1,12 @@
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { Typography, Box, Button, Snackbar, Alert, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { useEffect, useState, useCallback } from "react";
+import { Typography, Box } from "@mui/material";
 import NewOrderModal from "./NewOrderModal";
 import useWebSocket from "./useWebSocket.jsx";
-
-// styling for button
-const buttonStyle = {
-  margin: "0 8px",
-  fontWeight: "bold",
-  textTransform: "none",
-  backgroundColor: '#333',
-  color: 'white',
-  '&:hover': {
-    backgroundColor: 'darkgray',
-  },
-};
+import OutstandingOrdersTable from "./Manager/OutstandingOrdersTable.jsx";
+import StockStatusTable from "./Manager/StockStatusTable.jsx";
+import OrdersAndStockTabs from "./Manager/OrdersAndStockTabs.jsx";
+import ManagerNavButton from "./Manager/ManagerNavButton.jsx";
+import ErrorBar from "./ErrorBar.jsx";
 
 function Manager() {
   // state variables 
@@ -23,18 +15,15 @@ function Manager() {
   const [error, setError] = useState(""); // stores error messages 
   const [tabIndex, setTabIndex] = useState(0); // tracks the active tab 
   const [endOfDayOpen, setEndOfDayOpen] = useState(false); // controls the visibility of the end-of-day modal 
-  const [totalSales, setTotalSales] = useState(0); // stores the total salses 
+  const [totalSales, setTotalSales] = useState(0); // stores the total sales 
 
   // fetch outstanding orders and stock data when the component mounts 
   useEffect(() => {
     fetchOutstandingOrders();
     fetchStock();
   }, []);
-
-  // Establish WebSocket connection 
-  useWebSocket(() => fetchOutstandingOrders());
-
-  // Calculate total sales from the list of orders
+  
+ // Calculate total sales from the list of orders
   const calculateTotalSales = (orders) => {
     return orders.reduce((total, order) => {
       const orderTotal = order.orderMenuItems.reduce( 
@@ -44,7 +33,7 @@ function Manager() {
   };
 
   // Fetch outstanding orders from the server
-  const fetchOutstandingOrders = async () => {
+  const fetchOutstandingOrders = useCallback(async () => {
     try {
       const response = await fetch("http://localhost:8080/Manager/getOutstandingOrders");
       if (!response.ok) throw new Error("Failed to fetch orders");
@@ -54,7 +43,11 @@ function Manager() {
     } catch (err) {
       setError(err.message);
     }
-  };
+  },[calculateTotalSales]);
+
+  // Establish WebSocket connection 
+  useWebSocket(fetchOutstandingOrders);
+
 
   // Fetch stock data from the server
   const fetchStock = async () => {
@@ -77,6 +70,7 @@ function Manager() {
       });
       if (!response.ok) throw new Error("Failed to end the day");
       setEndOfDayOpen(false);
+      fetchOutstandingOrders(); 
     }catch(err){
       setError(err.message);
     }
@@ -89,160 +83,24 @@ function Manager() {
       </Typography>
 
       {/* Navigation buttons */}
-      <Box sx={{ marginBottom: 2 }}>
-        <Link to="/waiter_menu">
-          <Button variant="contained" sx={buttonStyle}>Edit Menu</Button>
-        </Link>
-        <Link to="/calculatePrice">
-          <Button variant="contained" sx={buttonStyle}>Calculate Price</Button>
-        </Link>
-        <Link to="/employeeData">
-          <Button variant="contained" sx={buttonStyle}>Employee Data</Button>
-        </Link>
-        <Link to="/register">
-          <Button variant="contained" sx={buttonStyle}>Register Staff</Button>
-        </Link>
-        <Button
-          variant="contained"
-          sx={buttonStyle}
-          onClick={() => setEndOfDayOpen(true)}
-        >
-          End Of Business Day
-        </Button>
-      </Box>
+      <ManagerNavButton setEndOfDayOpen={setEndOfDayOpen}></ManagerNavButton>
 
       {/* Tabs for Outstanding Orders and Stock Status */}
-      <Tabs
-        value={tabIndex}
-        onChange={(event, newValue) => setTabIndex(newValue)}
-        variant="fullWidth"
-        TabIndicatorProps={{ style: { backgroundColor: '#5762d5' } }}
-        sx={{
-          paddingTop: 2,
-          paddingBottom: 2,
-          "& .MuiTab-root": {
-            color: "darkgray",
-            fontWeight: "bold",
-          },
-          "& .Mui-selected": {
-            color: "#5762d5",
-            textDecoration: "none",
-          },
-          "& .MuiTab-root:hover": {
-            backgroundColor: "transparent",
-          },
-          "& .MuiTab-root:focus": {
-            backgroundColor: "transparent",
-          },
-        }}
-      >
-        <Tab label="Outstanding Orders" />
-        <Tab label="Stock Status" />
-      </Tabs>
+      <OrdersAndStockTabs tabIndex={tabIndex} setTabIndex={setTabIndex}></OrdersAndStockTabs>
 
-      {/* Outstanding Orders Tab */}
+      {/* Outstanding Orders Table */}
       {tabIndex === 0 && (
-        <Box sx={{ marginTop: 2 }}>
-          <Typography variant="h6" sx={{ marginBottom: 2 }}>
-            Total Sales: £{totalSales.toFixed(2)}
-          </Typography>
-          <Typography variant="h5">Outstanding Orders:</Typography>
-          {orders.length > 0 ? (
-            <TableContainer component={Paper}>
-              <Table
-                sx={{
-                  minWidth: 650,
-                  backgroundColor: "#242424",
-                  color: "transparent",
-                }}
-                aria-label="outstanding orders table"
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order ID</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order Status</TableCell>
-                    <TableCell sx={{color: "white", fontWeight: "bold"}}>Waiter</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Table Number</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order Placed</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Total</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {orders.map((order) => {
-                    const orderTotal = order.orderMenuItems.reduce(
-                      (total, item) => total + item.menuItem.price * item.quantity,
-                      0
-                    );
-                    return (
-                      <TableRow key={order.orderId}>
-                        <TableCell sx={{ color: "white" }}>{order.orderId}</TableCell>
-                        <TableCell sx={{ color: "white" }}>{order.orderStatus}</TableCell>
-                        <TableCell sx={{ color: "white" }}>{order.waiter.employee.firstName}</TableCell>
-                        <TableCell sx={{ color: "white" }}>{order.tableNum}</TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {new Date(order.orderPlaced).toLocaleString()}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>£{orderTotal.toFixed(2)}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Typography>No outstanding orders.</Typography>
-          )}
-        </Box>
+        <OutstandingOrdersTable orders={orders} totalSales={totalSales}></OutstandingOrdersTable>
       )}
 
-      {/* Stock Status Tab */}
+      {/* Stock Status Table */}
       {tabIndex === 1 && (
-        <Box sx={{ marginTop: 2 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-            Stock Status:
-          </Typography>
-          {stock ? (
-            <TableContainer component={Paper}>
-              <Table
-                sx={{
-                  minWidth: 650,
-                  backgroundColor: "#242424",
-                  color: "white",
-                }}
-                aria-label="stock status table"
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Item</TableCell>
-                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>Quantity</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {stock.split("\n").map((line, index) => {
-                    const [item, quantity] = line.split(":");
-                    return (
-                      <TableRow key={index}>
-                        <TableCell sx={{ color: "white" }}>{item}</TableCell>
-                        <TableCell sx={{ color: "white" }}>{quantity}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : (
-            <Typography>No stock data available.</Typography>
-          )}
-        </Box>
+        <StockStatusTable stock={stock}></StockStatusTable>
       )}
 
       {/* Error Snackbar */}
       {error && (
-        <Snackbar open autoHideDuration={6000} onClose={() => setError("")}>
-          <Alert severity="error" onClose={() => setError("")}>
-            {error}
-          </Alert>
-        </Snackbar>
+        <ErrorBar error={error} setError={setError}></ErrorBar>
       )}
       
       {/* End-of-Day Modal */}
