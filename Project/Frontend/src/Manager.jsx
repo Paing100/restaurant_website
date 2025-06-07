@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Typography, Box, Button, Snackbar, Alert, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import NewOrderModal from "./NewOrderModal";
 import useWebSocket from "./useWebSocket.jsx";
@@ -22,7 +22,6 @@ function Manager() {
   const [stock, setStock] = useState(""); // stores stock data 
   const [error, setError] = useState(""); // stores error messages 
   const [tabIndex, setTabIndex] = useState(0); // tracks the active tab 
-  const ws = useRef(null); // websocket reference 
   const [endOfDayOpen, setEndOfDayOpen] = useState(false); // controls the visibility of the end-of-day modal 
   const [totalSales, setTotalSales] = useState(0); // stores the total salses 
 
