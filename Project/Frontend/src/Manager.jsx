@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { Typography, Box, Button, Snackbar, Alert, Tabs, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import NewOrderModal from "./NewOrderModal";
+import useWebSocket from "./useWebSocket.jsx";
 
 // styling for button
 const buttonStyle = {
@@ -32,24 +33,7 @@ function Manager() {
   }, []);
 
   // Establish WebSocket connection 
-  useEffect(() => {
-    if (!ws.current) {
-      ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
-
-      ws.current.onopen = () => console.log("WebSocket connected");
-      ws.current.onclose = () => console.log("WebSocket session closed");
-
-      // Refresh outstanding orders when a WebSocket message is received
-      ws.current.onmessage = () => fetchOutstandingOrders();
-    }
-
-    // Cleanup WebSocket connection on component unmount
-    return () => {
-      if (ws.current?.readyState === WebSocket.OPEN) {
-        ws.current.close();
-      }
-    };
-  }, []);
+  useWebSocket(() => fetchOutstandingOrders());
 
   // Calculate total sales from the list of orders
   const calculateTotalSales = (orders) => {
