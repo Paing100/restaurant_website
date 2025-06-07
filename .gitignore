@@ -221,6 +221,9 @@ fabric.properties
 hs_err_pid*
 replay_pid*
 
+# ignore image changes in static
+/src/main/resources/static/
+
 ### Linux ###
 *~
 
