@@ -15,6 +15,7 @@ import Orders from "./Orders";
 import NotificationDrawer from "./NotificationDrawer";
 import notiSound from './assets/sound/Noti.mp3';
 import { useWithSound } from './useWithSound';
+import useWebSocket from "./useWebSocket";
 
 
 function Waiter() {
@@ -28,7 +29,6 @@ function Waiter() {
   const [notification, setNotification] = useState(""); // stores the notifiction messages
   const [alerts, setAlerts] = useState([]); // stores alert notifications
   const [tables, setTables] = useState({ defaultTables: [], activeTables: [] }); // stores assigned tables 
-  const ws = useRef(null); // web socket reference 
   const [open, setOpen] = useState(false); // controls the visibility of the snackbar 
   const [orderStatus, setOrderStatus] = useState({ orderId: "", orderStatus: "" }); // Tracks the status of an order
 
@@ -81,28 +81,18 @@ function Waiter() {
     }
   };
 
-   // WebSocket connection for receiving real-time notifications
-  useEffect(() => {
-    fetchTables();
-    fetchOrders();
-    if (!ws.current) {
-      ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
-
-      ws.current.onopen = () => {
-        console.log("WebSocket connected", ws.current.readyState);
-      };
-
-      ws.current.onclose = () => {
-        console.log("WebSocket session is closed");
-      };
-
-      ws.current.onmessage = (event) => {
-        let message;
-        // Update order status from WebSocket message
-        setOrderStatus({ orderId: event.data.orderId, orderStatus: event.data.orderStatus });
+  const handleMessage = (event) => {
+        let message = JSON.parse(event.data);
         try {
           message = JSON.parse(event.data);
+
+          if (message.orderId && message.orderStatus) {
+              // Update order status from WebSocket message
+              setOrderStatus({ orderId: event.data.orderId, orderStatus: event.data.orderStatus });
+          }
+
           if (message.waiterId && message.waiterId !== employeeId) return;
+          
           if (
             (message.recipient === "waiter" && message.type === "READY") ||
             message.type === "ORDER_SUBMITTED"
@@ -116,8 +106,14 @@ function Waiter() {
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
         }
-      };
-    }
+    };
+
+   // WebSocket connection for receiving real-time notifications
+    const ws = useWebSocket(handleMessage);
+    
+  useEffect(() => {
+    fetchTables();
+    fetchOrders();
   }, [employeeId, orderStatus]);
 
   // Update order status on the server
