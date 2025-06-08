@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Typography, Box, Card, CardContent } from "@mui/material";
+import BackButton from "./BackButton";
 
 function EmployeeData() {
   // state variable to store employee data fetched from server 
@@ -27,9 +28,12 @@ function EmployeeData() {
   }, []);
 
   return (
-    <Box sx={{ padding: 3 }}>
+    <Box sx={{ padding: 3 }}>    
+      {/* Back button */}
+      <BackButton />
+      
       {/* Page title */}
-      <Typography variant="h3" sx={{ fontWeight: "bold", marginBottom: 3 }}>
+      <Typography variant="h3" sx={{ fontWeight: "bold", mt:10, marginBottom: 3 }}>
         Employee Data
       </Typography>
 

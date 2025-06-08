@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Button, TextField, Snackbar, Alert, InputLabel, Select, MenuItem } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import axios from "axios";
+import BackButton from "./BackButton";
+import RegisterEmployeeForm from "./Register/RegisterEmployeeForm";
 
 function Register() {
   const [userId, setUserId] = useState("");
@@ -13,6 +15,7 @@ function Register() {
   const [message, setMessage] = useState("");  
   const [passwordError, setPasswordError] = useState(false);
   const [nameError, setNameError] = useState({ firstName: false, lastName: false });
+
 
   const validatePassword = (pwd) => {
     // Password must:
@@ -32,6 +35,12 @@ function Register() {
     return nameRegex.test(name);
   };
 
+  const validateUserId = (userId) => {
+    // no space is allowed
+    const userIdRegex = /^[A-Za-z0-9]+$/;
+    return userIdRegex.test(userId);
+  }
+
   const handleRegister = async () => {
     // Reset name errors
     setNameError({ firstName: false, lastName: false });
@@ -39,6 +48,14 @@ function Register() {
     // Validate all required fields
     if (!userId || !password || !firstName || !lastName) {
       setMessage("All fields are required");
+      setSeverity("error");
+      setOpen(true);
+      return;
+    }
+
+    // validate userid with no space 
+    if (!validateUserId(userId)) {
+      setMessage("User ID should only contain letters and digits, no spaces.");
       setSeverity("error");
       setOpen(true);
       return;
@@ -70,7 +87,11 @@ function Register() {
       return;
     }
 
-    try {
+    registerEmployee(userId, password, firstName, lastName, role);  
+  }
+
+  const registerEmployee = async (userId, password, firstName, lastName, role) => {
+        try {
       // Send registration request to backend
       const response = await axios.post("http://localhost:8080/auth/register", {
         employeeId: userId,
@@ -131,206 +152,22 @@ function Register() {
           gap: "16px",
         }}
       >
-        <Button
-          onClick={() => window.history.back()}
-          sx={{
-            position: "absolute",
-            top: "100px",
-            left: "50px",
-            backgroundColor: '#333',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: 'darkgray',
-            },
-            marginBottom: 2,
-          }}
-        >
-          ← Back
-        </Button>
-        <div className="username">
-          <TextField
-            id="outlined-basic"
-            label="User ID"
-            variant="outlined"
-            value={userId}
-            required
-            error={!userId}
-            onChange={(e) => setUserId(e.target.value)}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'white',
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white',
-              },
-              '& .MuiInputBase-input': {
-                color: 'white',
-              },
-            }}
-          />
-        </div>
-        <div className="password">
-          <TextField
-            id="outlined-password-input"
-            label="Password"
-            type="password"
-            required
-            value={password}
-            error={passwordError}
-            autoComplete="current-password"
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setPasswordError(false);
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'white',
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white',
-              },
-              '& .MuiInputBase-input': {
-                color: 'white',
-              },
-            }}
-          />
-        </div>
-        <div className="firstName">
-          <TextField
-            id="firstName-input"
-            label="First Name"
-            type="text"
-            value={firstName}
-            required
-            error={nameError.firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'white',
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white',
-              },
-              '& .MuiInputBase-input': {
-                color: 'white',
-              },
-            }}
-          />
-        </div>
-        <div className="lastName">
-          <TextField
-            id="lastName-input"
-            label="Last Name"
-            type="text"
-            value={lastName}
-            required
-            error={nameError.lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'white',
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white',
-              },
-              '& .MuiInputBase-input': {
-                color: 'white',
-              },
-            }}
-          />
-        </div>
-        <div className="role">
-          <InputLabel id="demo-simple-select-label"
-            sx={{ color: "white", }}
-          >Role
-          </InputLabel>
-          <Select
-            labelId="demo-simple-select-standard-label"
-            id="demo-simple-select-standard"
-            value={role}
-            onChange={handleSelectChange}
-            label="Role"
-            error={!role}
-            sx={{
-              width: "200px",
-              color: "white",
-              "& .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-              },
-              "&:hover .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-              },
-              "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                borderColor: "white",
-              },
-              "& .MuiSelect-icon": {
-                color: "white",
-              },
-            }}
-          >
-            <MenuItem value={"waiter"}>Waiter</MenuItem>
-            <MenuItem value={"kitchen"}>Kitchen</MenuItem>
-            <MenuItem value={"manager"}>Manager</MenuItem>
-          </Select>
-        </div>
-        <Button
-          variant="contained"
-          onClick={handleRegister}
-          sx={{
-            backgroundColor: '#333',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: '#666',
-            },
-            alignSelf: "center", // Center the button
-          }}
-        >
-          Register/ Update
-        </Button>
+       <BackButton></BackButton>
+
+      <RegisterEmployeeForm
+        values={{ userId, password, firstName, lastName, role }}
+        errors={{ passwordError, nameError }}
+        handlers={{
+          handleSelectChange,
+          handleRegister,
+          setUserId,
+          setPassword,
+          setFirstName,
+          setLastName,
+          setPasswordError
+        }}
+      ></RegisterEmployeeForm>
+
       </div>
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert
