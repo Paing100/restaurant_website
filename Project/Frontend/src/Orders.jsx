@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Typography, ListItem, ListItemText, Button } from "@mui/material";
 import PropTypes from "prop-types";
 
-function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, alertButton, forKitchen = false  }) {
+function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, alertButton, forKitchen = false, employeeId, setOrders  }) {
   const [elapsedTime, setElapsedTime] = useState("");
 
   // useEffect to update the elapsed time every second for orders that are not DELIVERED
@@ -47,7 +47,7 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
         headers: {"Content-Type":"application/json"}
       });
       if (response.ok){
-        fetchOrders();
+        fetchOrders(employeeId).then(setOrders).catch(console.error);
       }
   }
 
@@ -112,6 +112,8 @@ Orders.propTypes = {
   buttonStyle: PropTypes.object.isRequired,
   alertButton: PropTypes.func,
   forKitchen: PropTypes.bool,
+  employeeId: PropTypes.string.isRequired,
+  setOrders: PropTypes.func.isReuqired, 
 }
 
 export default Orders;

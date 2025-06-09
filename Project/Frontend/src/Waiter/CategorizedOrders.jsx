@@ -2,7 +2,7 @@ import { Grid, List, Typography } from "@mui/material";
 import Orders from "../Orders";
 import PropTypes from "prop-types";
 
-function CategorizedOrders({ filteredOrders, selectedTab, categories, fetchOrders, handleAlertOthers, handleUpdateOrderStatus, setOrderStatus}) {
+function CategorizedOrders({ filteredOrders, selectedTab, categories, fetchOrders, handleAlertOthers, handleUpdateOrderStatus, setOrderStatus, employeeId, setOrders  }) {
   return(
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -55,6 +55,8 @@ function CategorizedOrders({ filteredOrders, selectedTab, categories, fetchOrder
 
                   fetchOrders={fetchOrders}
                   alertButton={handleAlertOthers}
+                  employeeId={employeeId}
+                  setOrders={setOrders}
                 />
               ))}
             </List>
