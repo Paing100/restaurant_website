@@ -21,16 +21,7 @@ function Manager() {
   useEffect(() => {
     fetchOutstandingOrders();
     fetchStock();
-  }, []);
-  
- // Calculate total sales from the list of orders
-  const calculateTotalSales = (orders) => {
-    return orders.reduce((total, order) => {
-      const orderTotal = order.orderMenuItems.reduce( 
-        (sum, item) => sum + item.menuItem.price * item.quantity, 0);
-      return total + orderTotal;
-    }, 0);
-  };
+  }, [fetchOutstandingOrders, fetchStock]);
 
   // Fetch outstanding orders from the server
   const fetchOutstandingOrders = useCallback(async () => {
@@ -39,18 +30,26 @@ function Manager() {
       if (!response.ok) throw new Error("Failed to fetch orders");
       const data = await response.json();
       setOrders(data);
-      setTotalSales(calculateTotalSales(data)); // Calculate and set total sales
-    } catch (err) {
-      setError(err.message);
-    }
-  },[calculateTotalSales]);
+
+      // Calculate total sales from the list of orders
+      const total = data.reduce((total, order) => {
+        const orderTotal = order.orderMenuItems.reduce(
+          (sum, item) => sum + item.menuItem.price * item.quantity, 0);
+        return total + orderTotal;
+      }, 0);
+      setTotalSales(total);
+
+      } catch (err) {
+        setError(err.message);
+      }
+    }, []);
 
   // Establish WebSocket connection 
   useWebSocket(fetchOutstandingOrders);
 
 
   // Fetch stock data from the server
-  const fetchStock = async () => {
+  const fetchStock = useCallback(async () => {
     try {
       const response = await fetch("http://localhost:8080/Manager/showAllStock");
       if (!response.ok) throw new Error("Failed to fetch stock");
@@ -59,7 +58,7 @@ function Manager() {
     } catch (err) {
       setError(err.message);
     }
-  };
+  },[]);
 
   // Handle the end-of-day button click
   const handleEndOfDayButton = async () => {
