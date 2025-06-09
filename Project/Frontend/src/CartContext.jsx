@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
 import { useRef } from 'react';
+import useWebSocket from "./useWebSocket.jsx";
 
 // Create a context for the cart 
 export const CartContext = createContext();
@@ -15,31 +16,9 @@ export const CartProvider = ({ children }) => {
     const [loading, setLoading] = useState(true); // indicates if the app is loading 
     const [menuItems, setMenuItems] = useState([]); // stores menu items 
     const [suggestions, setSuggestions] = useState([]); // stores suggested items 
-    const ws = useRef(null); // web socket reference 
 
     // Establish WebSocket connection
-    useEffect(() => {
-        ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
-
-        ws.current.onopen = () => {
-            console.log('WebSocket connected', ws.current.readyState);
-        };
-
-        ws.current.onclose = () => {
-            console.log("WebSocket session is closed");
-        };
-
-        ws.current.onerror = (error) => {
-            console.error("WebSocket error:", error);
-        };
-
-        // Cleanup WebSocket connection on component unmount
-        return () => {
-            if (ws.current) {
-                ws.current.close();
-            }
-        };
-    }, []);
+    const ws = useWebSocket();
     
     useEffect(() => {
         // Retrieve customer and tableNum from localStorage when the app loads
