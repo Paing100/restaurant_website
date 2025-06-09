@@ -77,7 +77,9 @@ CategorizedOrders.propTypes={
   fetchOrders: PropTypes.func.isRequired,
   handleAlertOthers: PropTypes.func.isRequired,
   handleUpdateOrderStatus: PropTypes.func.isRequired,
-  setOrderStatus: PropTypes.func.isRequired
+  setOrderStatus: PropTypes.func.isRequired,
+  employeeId: PropTypes.string.isRequired,
+  setOrders: PropTypes.func.isRequired,
 }
 
 export default CategorizedOrders; 
