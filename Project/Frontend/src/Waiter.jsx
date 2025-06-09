@@ -128,6 +128,8 @@ function Waiter() {
         handleAlertOthers={handleAlertOthers}
         handleUpdateOrderStatus={handleUpdateOrderStatus}
         setOrderStatus={setOrderStatus}
+        employeeId={employeeId}
+        setOrders={setOrders}
       />  
       
       {/* Snackbar for notifications */}
