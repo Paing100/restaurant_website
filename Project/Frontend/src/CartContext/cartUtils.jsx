@@ -88,3 +88,21 @@ export const replaceSuggestion = (cart, menuItems, suggestions, addedItemId) => 
             console.error('Error replacing suggestion:', error);
         }
     };
+
+// use API end point to fetch menu items 
+export const fetchMenuItems = async () => {
+    try{
+        const {data: menuData} = await axios.get('http://localhost:8080/MenuItems');
+        if (menuData && Array.isArray(menuData)) {
+            return menuData; 
+        }
+        else{
+            console.error('Invalid menu data format received');
+            return [];
+        }
+    }
+    catch (error) {
+        console.error('Error fetching menu items:', error);
+        return [];
+    }
+}

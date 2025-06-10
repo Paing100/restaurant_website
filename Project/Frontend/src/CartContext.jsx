@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
 import useWebSocket from "./useWebSocket.jsx";
-import {fetchCart, addItemToCart} from "./CartContext/cartUtils.jsx";
+import {fetchCart, addItemToCart, fetchMenuItems} from "./CartContext/cartUtils.jsx";
 
 // Create a context for the cart 
 export const CartContext = createContext();
@@ -82,7 +82,7 @@ export const CartProvider = ({ children }) => {
 
 
     useEffect(() => {
-        fetchMenuItems();
+        fetchMenuItems().then(setMenuItems);
     }, []);
 
     useEffect(() => {
@@ -304,28 +304,6 @@ export const CartProvider = ({ children }) => {
         } catch (err) {
             console.error('Error creating new order:', err.message);
             return { success: false, message: `Error creating new order: ${err.message}` };
-        }
-    };
-
-    // use API end point to fetch menu items 
-    const fetchMenuItems = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/MenuItems', {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' },
-            });
-            if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
-            const menuData = await response.json();
-            
-            if (menuData && Array.isArray(menuData)) {
-                setMenuItems(menuData);
-            } else {
-                console.error('Invalid menu data format received');
-                setMenuItems([]);
-            }
-        } catch (error) {
-            console.error('Error fetching menu items:', error);
-            setMenuItems([]);
         }
     };
 
