@@ -466,7 +466,7 @@ function Order() {
 
     // Handles payment success by submitting the order and updating the UI and local storage
     const handlePaymentSuccess = async () => {
-        const result = await submitOrder(customer, cart, ws); // submit order and get result 
+        const result = await submitOrder(customer, cart, ws, tableNum); // submit order and get result 
         if (result.success) {
             // create a new order object 
             const newOrder = {

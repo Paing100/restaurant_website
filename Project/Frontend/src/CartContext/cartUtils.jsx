@@ -199,7 +199,7 @@ export const removeItemFromCart = async (customer, cart, itemId, removeAll = fal
 
 
 // Submit the order
-export const submitOrder = async (customer, cart, ws) => {
+export const submitOrder = async (customer, cart, ws, tableNum) => {
         if (!customer || !customer.customerId) {
             throw new Error("Customer is not logged in or order ID is missing.");
         }

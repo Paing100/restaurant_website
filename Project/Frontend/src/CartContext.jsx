@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
-import useWebSocket from "./useWebSocket.jsx";
 import {fetchCart, addItemToCart, fetchMenuItems, getRandomSuggestions} from "./CartContext/cartUtils.jsx";
 
 // Create a context for the cart 
@@ -16,9 +15,6 @@ export const CartProvider = ({ children }) => {
     const [loading, setLoading] = useState(true); // indicates if the app is loading 
     const [menuItems, setMenuItems] = useState([]); // stores menu items 
     const [suggestions, setSuggestions] = useState([]); // stores suggested items 
-
-    // Establish WebSocket connection
-    const ws = useWebSocket();
     
     useEffect(() => {
         // Retrieve customer and tableNum from localStorage when the app loads
