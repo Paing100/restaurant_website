@@ -130,3 +130,29 @@ export const clearCart = async (customer, cart) => {
         console.error('Error clearing cart:', error);
     }
 };
+
+// generate random menu item suggestions 
+export const getRandomSuggestions = (cart, menuItems) => {
+    try {
+        const cartItemIds = Object.values(cart.orderedItems).map(item => item.itemId);
+        const availableItems = menuItems.filter(item => 
+            item.available && !cartItemIds.includes(item.itemId)
+        );
+
+        if (availableItems.length <= 5) {
+            return availableItems;
+        }
+        const randomItems = [];
+        const availableCopy = [...availableItems];
+        
+        for (let i = 0; i < 5 && availableCopy.length > 0; i++) {
+            const randomIndex = Math.floor(Math.random() * availableCopy.length);
+            randomItems.push(availableCopy[randomIndex]);
+            availableCopy.splice(randomIndex, 1);
+        }
+        return randomItems;
+    } catch (error) {
+        console.error('Error generating suggestions:', error);
+        return [];
+    }
+};

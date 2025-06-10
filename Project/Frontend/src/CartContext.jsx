@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
 import useWebSocket from "./useWebSocket.jsx";
-import {fetchCart, addItemToCart, fetchMenuItems} from "./CartContext/cartUtils.jsx";
+import {fetchCart, addItemToCart, fetchMenuItems, getRandomSuggestions} from "./CartContext/cartUtils.jsx";
 
 // Create a context for the cart 
 export const CartContext = createContext();
@@ -50,44 +50,14 @@ export const CartProvider = ({ children }) => {
         setCart({ orderedItems: {}, totalPrice: 0 });
     };
 
-    // generate random menu item suggestions 
-    const getRandomSuggestions = () => {
-        try {
-            const cartItemIds = Object.values(cart.orderedItems).map(item => item.itemId);
-
-            const availableItems = menuItems.filter(item => 
-                item.available && !cartItemIds.includes(item.itemId)
-            );
-
-            if (availableItems.length <= 5) {
-                setSuggestions(availableItems);
-                return;
-            }
-
-            const randomItems = [];
-            const availableCopy = [...availableItems];
-            
-            for (let i = 0; i < 5 && availableCopy.length > 0; i++) {
-                const randomIndex = Math.floor(Math.random() * availableCopy.length);
-                randomItems.push(availableCopy[randomIndex]);
-                availableCopy.splice(randomIndex, 1);
-            }
-            
-            setSuggestions(randomItems);
-        } catch (error) {
-            console.error('Error generating suggestions:', error);
-            setSuggestions([]);
-        }
-    };
-
-
     useEffect(() => {
         fetchMenuItems().then(setMenuItems);
     }, []);
 
     useEffect(() => {
         if (menuItems.length > 0 && suggestions.length === 0) {
-            getRandomSuggestions();
+            const suggestions = getRandomSuggestions(cart, menuItems);
+            setSuggestions(suggestions);
         }
     }, [menuItems]);
 
