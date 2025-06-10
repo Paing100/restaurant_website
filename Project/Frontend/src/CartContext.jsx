@@ -153,36 +153,6 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // function to clear the whole cart 
-    const clearCart = async () => {
-        if (!customer) {
-            console.error('Customer is not set');
-            return;
-        }
-
-        try {
-            const itemIds = Object.values(cart.orderedItems).map(item => item.itemId);
-
-            for (const itemId of itemIds) {
-                const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/removeItems?itemId=${itemId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'accept': 'application/hal+json',
-                    },
-                });
-
-                if (!response.ok) {
-                    console.error(`Error removing item ${itemId} during cart clear`);
-                }
-            }
-
-            setCart({ orderedItems: {}, totalPrice: 0 });
-            console.log('Cart cleared successfully');
-        } catch (error) {
-            console.error('Error clearing cart:', error);
-        }
-    };
-
     // Submit the order
     const submitOrder = async () => {
         if (!customer || !customer.customerId) {
@@ -330,7 +300,6 @@ export const CartProvider = ({ children }) => {
                 fetchMenuItems,
                 addItemToCart,
                 removeItemFromCart,
-                clearCart,
                 submitOrder,
                 createNewOrder,
                 logout,

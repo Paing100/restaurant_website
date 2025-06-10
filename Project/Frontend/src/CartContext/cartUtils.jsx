@@ -106,3 +106,27 @@ export const fetchMenuItems = async () => {
         return [];
     }
 }
+
+// function to clear the whole cart 
+export const clearCart = async (customer, cart) => {
+    if (!customer) {
+        console.error('Customer is not set');
+        return;
+    }
+
+    try {
+        const itemIds = Object.values(cart.orderedItems).map(item => item.itemId);
+        for (const itemId of itemIds) {
+            try{
+                await axios.delete(`http://localhost:8080/api/orders/${customer.orderId}/removeItems?itemId=${itemId}`);
+            }
+            catch{
+                console.error(`Error removing item ${itemId} during cart clear`);
+            }
+        }
+        console.log('Cart cleared successfully');
+        return { orderedItems: {}, totalPrice: 0 };
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+    }
+};

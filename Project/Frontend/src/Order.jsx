@@ -10,7 +10,7 @@ import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
 import MenuCard from './MenuCard';
 import { Link } from 'react-router-dom';
-import { addItemToCart, replaceSuggestion } from './CartContext/cartUtils';
+import { addItemToCart, replaceSuggestion, clearCart } from './CartContext/cartUtils';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -163,7 +163,7 @@ OrderInfoPopup.propTypes = {
 
 function Order() {
     // Context and state variables
-    const { cart, fetchCart, menuItems, removeItemFromCart, clearCart, customer, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
+    const { cart, fetchCart, menuItems, removeItemFromCart, customer, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
     const [message, setMessage] = useState(''); // snackbar message
     const [severity, setSeverity] = useState('success'); // snackbar severity
     const [showOrderInfo, setShowOrderInfo] = useState(() => { // Controls order info popup visibility
@@ -765,7 +765,7 @@ function Order() {
                 <Grid container spacing={2}>
                     <Grid item xs={6}>
                         <Button
-                            onClick={() => clearCart()}
+                            onClick={() => clearCart(customer, cart).then(setCart)}
                             sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                             fullWidth
                         >
