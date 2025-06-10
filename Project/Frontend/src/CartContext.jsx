@@ -61,68 +61,6 @@ export const CartProvider = ({ children }) => {
         }
     }, [menuItems]);
 
-    // function to remove an item from cart 
-    const removeItemFromCart = async (itemId, removeAll = false) => {
-        if (!customer) {
-            console.error('Customer is not set');
-            return;
-        }
-
-        try {
-            const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
-
-            if (!currentItem) {
-                console.error('Item not found in cart');
-                return;
-            }
-
-            if (removeAll) {
-                const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/removeItems?itemId=${itemId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'accept': 'application/hal+json',
-                    },
-                });
-
-                if (response.ok) {
-                    await fetchCart(customer).then(setCart);
-                    console.log('All items removed from cart');
-                } else {
-                    console.error('Error removing all items from cart');
-                }
-            } else {
-                if (currentItem.quantity === 1) {
-                    const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/removeItems?itemId=${itemId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'accept': 'application/hal+json',
-                        },
-                    });
-
-                    if (response.ok) {
-                        await fetchCart(customer).then(setCart);
-                        console.log('Last item removed from cart');
-                    }
-                } else {
-                    const newQuantity = currentItem.quantity - 1;
-                    const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/addItems?itemId=${itemId}&quantity=${newQuantity}`, {
-                        method: 'POST',
-                        headers: {
-                            'accept': 'application/hal+json',
-                        },
-                    });
-
-                    if (response.ok) {
-                        await fetchCart(customer).then(setCart);
-                        console.log('Item quantity decreased by 1');
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('Error modifying cart:', error);
-        }
-    };
-
     // Submit the order
     const submitOrder = async () => {
         if (!customer || !customer.customerId) {
@@ -269,7 +207,6 @@ export const CartProvider = ({ children }) => {
                 fetchCart,
                 fetchMenuItems,
                 addItemToCart,
-                removeItemFromCart,
                 submitOrder,
                 createNewOrder,
                 logout,

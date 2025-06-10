@@ -156,3 +156,43 @@ export const getRandomSuggestions = (cart, menuItems) => {
         return [];
     }
 };
+
+// function to remove an item from cart 
+export const removeItemFromCart = async (customer, cart, itemId, removeAll = false) => {
+        if (!customer) {
+            console.error('Customer is not set');
+            return;
+        }
+
+        try {
+            const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
+            if (!currentItem) {
+                console.error('Item not found in cart');
+                return;
+            }
+
+            if (removeAll) {
+                try{
+                    await axios.delete(`http://localhost:8080/api/orders/${customer.orderId}/removeItems?itemId=${itemId}`);
+                    console.log('All items removed from cart');
+                    return true;
+                }
+                catch {
+                    console.error('Error removing all items from cart');
+                }
+            } else {
+                if (currentItem.quantity === 1) {
+                    await axios.delete(`http://localhost:8080/api/orders/${customer.orderId}/removeItems?itemId=${itemId}`);   
+                    console.log('Last item removed from cart');
+                    return true;
+                } else {
+                    const newQuantity = currentItem.quantity - 1;
+                    await axios.post(`http://localhost:8080/api/orders/${customer.orderId}/addItems?itemId=${itemId}&quantity=${newQuantity}`);
+                    console.log('Item quantity decreased by 1');
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.error('Error modifying cart:', error);
+        }
+    };
