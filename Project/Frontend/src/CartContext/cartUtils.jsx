@@ -196,3 +196,68 @@ export const removeItemFromCart = async (customer, cart, itemId, removeAll = fal
             console.error('Error modifying cart:', error);
         }
     };
+
+
+// Submit the order
+export const submitOrder = async (customer, cart, ws) => {
+        if (!customer || !customer.customerId) {
+            throw new Error("Customer is not logged in or order ID is missing.");
+        }
+        try {
+            // First get the current order to get the waiter ID
+            let orderData;
+            try{
+                const orderResponse = await axios.get(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`);
+                orderData = orderResponse.data;
+            }
+            catch(error){
+                console.log(`Failed to fetch order details: ${error.response?.status}`);
+            }
+
+            
+            // Update the order's table number if it has changed
+            const currentTableNum = localStorage.getItem('tableNum') || tableNum;
+            if (currentTableNum && orderData.tableNum !== parseInt(currentTableNum)) {
+                try{
+                    await axios.post(`http://localhost:8080/api/orders/${customer.orderId}/updateOrder`,{
+                        tableNum: parseInt(currentTableNum) 
+                    });
+                } catch (error){
+                    console.log(`Failed to update table number: ${error.response?.status}`);
+                }
+            }
+
+            const waiterId = orderData.waiter?.employee?.employeeId;
+
+            // Submit the order
+            try{
+                await axios.post(`http://localhost:8080/api/order/${customer.orderId}/submitOrder`);
+            }
+            catch(error){
+                console.log(`Server responded with status: ${error.response?.status}`);
+            }
+
+            const currentSales = parseFloat(localStorage.getItem('sales')) || 0;
+            const totalSales = currentSales + cart.totalPrice;
+            localStorage.setItem('sales', totalSales);
+            console.log('Order submitted successfully');
+            
+            // Send WebSocket message if we have a waiter ID
+            if (waiterId && ws.current && ws.current.readyState === WebSocket.OPEN) {
+                const message = JSON.stringify({
+                    type: 'ORDER_SUBMIT',
+                    customerId: customer.customerId,
+                    orderId: customer.orderId,
+                    message: 'A new order has been submitted',
+                    waiterId: waiterId,
+                });
+                ws.current.send(message);
+                console.log('WebSocket message sent:', message);
+            }
+
+            return { success: true, message: 'Order submitted successfully!' };
+        } catch (err) {
+            console.error('Error submitting order:', err.message);
+            return { success: false, message: `Error submitting order: ${err.message}` };
+        }
+    };
