@@ -41,7 +41,7 @@ export const fetchCart = async (customer) => {
         }
     };
 
-export const addItemToCart = async (customer, itemId, quantity, cart, suggestions) => {
+export const addItemToCart = async (customer, itemId, quantity, cart) => {
         if (!customer) {
             console.error('Customer is not set');
             return;

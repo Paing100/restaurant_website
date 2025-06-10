@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
-import { useRef } from 'react';
 import useWebSocket from "./useWebSocket.jsx";
 import {fetchCart, addItemToCart} from "./CartContext/cartUtils.jsx";
 

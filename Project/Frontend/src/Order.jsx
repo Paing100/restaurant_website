@@ -163,7 +163,7 @@ OrderInfoPopup.propTypes = {
 
 function Order() {
     // Context and state variables
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
+    const { cart, fetchCart, menuItems, removeItemFromCart, clearCart, customer, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
     const [message, setMessage] = useState(''); // snackbar message
     const [severity, setSeverity] = useState('success'); // snackbar severity
     const [showOrderInfo, setShowOrderInfo] = useState(() => { // Controls order info popup visibility
