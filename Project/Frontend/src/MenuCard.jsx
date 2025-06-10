@@ -5,10 +5,11 @@ import { CartContext } from "./CartContext";
 import { Link } from "react-router-dom";
 import CustomerModal from "./CustomerModal";
 import NewOrderModal from "./NewOrderModal";
+import { replaceSuggestion } from "./CartContext/cartUtils";
 
 function MenuCard({ item, isWaiterView }) {
   // Access cart-related functions and customer data from CartContext
-  const { addItemToCart, customer, createNewOrder } = useContext(CartContext);
+  const { suggestions, menuItems, setSuggestions, setCart, cart, addItemToCart, customer, createNewOrder } = useContext(CartContext);
   
   // state variables 
   const [message, setMessage] = useState(''); // snackbar message
@@ -22,7 +23,7 @@ function MenuCard({ item, isWaiterView }) {
   // Watch for customer changes to complete pending add
   useEffect(() => {
     if (customer && pendingAdd && !showNewOrderModal) {
-      addItemToCart(item.itemId, quantity); // add item to cart
+      addItemToCart(customer, item.itemId, quantity, cart).then(setCart); // add item to cart
       setPendingAdd(false); // reset pending add state 
       setMessage("Item Added to Cart!"); // set success message
       setSeverity('success'); // set serverity for snackbar
@@ -66,7 +67,12 @@ function MenuCard({ item, isWaiterView }) {
       }
 
       // If order is not submitted, add item directly
-      await addItemToCart(item.itemId, quantity);
+      const updatedCart = await addItemToCart(customer, item.itemId, quantity, cart);
+      if (suggestions && suggestions.some(s => s.itemId === item.itemId)) {
+        const newSuggestions = replaceSuggestion(cart, menuItems, suggestions, item.itemId);
+        setSuggestions(newSuggestions);
+      }
+      setCart(updatedCart);
       setMessage("Item Added to Cart!");
       setSeverity('success');
       setOpenSnackbar(true);
@@ -77,6 +83,7 @@ function MenuCard({ item, isWaiterView }) {
       setOpenSnackbar(true);
     }
   };
+
 
   // handle closing the customer modal 
   const handleModalClose = () => {

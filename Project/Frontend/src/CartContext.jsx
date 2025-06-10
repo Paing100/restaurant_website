@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
 import { useRef } from 'react';
 import useWebSocket from "./useWebSocket.jsx";
+import {fetchCart, addItemToCart} from "./CartContext/cartUtils.jsx";
 
 // Create a context for the cart 
 export const CartContext = createContext();
@@ -50,46 +51,6 @@ export const CartProvider = ({ children }) => {
         setCart({ orderedItems: {}, totalPrice: 0 });
     };
 
-    // fetch the cart data 
-    const fetchCart = async () => {
-        if (!customer) {
-            console.error('Customer or order ID is not set');
-            return;
-        }
-        try {
-            const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' },
-            });
-            if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
-            const text = await response.text();
-            if (!text) throw new Error("Received empty response from server.");
-            const orderData = JSON.parse(text);
-            if (!orderData || !Array.isArray(orderData.orderMenuItems)) throw new Error("Invalid order data format.");
-
-            const orderedItems = orderData.orderMenuItems.reduce((acc, item) => {
-                if (!item.menuItem) return acc;
-                acc[item.menuItem.name] = {
-                    itemId: item.menuItem.itemId,
-                    quantity: item.quantity || 0,
-                    price: item.menuItem.price || 0,
-                    imagePath: item.menuItem.imagePath || ''
-                };
-                return acc;
-            }, {});
-
-            const totalPrice = orderData.orderMenuItems.reduce((total, item) =>
-                total + ((item.quantity || 0) * (item.menuItem?.price || 0)), 0
-            );
-            console.log("PRICE: " + totalPrice);
-
-            setCart({ orderedItems, totalPrice: parseFloat(totalPrice.toFixed(2)) });
-        } catch (error) {
-            console.error('Error fetching order:', error);
-            setCart({ orderedItems: {}, totalPrice: 0 });
-        }
-    };
-
     // generate random menu item suggestions 
     const getRandomSuggestions = () => {
         try {
@@ -120,31 +81,6 @@ export const CartProvider = ({ children }) => {
         }
     };
 
-    // replace a suggestion after the customer puts it in cart 
-    const replaceSuggestion = (addedItemId) => {
-        try {
-            const cartItemIds = [...Object.values(cart.orderedItems).map(item => item.itemId), addedItemId];
-
-            const availableItems = menuItems.filter(item => 
-                item.available && 
-                !cartItemIds.includes(item.itemId) && 
-                !suggestions.some(suggestion => suggestion.itemId === item.itemId)
-            );
-
-            if (availableItems.length === 0) return;
-
-            const randomIndex = Math.floor(Math.random() * availableItems.length);
-            const replacementItem = availableItems[randomIndex];
-
-            setSuggestions(currentSuggestions => 
-                currentSuggestions.map(item => 
-                    item.itemId === addedItemId ? replacementItem : item
-                )
-            );
-        } catch (error) {
-            console.error('Error replacing suggestion:', error);
-        }
-    };
 
     useEffect(() => {
         fetchMenuItems();
@@ -155,63 +91,6 @@ export const CartProvider = ({ children }) => {
             getRandomSuggestions();
         }
     }, [menuItems]);
-
-    // function to add an item to cart 
-    const addItemToCart = async (itemId, quantity) => {
-        if (!customer) {
-            console.error('Customer is not set');
-            return;
-        }
-
-        try {
-            // First check the order status
-            const orderResponse = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' },
-            });
-
-            if (!orderResponse.ok) {
-                throw new Error('Failed to fetch order status');
-            }
-
-            const orderData = await orderResponse.json();
-            if (orderData.orderStatus !== 'CREATED') {
-                throw new Error('Cannot modify a submitted order');
-            }
-
-            const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
-            const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;
-
-            const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/addItems?itemId=${itemId}&quantity=${newQuantity}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/hal+json',
-                },
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Error adding item to cart:', errorText);
-                throw new Error(`Failed to add item to cart: ${response.status}`);
-            }
-
-            if (suggestions.some(item => item.itemId === itemId)) {
-                replaceSuggestion(itemId);
-            }
-
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                const updatedCart = await response.json();
-                setCart(updatedCart);
-            } else {
-                await fetchCart();
-                console.log('Item added to order');
-            }
-        } catch (error) {
-            console.error('Error adding item to cart:', error);
-            throw error;
-        }
-    };
 
     // function to remove an item from cart 
     const removeItemFromCart = async (itemId, removeAll = false) => {
@@ -237,7 +116,7 @@ export const CartProvider = ({ children }) => {
                 });
 
                 if (response.ok) {
-                    await fetchCart();
+                    await fetchCart(customer).then(setCart);
                     console.log('All items removed from cart');
                 } else {
                     console.error('Error removing all items from cart');
@@ -252,7 +131,7 @@ export const CartProvider = ({ children }) => {
                     });
 
                     if (response.ok) {
-                        await fetchCart();
+                        await fetchCart(customer).then(setCart);
                         console.log('Last item removed from cart');
                     }
                 } else {
@@ -265,7 +144,7 @@ export const CartProvider = ({ children }) => {
                     });
 
                     if (response.ok) {
-                        await fetchCart();
+                        await fetchCart(customer).then(setCart);
                         console.log('Item quantity decreased by 1');
                     }
                 }
@@ -452,7 +331,7 @@ export const CartProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (customer) fetchCart();
+        if (customer) fetchCart(customer).then(setCart);
     }, [customer]);
 
     useEffect(() => {
@@ -478,7 +357,8 @@ export const CartProvider = ({ children }) => {
                 submitOrder,
                 createNewOrder,
                 logout,
-                loading
+                loading,
+                setSuggestions
             }}
         >
             {children}

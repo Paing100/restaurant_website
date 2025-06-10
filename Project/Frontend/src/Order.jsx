@@ -10,6 +10,7 @@ import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
 import MenuCard from './MenuCard';
 import { Link } from 'react-router-dom';
+import { addItemToCart, replaceSuggestion } from './CartContext/cartUtils';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -162,7 +163,7 @@ OrderInfoPopup.propTypes = {
 
 function Order() {
     // Context and state variables
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions } = useContext(CartContext);
+    const { cart, fetchCart, removeItemFromCart, clearCart, customer, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
     const [message, setMessage] = useState(''); // snackbar message
     const [severity, setSeverity] = useState('success'); // snackbar severity
     const [showOrderInfo, setShowOrderInfo] = useState(() => { // Controls order info popup visibility
@@ -448,8 +449,17 @@ function Order() {
 
     // Function to increase item quantity by adding it to the cart
     const increaseItemQuantity = (itemId) => {
-        addItemToCart(itemId, 1);
+        addItemToCartHandler(itemId);    
     };
+
+    const addItemToCartHandler = (itemId) => {
+        const updatedCart = addItemToCart(customer, itemId, 1, cart, suggestions); 
+        if (suggestions && suggestions.some(item => item.itemId === itemId)) {
+            const newSuggestions = replaceSuggestion(cart, menuItems, suggestions, itemId);
+            setSuggestions(newSuggestions);
+        }
+        updatedCart.then(setCart);  
+    }
 
     // Handles payment success by submitting the order and updating the UI and local storage
     const handlePaymentSuccess = async () => {
@@ -486,7 +496,7 @@ function Order() {
             localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
             setStoredTableNum(tableNum);
 
-            await fetchCart();
+            await fetchCart(customer);
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
 
             const customerNullOrderID = {
