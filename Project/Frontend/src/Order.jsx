@@ -10,6 +10,7 @@ import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
 import MenuCard from './MenuCard';
 import { Link } from 'react-router-dom';
+import { addItemToCart, replaceSuggestion, clearCart, removeItemFromCart, submitOrder, createNewOrder, fetchCart } from './CartContext/cartUtils';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -162,7 +163,7 @@ OrderInfoPopup.propTypes = {
 
 function Order() {
     // Context and state variables
-    const { cart, fetchCart, removeItemFromCart, clearCart, customer, addItemToCart, submitOrder, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions } = useContext(CartContext);
+    const { cart, menuItems, customer, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
     const [message, setMessage] = useState(''); // snackbar message
     const [severity, setSeverity] = useState('success'); // snackbar severity
     const [showOrderInfo, setShowOrderInfo] = useState(() => { // Controls order info popup visibility
@@ -442,18 +443,30 @@ function Order() {
     }, [customer?.customerId]); // Only run when customerId changes
 
     // Function to decrease item quantity by removing it from the cart
-    const decreaseItemQuantity = (itemId) => {
-        removeItemFromCart(itemId, false);
+    const decreaseItemQuantity = async (itemId) => {
+        const result = await removeItemFromCart(customer, cart, itemId, false);
+        if (result){
+            fetchCart(customer).then(setCart);
+        }
     };
 
     // Function to increase item quantity by adding it to the cart
     const increaseItemQuantity = (itemId) => {
-        addItemToCart(itemId, 1);
+        addItemToCartHandler(itemId);    
     };
+
+    const addItemToCartHandler = (itemId) => {
+        const updatedCart = addItemToCart(customer, itemId, 1, cart, suggestions); 
+        if (suggestions && suggestions.some(item => item.itemId === itemId)) {
+            const newSuggestions = replaceSuggestion(cart, menuItems, suggestions, itemId);
+            setSuggestions(newSuggestions);
+        }
+        updatedCart.then(setCart);  
+    }
 
     // Handles payment success by submitting the order and updating the UI and local storage
     const handlePaymentSuccess = async () => {
-        const result = await submitOrder(); // submit order and get result 
+        const result = await submitOrder(customer, cart, ws, tableNum); // submit order and get result 
         if (result.success) {
             // create a new order object 
             const newOrder = {
@@ -486,7 +499,7 @@ function Order() {
             localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
             setStoredTableNum(tableNum);
 
-            await fetchCart();
+            await fetchCart(customer);
             setCart({ ...cart, orderedItems: [], totalPrice: 0 });
 
             const customerNullOrderID = {
@@ -506,8 +519,14 @@ function Order() {
 
     // Function to handle confirming a new order
     const handleNewOrderConfirm = async () => {
-        const result = await createNewOrder();
+        const result = await createNewOrder(customer, tableNum);
         if (result.success) {
+            setCart({ orderedItems: {} }); // Clear the cart for the new order
+            setCustomer(prevCustomer => ({
+                    ...prevCustomer,
+                    orderId: result.orderId
+            }));
+            setTableNum(tableNum);
             setMessage(result.message);
             setSeverity('success');
             setNewOrderModalOpen(false);
@@ -682,7 +701,12 @@ function Order() {
                                 </IconButton>
                             </Box>
                             <Button
-                                onClick={() => removeItemFromCart(item.itemId, true)}
+                                onClick={async () => {
+                                    const result = await removeItemFromCart(customer, cart, item.itemId, true);
+                                           if (result){
+                                                fetchCart(customer).then(setCart);
+                                            }
+                                }}
                                 sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                             >
                                 Remove All
@@ -755,7 +779,7 @@ function Order() {
                 <Grid container spacing={2}>
                     <Grid item xs={6}>
                         <Button
-                            onClick={() => clearCart()}
+                            onClick={() => clearCart(customer, cart).then(setCart)}
                             sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
                             fullWidth
                         >
