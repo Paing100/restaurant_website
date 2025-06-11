@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from 'react';
 import PropTypes from "prop-types"
-import {fetchCart, addItemToCart, fetchMenuItems, getRandomSuggestions} from "./CartContext/cartUtils.jsx";
+import {fetchCart, fetchMenuItems, getRandomSuggestions} from "./CartContext/cartUtils.jsx";
 
 // Create a context for the cart 
 export const CartContext = createContext();
@@ -81,9 +81,6 @@ export const CartProvider = ({ children }) => {
                 setCart,
                 setCustomer: setPersistentCustomer,
                 setTableNum,
-                fetchCart,
-                fetchMenuItems,
-                addItemToCart,
                 logout,
                 loading,
                 setSuggestions

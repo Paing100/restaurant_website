@@ -5,11 +5,11 @@ import { CartContext } from "./CartContext";
 import { Link } from "react-router-dom";
 import CustomerModal from "./CustomerModal";
 import NewOrderModal from "./NewOrderModal";
-import { replaceSuggestion } from "./CartContext/cartUtils";
+import { replaceSuggestion, createNewOrder, addItemToCart } from "./CartContext/cartUtils";
 
 function MenuCard({ item, isWaiterView }) {
   // Access cart-related functions and customer data from CartContext
-  const { suggestions, menuItems, tableNum, setTableNum, setCustomer, setSuggestions, setCart, cart, addItemToCart, customer, createNewOrder } = useContext(CartContext);
+  const { suggestions, menuItems, tableNum, setTableNum, setCustomer, setSuggestions, setCart, cart, customer } = useContext(CartContext);
   
   // state variables 
   const [message, setMessage] = useState(''); // snackbar message
