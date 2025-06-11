@@ -1,8 +1,12 @@
 import { useState, useContext, useEffect, useRef } from 'react';
-import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Snackbar, Alert } from '@mui/material';
 import { CartContext } from './CartContext';
 import PropTypes from "prop-types";
+import {validateInputs, validateEmail, validatePassword} from './CustomerModal/customerLoginUtils.jsx';
+import axios from 'axios';
+import InitialCustomerCreationModal from './CustomerModal/InitialCustomerCreationModal.jsx';
+import AccountCreationOptionModal from './CustomerModal/AccountCreationOptionModal.jsx';
+import AccountCreationModal from './CustomerModal/AccountCreationModal.jsx';
 
 const CustomerModal = ({ onClose }) => {
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
@@ -32,81 +36,17 @@ const CustomerModal = ({ onClose }) => {
         }
     }, []);
 
-    // function to validate inputs 
-    const validateInputs = () => {
-        // Trim inputs to remove leading/trailing whitespace
-        const trimmedName = name.trim();
-        const trimmedTableNum = tableNum.trim();
-
-        if (!trimmedName) {
-            setError('Name is required');
-            return false;
-        }
-        if (trimmedName.length < 3 || trimmedName.length > 20) {
-            setError('Name must be between 3 and 20 characters');
-            return false;
-        }
-
-        const nameRegex = /^[a-zA-Z\s-]+$/;
-        if (!nameRegex.test(trimmedName)) {
-            setError('Name can only contain letters, spaces, and hyphens');
-            return false;
-        }
-
-        if (!trimmedTableNum) {
-            setError('Table number is required');
-            return false;
-        }
-
-        // Check table number range (e.g., between 1 and 40)
-        const tableNumInt = parseInt(trimmedTableNum, 10);
-        if (isNaN(tableNumInt) || tableNumInt <= 0) {
-            setError('Table number must be between 1 and 40');
-            return false;
-        }
-
-        // Check table number range (e.g., between 1 and 40)
-        if (tableNumInt > 40) {
-            setError('Table number must be between 1 and 40');
-            return false;
-        }
-
-        // Clear any previous errors
-        setError('');
-        return true;
-    };
-
-    // validate emails 
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
-
-    // validate passwords 
-    const validatePassword = (pwd) => {
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-[\]{};':"\\|,.<>?]).{8,}$/;
-        return passwordRegex.test(pwd);
-    };
-
+    // initial customer creation (submit after the first item added)
     const handleSubmit = async () => {
-        // Validate inputs before submitting
-        if (!validateInputs()) {
+        // Validate inputs before submittingf
+        const errorMessage = validateInputs(name, tableNum);
+        if (errorMessage) {
+            setError(errorMessage);
             return;
         }
-
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/add?name=${encodeURIComponent(name.trim())}&tableNum=${tableNum.trim()}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to add customer');
-            }
-
-            const newCustomer = await response.json();
+            const response = await axios.post(`http://localhost:8080/api/customers/add?name=${encodeURIComponent(name.trim())}&tableNum=${tableNum.trim()}`);
+            const newCustomer = response.data;
             const customerWithOrderId = {
                 ...newCustomer,
                 orderId: newCustomer.orders[0].orderId
@@ -132,23 +72,10 @@ const CustomerModal = ({ onClose }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/createAccount?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-
-            if (!response.ok) {
-                if (response.status === 400) {
-                    setError('An account with this email already exists');
-                } else {
-                    throw new Error('Failed to create account');
-                }
-                return;
-            }
-
-            const updatedCustomer = await response.json();
+            const response = await axios.post(
+                `http://localhost:8080/api/customers/${customer.customerId}/createAccount?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+            );
+            const updatedCustomer = response.data;
             const customerWithOrderId = {
                 ...updatedCustomer,
                 orderId: customer.orderId,
@@ -157,8 +84,11 @@ const CustomerModal = ({ onClose }) => {
             setCustomer(customerWithOrderId);
             setShowEmailPassword(false);
         } catch (error) {
-            console.error('Error creating account:', error);
-            setError('Failed to create account. Please try again.');
+            if (error.response && error.response.status === 400) {
+                setError('An account with this email already exists');
+            } else {
+                setError('Failed to create account. Please try again.');
+            }
         }
     };
 
@@ -175,258 +105,40 @@ const CustomerModal = ({ onClose }) => {
 
     return (
         <>
-            <Modal open={open} onClose={handleClose}>
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'rgba(60, 58, 58, 0.93)',
-                    color: 'white',
-                    boxShadow: 24,
-                    p: 4,
-                    borderRadius: 2,
-                    '&:focus-visible': {
-                        outline: '2px solid rgba(60, 58, 58, 0.93)',
-                    }
-                }}>
-                    <IconButton
-                        onClick={handleClose}
-                        sx={{
-                            position: 'absolute',
-                            top: 8,
-                            right: 8,
-                            color: 'lightgray',
-                        }}
-                    >
-                        <CloseIcon />
-                    </IconButton>
-                    <Typography variant="h6" component="h2" sx={{ color: 'white' }}>
-                        Enter Your Details
-                    </Typography>
-                    {/* Name Input */}
-                    <TextField
-                        label="Name"
-                        fullWidth
-                        margin="normal"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        inputRef={nameInputRef}
-                        error={!!error && error.includes('Name')}
-                        helperText={error && error.includes('Name') ? error : ''}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': {
-                                    borderColor: 'white',
-                                },
-                                '&:hover fieldset': {
-                                    borderColor: 'white',
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: 'white',
-                                },
-                            },
-                            '& .MuiInputLabel-root': {
-                                color: 'white',
-                            },
-                            '& .MuiInputLabel-root.Mui-focused': {
-                                color: 'white',
-                            },
-                            '& .MuiInputBase-input': {
-                                color: 'white',
-                            },
-                        }}
-                    />
-                    {/* Table number input */}
-                    <TextField
-                        label="Table Number"
-                        fullWidth
-                        margin="normal"
-                        value={tableNum}
-                        onChange={(e) => setTableNumState(e.target.value)}
-                        error={!!error && error.includes('Table number')}
-                        helperText={error && error.includes('Table number') ? error : ''}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': {
-                                    borderColor: 'white',
-                                },
-                                '&:hover fieldset': {
-                                    borderColor: 'white',
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: 'white',
-                                },
-                            },
-                            '& .MuiInputLabel-root': {
-                                color: 'white',
-                            },
-                            '& .MuiInputLabel-root.Mui-focused': {
-                                color: 'white',
-                            },
-                            '& .MuiInputBase-input': {
-                                color: 'white',
-                            },
-                        }}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleSubmit}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            Submit
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
+            {/* Initial Customer Creation Modal */}
+            <InitialCustomerCreationModal 
+                handleClose={handleClose}
+                name={name}
+                open={open}
+                setName={setName}
+                nameInputRef={nameInputRef}
+                error={error}
+                tableNum={tableNum}
+                handleSubmit={handleSubmit}
+                setTableNumState={setTableNumState}
+            />
 
             {/* Account creation prompt modal */}
-            <Modal 
-                open={showAccountPrompt} 
-                onClose={() => {}}
-                disableEscapeKeyDown
-            >
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'rgba(60, 58, 58, 0.93)',
-                    color: 'white',
-                    boxShadow: 24,
-                    p: 4,
-                    borderRadius: 2,
-                }}>
-                    <Typography variant="h6" component="h2" sx={{ color: 'white', mb: 2 }}>
-                        Would you like to create an account?
-                    </Typography>
-                    <Typography sx={{ color: 'white', mb: 3 }}>
-                        You can track your orders in real-time and view your order history at Oaxaca.
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                setShowAccountPrompt(false);
-                                setShowEmailPassword(true);
-                            }}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            Yes
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => {
-                                setShowAccountPrompt(false);
-                                setCustomer({
-                                    ...customer,
-                                    tableNum: parseInt(tableNum.trim(), 10)
-                                });
-                            }}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            No
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
+            <AccountCreationOptionModal
+                showAccountPrompt={showAccountPrompt}
+                setShowAccountPrompt={setShowAccountPrompt} 
+                setShowEmailPassword={setShowEmailPassword}
+                customer={customer}
+                setCustomer={setCustomer}
+                tableNum={tableNum}
+            />
     
             {/* Email/password modal for account creation */}
-            <Modal open={showEmailPassword} onClose={() => setShowEmailPassword(false)}>
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'rgba(60, 58, 58, 0.93)',
-                    color: 'white',
-                    boxShadow: 24,
-                    p: 4,
-                    borderRadius: 2,
-                }}>
-                    <Typography variant="h6" component="h2" sx={{ color: 'white', mb: 2 }}>
-                        Create Your Account
-                    </Typography>
-                    <TextField
-                        label="Email"
-                        fullWidth
-                        margin="normal"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={!!error && error.includes('email')}
-                        helperText={error && error.includes('email') ? error : ''}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: 'white' },
-                                '&:hover fieldset': { borderColor: 'white' },
-                                '&.Mui-focused fieldset': { borderColor: 'white' },
-                            },
-                            '& .MuiInputLabel-root': { color: 'white' },
-                            '& .MuiInputBase-input': { color: 'white' },
-                        }}
-                    />
-                    <TextField
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        margin="normal"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        error={!!error && error.includes('Password')}
-                        helperText={error && error.includes('Password') ? error : ''}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: 'white' },
-                                '&:hover fieldset': { borderColor: 'white' },
-                                '&.Mui-focused fieldset': { borderColor: 'white' },
-                            },
-                            '& .MuiInputLabel-root': { color: 'white' },
-                            '& .MuiInputBase-input': { color: 'white' },
-                        }}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleAccountCreation}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            Create Account
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
+            <AccountCreationModal
+                showEmailPassword={showEmailPassword}
+                setShowEmailPassword={setShowEmailPassword}
+                setEmail={setEmail}
+                error={error}
+                setPassword={setPassword}
+                handleAccountCreation={handleAccountCreation}
+                email={email}
+                password={password}
+            />
 
             {/* Error Snackbar */}
             <Snackbar
