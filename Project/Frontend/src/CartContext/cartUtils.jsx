@@ -261,3 +261,57 @@ export const submitOrder = async (customer, cart, ws, tableNum) => {
             return { success: false, message: `Error submitting order: ${err.message}` };
         }
     };
+
+
+// create multiple orders 
+export const createNewOrder = async (customer, tableNum) => {
+        if (!customer || !customer.customerId) {
+            throw new Error("Customer is not logged in or customer ID is missing.");
+        }
+
+        const currentTableNum = localStorage.getItem('tableNum') || tableNum;
+        if (!currentTableNum) {
+            throw new Error("Table number is required to create a new order");
+        }
+
+        // Only check current order if orderId is not 0
+        let orderData;
+        if (customer.orderId !== 0) {
+            try{
+                const currentOrder = await axios.get(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`);
+                orderData = currentOrder.data;
+            } catch (error){
+                console.log('Failed to fetch current order ' + error);
+            }
+
+            if (orderData.orderStatus === 'CREATED' && (!orderData.orderMenuItems || orderData.orderMenuItems.length === 0)) {
+                return { success: false, message: 'Cannot create a new order while current cart is empty' };
+            }
+        }
+
+
+        try {
+            const newOrderData = await getNewTable(customer, currentTableNum);
+            const storedCustomer = JSON.parse(localStorage.getItem('customer') || '{}');
+            localStorage.setItem('customer', JSON.stringify({
+                ...storedCustomer,
+                orderId: newOrderData.orderId
+            }));
+
+            return { success: true, message: 'New order created successfully!', orderId: newOrderData.orderId };
+        } catch (err) {
+            console.error('Error creating new order:', err.message);
+            return { success: false, message: `Error creating new order: ${err.message}` };
+        }
+    };
+  
+
+export const getNewTable = async(customer, currentTableNum) => {
+    try{
+        const response = await axios.post(`http://localhost:8080/api/customers/${customer.customerId}/newOrder?tableNum=${currentTableNum}`);
+        return response.data;
+    }
+    catch(error) {
+        console.error('Failed to fetch new table ' + error);
+    }
+}
