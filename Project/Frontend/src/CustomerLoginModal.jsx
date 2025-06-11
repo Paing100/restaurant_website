@@ -2,7 +2,7 @@ import { useState, useContext } from 'react';
 import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
-import { CartContext } from './CartContext';
+import { CartContext } from './CartContext/CartContextContext.jsx';
 import PropTypes from 'prop-types';
 
 // component for customer login modal 
