@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper, Button, IconButton } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -43,11 +43,11 @@ const AllOrders = () => {
     }, [customer]);
 
     // set up websocket connection to listen for order updates 
-    const handleMessage = useCallback((event) =>{
+    const handleMessage = useCallback(() =>{
         fetchOrders();
     }, [fetchOrders]);
 
-    const ws = useWebSocket(handleMessage);
+    useWebSocket(handleMessage);
 
     // Format the order time into a readable string 
     const formatTime = (orderPlaced) => {
