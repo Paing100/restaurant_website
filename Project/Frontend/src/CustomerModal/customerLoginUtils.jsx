@@ -1,4 +1,3 @@
-import axios from 'axios';
 
 // function to validate inputs when adding the first item to cart
 export const validateInputs = (name, tableNum) => {
