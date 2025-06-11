@@ -3,6 +3,8 @@ import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert 
 import CloseIcon from '@mui/icons-material/Close';
 import { CartContext } from './CartContext';
 import PropTypes from "prop-types";
+import axios from 'axios';
+import {validateInputs} from './CustomerModal/customerLoginUtils.jsx';
 
 const CustomerModal = ({ onClose }) => {
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
@@ -32,50 +34,6 @@ const CustomerModal = ({ onClose }) => {
         }
     }, []);
 
-    // function to validate inputs 
-    const validateInputs = () => {
-        // Trim inputs to remove leading/trailing whitespace
-        const trimmedName = name.trim();
-        const trimmedTableNum = tableNum.trim();
-
-        if (!trimmedName) {
-            setError('Name is required');
-            return false;
-        }
-        if (trimmedName.length < 3 || trimmedName.length > 20) {
-            setError('Name must be between 3 and 20 characters');
-            return false;
-        }
-
-        const nameRegex = /^[a-zA-Z\s-]+$/;
-        if (!nameRegex.test(trimmedName)) {
-            setError('Name can only contain letters, spaces, and hyphens');
-            return false;
-        }
-
-        if (!trimmedTableNum) {
-            setError('Table number is required');
-            return false;
-        }
-
-        // Check table number range (e.g., between 1 and 40)
-        const tableNumInt = parseInt(trimmedTableNum, 10);
-        if (isNaN(tableNumInt) || tableNumInt <= 0) {
-            setError('Table number must be between 1 and 40');
-            return false;
-        }
-
-        // Check table number range (e.g., between 1 and 40)
-        if (tableNumInt > 40) {
-            setError('Table number must be between 1 and 40');
-            return false;
-        }
-
-        // Clear any previous errors
-        setError('');
-        return true;
-    };
-
     // validate emails 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,9 +46,10 @@ const CustomerModal = ({ onClose }) => {
         return passwordRegex.test(pwd);
     };
 
+    // initial customer creation (submit after the first item added)
     const handleSubmit = async () => {
         // Validate inputs before submitting
-        if (!validateInputs()) {
+        if (!validateInputs(name, tableNum)) {
             return;
         }
 
