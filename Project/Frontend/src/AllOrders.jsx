@@ -4,6 +4,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext/CartContextContext.jsx';
+import useWebSocket from './useWebSocket.jsx';
 
 const AllOrders = () => {
     // State to store orders and the currently expanded order ID
@@ -12,9 +13,6 @@ const AllOrders = () => {
 
     // Access customer data from CartContext
     const { customer } = useContext(CartContext);
-
-    // WebSocket reference 
-    const ws = useRef(null);
 
     // Function to fetch orders for current customer using its unique ID 
     const fetchOrders = async () => {
@@ -45,31 +43,11 @@ const AllOrders = () => {
     }, [customer]);
 
     // set up websocket connection to listen for order updates 
-    useEffect(() => {
-        if (!ws.current) {
-            ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
+    const handleMessage = useCallback((event) =>{
+        fetchOrders();
+    }, [fetchOrders]);
 
-            ws.current.onopen = () => {
-                console.log('WebSocket connected');
-            };
-
-            ws.current.onclose = () => {
-                console.log('WebSocket closed. Attempting to reconnect...');
-            };
-
-            ws.current.onmessage = (event) => {
-                console.log("EVENT IN CUSTOMER: " + event.data);
-                fetchOrders(); // refresh orders when a websocket message is received
-            }
-        }
-        return () => {
-            // Cleanup WebSocket connection on component unmount
-            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-                console.log("Closing WebSocket on cleanup");
-                ws.current.close();
-            }
-        };
-    }, []);
+    const ws = useWebSocket(handleMessage);
 
     // Format the order time into a readable string 
     const formatTime = (orderPlaced) => {
