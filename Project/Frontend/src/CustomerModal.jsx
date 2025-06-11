@@ -1,10 +1,12 @@
 import { useState, useContext, useEffect, useRef } from 'react';
-import { Modal, Box, TextField, Button, Typography, Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert } from '@mui/material';
 import { CartContext } from './CartContext';
 import PropTypes from "prop-types";
 import {validateInputs, validateEmail, validatePassword} from './CustomerModal/customerLoginUtils.jsx';
 import axios from 'axios';
 import InitialCustomerCreationModal from './CustomerModal/InitialCustomerCreationModal.jsx';
+import AccountCreationOptionModal from './CustomerModal/AccountCreationOptionModal.jsx';
+import AccountCreationModal from './CustomerModal/AccountCreationModal.jsx';
 
 const CustomerModal = ({ onClose }) => {
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
@@ -117,143 +119,26 @@ const CustomerModal = ({ onClose }) => {
             />
 
             {/* Account creation prompt modal */}
-            <Modal 
-                open={showAccountPrompt} 
-                onClose={() => {}}
-                disableEscapeKeyDown
-            >
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'rgba(60, 58, 58, 0.93)',
-                    color: 'white',
-                    boxShadow: 24,
-                    p: 4,
-                    borderRadius: 2,
-                }}>
-                    <Typography variant="h6" component="h2" sx={{ color: 'white', mb: 2 }}>
-                        Would you like to create an account?
-                    </Typography>
-                    <Typography sx={{ color: 'white', mb: 3 }}>
-                        You can track your orders in real-time and view your order history at Oaxaca.
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => {
-                                setShowAccountPrompt(false);
-                                setShowEmailPassword(true);
-                            }}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            Yes
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="secondary"
-                            onClick={() => {
-                                setShowAccountPrompt(false);
-                                setCustomer({
-                                    ...customer,
-                                    tableNum: parseInt(tableNum.trim(), 10)
-                                });
-                            }}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            No
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
+            <AccountCreationOptionModal
+                showAccountPrompt={showAccountPrompt}
+                setShowAccountPrompt={setShowAccountPrompt} 
+                setShowEmailPassword={setShowEmailPassword}
+                customer={customer}
+                setCustomer={setCustomer}
+                tableNum={tableNum}
+            />
     
             {/* Email/password modal for account creation */}
-            <Modal open={showEmailPassword} onClose={() => setShowEmailPassword(false)}>
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'rgba(60, 58, 58, 0.93)',
-                    color: 'white',
-                    boxShadow: 24,
-                    p: 4,
-                    borderRadius: 2,
-                }}>
-                    <Typography variant="h6" component="h2" sx={{ color: 'white', mb: 2 }}>
-                        Create Your Account
-                    </Typography>
-                    <TextField
-                        label="Email"
-                        fullWidth
-                        margin="normal"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={!!error && error.includes('email')}
-                        helperText={error && error.includes('email') ? error : ''}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: 'white' },
-                                '&:hover fieldset': { borderColor: 'white' },
-                                '&.Mui-focused fieldset': { borderColor: 'white' },
-                            },
-                            '& .MuiInputLabel-root': { color: 'white' },
-                            '& .MuiInputBase-input': { color: 'white' },
-                        }}
-                    />
-                    <TextField
-                        label="Password"
-                        type="password"
-                        fullWidth
-                        margin="normal"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        error={!!error && error.includes('Password')}
-                        helperText={error && error.includes('Password') ? error : ''}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: 'white' },
-                                '&:hover fieldset': { borderColor: 'white' },
-                                '&.Mui-focused fieldset': { borderColor: 'white' },
-                            },
-                            '& .MuiInputLabel-root': { color: 'white' },
-                            '& .MuiInputBase-input': { color: 'white' },
-                        }}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleAccountCreation}
-                            sx={{
-                                backgroundColor: '#333',
-                                color: 'white',
-                                '&:hover': {
-                                    backgroundColor: '#666',
-                                },
-                            }}
-                        >
-                            Create Account
-                        </Button>
-                    </Box>
-                </Box>
-            </Modal>
+            <AccountCreationModal
+                showEmailPassword={showEmailPassword}
+                setShowEmailPassword={setShowEmailPassword}
+                setEmail={setEmail}
+                error={error}
+                setPassword={setPassword}
+                handleAccountCreation={handleAccountCreation}
+                email={email}
+                password={password}
+            />
 
             {/* Error Snackbar */}
             <Snackbar
