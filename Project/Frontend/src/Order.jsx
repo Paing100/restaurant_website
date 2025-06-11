@@ -10,7 +10,7 @@ import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
 import MenuCard from './MenuCard';
 import { Link } from 'react-router-dom';
-import { addItemToCart, replaceSuggestion, clearCart, removeItemFromCart, submitOrder } from './CartContext/cartUtils';
+import { addItemToCart, replaceSuggestion, clearCart, removeItemFromCart, submitOrder, createNewOrder } from './CartContext/cartUtils';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -163,7 +163,7 @@ OrderInfoPopup.propTypes = {
 
 function Order() {
     // Context and state variables
-    const { cart, fetchCart, menuItems, customer, createNewOrder, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
+    const { cart, fetchCart, menuItems, customer, tableNum, setCart, setCustomer, setTableNum, suggestions, setSuggestions } = useContext(CartContext);
     const [message, setMessage] = useState(''); // snackbar message
     const [severity, setSeverity] = useState('success'); // snackbar severity
     const [showOrderInfo, setShowOrderInfo] = useState(() => { // Controls order info popup visibility
@@ -519,8 +519,14 @@ function Order() {
 
     // Function to handle confirming a new order
     const handleNewOrderConfirm = async () => {
-        const result = await createNewOrder();
+        const result = await createNewOrder(customer, tableNum);
         if (result.success) {
+            setCart({ orderedItems: {} }); // Clear the cart for the new order
+            setCustomer(prevCustomer => ({
+                    ...prevCustomer,
+                    orderId: result.orderId
+            }));
+            setTableNum(tableNum);
             setMessage(result.message);
             setSeverity('success');
             setNewOrderModalOpen(false);

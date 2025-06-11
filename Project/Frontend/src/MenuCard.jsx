@@ -9,7 +9,7 @@ import { replaceSuggestion } from "./CartContext/cartUtils";
 
 function MenuCard({ item, isWaiterView }) {
   // Access cart-related functions and customer data from CartContext
-  const { suggestions, menuItems, setSuggestions, setCart, cart, addItemToCart, customer, createNewOrder } = useContext(CartContext);
+  const { suggestions, menuItems, tableNum, setTableNum, setCustomer, setSuggestions, setCart, cart, addItemToCart, customer, createNewOrder } = useContext(CartContext);
   
   // state variables 
   const [message, setMessage] = useState(''); // snackbar message
@@ -203,8 +203,14 @@ function MenuCard({ item, isWaiterView }) {
           }}
           onConfirm={async () => {
             try {
-              const result = await createNewOrder();
+              const result = await createNewOrder(customer, tableNum);
               if (result.success) {
+                setCart({ orderedItems: {} }); // Clear the cart for the new order
+                setCustomer(prevCustomer => ({
+                    ...prevCustomer,
+                    orderId: result.orderId
+                }));
+                setTableNum(tableNum);
                 setPendingAdd(true);
               } else {
                 setMessage("Error creating new order");
