@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect, useRef } from 'react';
 import { Snackbar, Alert } from '@mui/material';
-import { CartContext } from './CartContext';
+import { CartContext } from './CartContext/CartContextContext.jsx';
 import PropTypes from "prop-types";
 import {validateInputs, validateEmail, validatePassword} from './CustomerModal/customerLoginUtils.jsx';
 import axios from 'axios';

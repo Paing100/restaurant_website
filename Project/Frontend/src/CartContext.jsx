@@ -1,9 +1,7 @@
-import { createContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from "prop-types"
 import {fetchCart, fetchMenuItems, getRandomSuggestions} from "./CartContext/cartUtils.jsx";
-
-// Create a context for the cart 
-export const CartContext = createContext();
+import { CartContext } from './CartContext/CartContextContext.jsx'; // Importing CartContext from CartContext folder
 
 // CartProvider component to manage global cart state
 export const CartProvider = ({ children }) => {
@@ -60,7 +58,7 @@ export const CartProvider = ({ children }) => {
             const suggestions = getRandomSuggestions(cart, menuItems);
             setSuggestions(suggestions);
         }
-    }, [menuItems]);
+    }, [menuItems, cart, suggestions.length]);
 
     useEffect(() => {
         if (customer) fetchCart(customer).then(setCart);

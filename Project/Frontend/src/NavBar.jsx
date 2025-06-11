@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from "react";
 import { Toolbar, AppBar, Stack, Button, Typography, Menu, MenuItem } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { CartContext } from "./CartContext";
+import { CartContext } from './CartContext/CartContextContext.jsx';
 import CustomerModal from "./CustomerModal";
 import CustomerLoginModal from "./CustomerLoginModal";
 

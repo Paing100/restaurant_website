@@ -1,7 +1,7 @@
 import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField, Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
 import { useContext, useState, useEffect } from "react";
-import { CartContext } from "./CartContext";
+import { CartContext } from './CartContext/CartContextContext.jsx';
 import { Link } from "react-router-dom";
 import CustomerModal from "./CustomerModal";
 import NewOrderModal from "./NewOrderModal";
