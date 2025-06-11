@@ -3,8 +3,8 @@ import { Modal, Box, TextField, Button, Typography, IconButton, Snackbar, Alert 
 import CloseIcon from '@mui/icons-material/Close';
 import { CartContext } from './CartContext';
 import PropTypes from "prop-types";
+import {validateInputs, validateEmail, validatePassword} from './CustomerModal/customerLoginUtils.jsx';
 import axios from 'axios';
-import {validateInputs} from './CustomerModal/customerLoginUtils.jsx';
 
 const CustomerModal = ({ onClose }) => {
     const { setCustomer, setTableNum, customer } = useContext(CartContext);
@@ -34,38 +34,18 @@ const CustomerModal = ({ onClose }) => {
         }
     }, []);
 
-    // validate emails 
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
-
-    // validate passwords 
-    const validatePassword = (pwd) => {
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-[\]{};':"\\|,.<>?]).{8,}$/;
-        return passwordRegex.test(pwd);
-    };
-
     // initial customer creation (submit after the first item added)
     const handleSubmit = async () => {
-        // Validate inputs before submitting
-        if (!validateInputs(name, tableNum)) {
+        // Validate inputs before submittingf
+        const errorMessage = validateInputs(name, tableNum);
+        if (errorMessage) {
+            setError(errorMessage);
             return;
         }
-
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/add?name=${encodeURIComponent(name.trim())}&tableNum=${tableNum.trim()}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to add customer');
-            }
-
-            const newCustomer = await response.json();
+            const response = await axios.post
+                (`http://localhost:8080/api/customers/add?name=${encodeURIComponent(name.trim())}&tableNum=${tableNum.trim()}`);
+            const newCustomer = response.data;
             const customerWithOrderId = {
                 ...newCustomer,
                 orderId: newCustomer.orders[0].orderId
@@ -91,23 +71,10 @@ const CustomerModal = ({ onClose }) => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/createAccount?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json'
-                },
-            });
-
-            if (!response.ok) {
-                if (response.status === 400) {
-                    setError('An account with this email already exists');
-                } else {
-                    throw new Error('Failed to create account');
-                }
-                return;
-            }
-
-            const updatedCustomer = await response.json();
+            const response = await axios.post(
+                `http://localhost:8080/api/customers/${customer.customerId}/createAccount?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+            );
+            const updatedCustomer = response.data;
             const customerWithOrderId = {
                 ...updatedCustomer,
                 orderId: customer.orderId,
@@ -116,8 +83,11 @@ const CustomerModal = ({ onClose }) => {
             setCustomer(customerWithOrderId);
             setShowEmailPassword(false);
         } catch (error) {
-            console.error('Error creating account:', error);
-            setError('Failed to create account. Please try again.');
+            if (error.response && error.response.status === 400) {
+                setError('An account with this email already exists');
+            } else {
+                setError('Failed to create account. Please try again.');
+            }
         }
     };
 

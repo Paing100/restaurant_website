@@ -1,4 +1,4 @@
-
+import axios from 'axios';
 
 // function to validate inputs when adding the first item to cart
 export const validateInputs = (name, tableNum) => {
@@ -7,37 +7,46 @@ export const validateInputs = (name, tableNum) => {
         const trimmedTableNum = tableNum.trim();
 
         if (!trimmedName) {
-            console.error('Name is required');
-            return false;
+            return 'Name is required';
         }
         if (trimmedName.length < 3 || trimmedName.length > 20) {
-            console.error('Name must be between 3 and 20 characters');
-            return false;
+            return 'Name must be between 3 and 20 characters';
         }
 
         const nameRegex = /^[a-zA-Z\s-]+$/;
         if (!nameRegex.test(trimmedName)) {
-            console.error('Name can only contain letters, spaces, and hyphens');
-            return false;
+            return 'Name can only contain letters, spaces, and hyphens';
         }
 
         if (!trimmedTableNum) {
-            console.error('Table number is required');
-            return false;
+            return 'Table number is required';
         }
 
         // Check table number range (e.g., between 1 and 40)
         const tableNumInt = parseInt(trimmedTableNum, 10);
         if (isNaN(tableNumInt) || tableNumInt <= 0) {
-            console.error('Table number must be between 1 and 40');
-            return false;
+            return 'Table number must be between 1 and 40';
         }
 
         // Check table number range (e.g., between 1 and 40)
         if (tableNumInt > 40) {
-            console.error('Table number must be between 1 and 40');
-            return false;
+            return 'Table number must be between 1 and 40';
         }
 
-        return true;
+        return null;
     };
+
+
+// validate emails 
+export const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }; 
+
+
+// validate passwords 
+export const validatePassword = (pwd) => {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-[\]{};':"\\|,.<>?]).{8,}$/;
+        return passwordRegex.test(pwd);
+    };
+
