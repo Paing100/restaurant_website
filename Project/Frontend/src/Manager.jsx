@@ -17,11 +17,7 @@ function Manager() {
   const [endOfDayOpen, setEndOfDayOpen] = useState(false); // controls the visibility of the end-of-day modal 
   const [totalSales, setTotalSales] = useState(0); // stores the total sales 
 
-  // fetch outstanding orders and stock data when the component mounts 
-  useEffect(() => {
-    fetchOutstandingOrders();
-    fetchStock();
-  }, [fetchOutstandingOrders, fetchStock]);
+
 
   // Fetch outstanding orders from the server
   const fetchOutstandingOrders = useCallback(async () => {
@@ -44,10 +40,6 @@ function Manager() {
       }
     }, []);
 
-  // Establish WebSocket connection 
-  useWebSocket(fetchOutstandingOrders);
-
-
   // Fetch stock data from the server
   const fetchStock = useCallback(async () => {
     try {
@@ -59,6 +51,15 @@ function Manager() {
       setError(err.message);
     }
   },[]);
+
+    // fetch outstanding orders and stock data when the component mounts 
+  useEffect(() => {
+    fetchOutstandingOrders();
+    fetchStock();
+  }, [fetchOutstandingOrders, fetchStock]);
+  
+  // Establish WebSocket connection 
+  useWebSocket(fetchOutstandingOrders);
 
   // Handle the end-of-day button click
   const handleEndOfDayButton = async () => {
