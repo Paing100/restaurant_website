@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Typography, List, Box, Snackbar, Alert } from "@mui/material";
 import Orders from "./Orders";
 import notiSound from './assets/sound/Noti.mp3';
 import { useWithSound } from './useWithSound';
+import useWebSocket from "./useWebSocket";
 
 function KitchenStaff() {
   // retrieve the username from session storage 
@@ -10,30 +11,20 @@ function KitchenStaff() {
 
   // State variables  
   const [orders, setOrders] = useState([]); // stores the list of pending orders 
-  const ws = useRef(null); // websocket reference 
   const [notification, setNotification] = useState(""); // store notification messages 
   const [open, setOpen] = useState(false); // controls the visibility of the snackbar 
 
   // custom hook to play notification sound 
   const { playSound } = useWithSound(notiSound);
 
+
   // function to play the sound 
   const handleNotiSound = () => {
     playSound();
   }
-  
-  // useEffect to establish websocket when the component is loaded 
-  useEffect(() => {
-    if (!ws.current) {
-      ws.current = new WebSocket("ws://localhost:8080/ws/notifications");
 
-      ws.current.onopen = () => console.log("WebSocket connected");
-
-      ws.current.onclose = () => console.log("WebSocket closed");
-
-      // handle incoming WebSocket messages 
-      ws.current.onmessage = (event) => {
-        try {
+  const handleOnMessage = (event) => {
+    try {
           const message = JSON.parse(event.data);
           // check if the message is for the kitchen and type is "CONFIRMED"
           if (message.recipient === "kitchen" && message.type === "CONFIRMED") {
@@ -45,18 +36,7 @@ function KitchenStaff() {
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
         }
-      };
-    }
-
-    fetchOrders();
-
-    // Cleanup WebSocket connection on component unmount
-    return () => {
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.close();
-      }
-    };
-  }, []);
+  }
 
   // function to fetch orders from server 
   const fetchOrders = async () => {
@@ -76,6 +56,12 @@ function KitchenStaff() {
       console.error("Error fetching orders:", error);
     }
   };  
+
+  useEffect(()=>{
+    fetchOrders();
+  },[]);
+
+  const ws = useWebSocket(handleOnMessage);
 
   // function to change the order status to "READY"
   const markAsReady = async (orderId) => {
