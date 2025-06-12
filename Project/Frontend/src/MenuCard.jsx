@@ -21,7 +21,7 @@ function MenuCard({ item, isWaiterView }) {
   const [openSnackbar, setOpenSnackbar] = useState(false); // controls the visibility of the snackbar 
   const [showNewOrderModal, setShowNewOrderModal] = useState(false); // controls the visibility of the new order modal 
 
-  // Watch for customer changes to complete pending add
+  // useEffect hook to handle adding an item to cart
   useEffect(() => {
     if (customer && pendingAdd && !showNewOrderModal) {
       addItemToCart(customer, item.itemId, quantity, cart).then(setCart); // add item to cart
@@ -30,7 +30,7 @@ function MenuCard({ item, isWaiterView }) {
       setSeverity('success'); // set serverity for snackbar
       setOpenSnackbar(true); // show snackbar 
     }
-  }, [customer, pendingAdd, item.itemId, quantity, addItemToCart, showNewOrderModal]);
+  }, [customer, pendingAdd, item.itemId, quantity, showNewOrderModal, cart, setCart]);
 
   // handle adding an item to cart 
   const handleAddToCart = async () => {
@@ -52,7 +52,7 @@ function MenuCard({ item, isWaiterView }) {
       const isOrderSubmitted = orderData.orderStatus === 'SUBMITTED';
 
       if (isOrderSubmitted) {
-        // Show the new order confirmation modal
+        // Show the new order confirmation modal 
         setShowNewOrderModal(true);
         setPendingAdd(true);
         return;
