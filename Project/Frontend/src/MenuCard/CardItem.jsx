@@ -1,5 +1,6 @@
 import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 function CardItem ({item, isWaiterView, setQuantity, handleAddToCart, quantity}) {
   return (
@@ -93,5 +94,22 @@ function CardItem ({item, isWaiterView, setQuantity, handleAddToCart, quantity})
       </Card>
   );
 }
-
+CardItem.propTypes = {
+  item: PropTypes.shape({
+    itemId: PropTypes.number.isRequired,
+    imagePath: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    calories: PropTypes.number.isRequired,
+    allergens: PropTypes.arrayOf(PropTypes.string).isRequired,
+    dietaryRestrictions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    available: PropTypes.bool.isRequired,
+  }).isRequired,
+  isWaiterView: PropTypes.bool.isRequired,
+  setQuantity: PropTypes.func.isRequired,
+  handleAddToCart: PropTypes.func.isRequired,
+  quantity: PropTypes.number.isRequired
+};
 export default CardItem; 
+
