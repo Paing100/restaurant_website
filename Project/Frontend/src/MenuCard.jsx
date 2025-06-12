@@ -1,11 +1,11 @@
-import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField, Snackbar, Alert } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
 import { useContext, useState, useEffect } from "react";
 import { CartContext } from './CartContext/CartContextContext.jsx';
-import { Link } from "react-router-dom";
 import CustomerModal from "./CustomerModal";
 import NewOrderModal from "./NewOrderModal";
 import { replaceSuggestion, createNewOrder, addItemToCart } from "./CartContext/cartUtils";
+import CardItem from "./MenuCard/CardItem.jsx"; 
 
 function MenuCard({ item, isWaiterView }) {
   // Access cart-related functions and customer data from CartContext
@@ -84,124 +84,7 @@ function MenuCard({ item, isWaiterView }) {
     }
   };
 
-
-  // handle closing the customer modal 
-  const handleModalClose = () => {
-    setShowModal(false);
-    if (!customer) { setPendingAdd(false); }
-  };
-
-  // handle closing the snackbar 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setOpenSnackbar(false);
-  };
-
-  return (
-    <>
-    {/* Card for displaying menu item details */}
-    <Card sx={{ height: '100%', backgroundColor: '#3c3a3a', color: 'white' }}>
-      <CardActionArea sx={{ height: '100%' }}>
-        {/* Display the item's image */}
-        <CardMedia
-          component="img"
-          height="200"
-          image={item.imagePath}
-          alt={item.name}
-        />
-        {/* Overlay for unavailable items */}
-        {!item.available && (
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(0, 0, 0, 0.6)', // Transparent overlay
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-            }}
-          >
-            Unavailable
-          </Box>
-        )}
-        {/* Card content */}
-        <CardContent sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: 'calc(100% - 200px)' }}>
-          <Box>
-            {/* Item details */}
-            <Typography variant="h6" sx={{ color: 'white' }}>{item.name}</Typography>
-            <Typography variant="body2" sx={{ color: 'lightgray' }}>
-              {item.description}
-            </Typography>
-            <Typography variant="subtitle1" sx={{ marginTop: 1, color: 'white' }}>
-              Price: {item.price}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'lightgray' }}>
-              Calories: {item.calories} kcal
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'lightgray' }}>
-              Allergies: {item.allergens.join(", ")}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'lightgray' }}>
-              Dietary Restrictions: {item.dietaryRestrictions.join(", ")}
-            </Typography>
-            </Box>
-          {/* Add to cart button for customers */}
-          {
-            !isWaiterView && item.available && (
-              <Box sx={{ display: 'flex', alignItems: 'center', marginTop: 2 }}>
-                <TextField
-                  type="number"
-                  label="Quantity"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  sx={{
-                    width: 100,
-                    marginRight: 2,
-                    "& .MuiInputBase-input": { color: "white" },
-                    "& .MuiInputLabel-root": { color: "white" },
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "white" },
-                      "&:hover fieldset": { borderColor: "white" },
-                      "&.Mui-focused fieldset": { borderColor: "white" },
-                    },
-                  }}
-                  InputProps={{ inputProps: { min: 1 } }}
-                />
-                <Button variant="contained" sx={{ backgroundColor: "#333", color: "white", "&:hover": { backgroundColor: "darkgray" } }} onClick={handleAddToCart}>
-                  Add to Cart
-                </Button>
-              </Box>
-            )}
-            {/* Edit button for waiters */}
-            {isWaiterView && (
-              <Link to={`/waiter_edit_menu/${item.itemId}`}>
-                <Button>Edit</Button>
-              </Link>
-            )}
-          </CardContent>
-        </CardActionArea>
-      </Card>
-      
-      {/* Customer modal */}
-      {showModal && <CustomerModal onClose={handleModalClose} />}
-      {/* New order modal */}
-      {showNewOrderModal && (
-        <NewOrderModal
-          open={showNewOrderModal}
-          onClose={() => {
-            setShowNewOrderModal(false);
-            setPendingAdd(false);
-          }}
-          onConfirm={async () => {
+  const handleOnConfirm = async () => {
             try {
               const result = await createNewOrder(customer, tableNum);
               if (result.success) {
@@ -226,7 +109,45 @@ function MenuCard({ item, isWaiterView }) {
               setShowNewOrderModal(false);
               setPendingAdd(false);
             }
+          };
+
+
+  // handle closing the customer modal 
+  const handleModalClose = () => {
+    setShowModal(false);
+    if (!customer) { setPendingAdd(false); }
+  };
+
+  // handle closing the snackbar 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
+  return (
+    <>
+    {/* Card for displaying menu item details */}
+    <CardItem
+      item={item}
+      isWaiterView={isWaiterView}
+      setQuantity={setQuantity}     
+      handleAddToCart={handleAddToCart}
+      quantity={quantity}
+    />
+      
+      {/* Customer modal */}
+      {showModal && <CustomerModal onClose={handleModalClose} />}
+      {/* New order modal */}
+      {showNewOrderModal && (
+        <NewOrderModal
+          open={showNewOrderModal}
+          onClose={() => {
+            setShowNewOrderModal(false);
+            setPendingAdd(false);
           }}
+          onConfirm={handleOnConfirm}
           title="Create New Order?"
           content="Would you like to create a new order to add more items?"
           confirmButtonText="Yes, Create New Order"
