@@ -6,6 +6,7 @@ import CustomerModal from "./CustomerModal";
 import NewOrderModal from "./NewOrderModal";
 import { replaceSuggestion, createNewOrder, addItemToCart } from "./CartContext/cartUtils";
 import CardItem from "./MenuCard/CardItem.jsx"; 
+import axios from "axios";
 
 function MenuCard({ item, isWaiterView }) {
   // Access cart-related functions and customer data from CartContext
@@ -47,16 +48,7 @@ function MenuCard({ item, isWaiterView }) {
 
     try {
       // Check if the current order is submitted
-      const response = await fetch(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch order status');
-      }
-
-      const orderData = await response.json();
+      const {data: orderData} = await axios.get(`http://localhost:8080/api/orders/${customer.orderId}/getOrder`);
       const isOrderSubmitted = orderData.orderStatus === 'SUBMITTED';
 
       if (isOrderSubmitted) {
