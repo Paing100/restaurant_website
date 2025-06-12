@@ -3,6 +3,7 @@ import { Grid, Box, Tabs, Tab, Typography } from "@mui/material";
 import MenuCard from './MenuCard.jsx'
 import Filter from './Filter.jsx'
 import PropTypes from 'prop-types';
+import axios from 'axios';
 
 function Menu({ isWaiterView }) {
   // State variables 
@@ -33,16 +34,11 @@ function Menu({ isWaiterView }) {
     const { dietaryRestrictions, allergens } = event.target.value;
     setSelectedFilter(dietaryRestrictions); // update the selected dietary restrctions 
 
-    // fetch filtered menu items 
-    fetch('http://localhost:8080/Menu/filter', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    axios.post('http://localhost:8080/Menu/filter', {
         dietaryRestrictions: dietaryRestrictions.join(','),
         allergens: allergens.join(',')
-      })
     })
-      .then(response => response.json())
+      .then(response => response.data)
       .then(data => {
         if (!Array.isArray(data)) {
           console.error("Unexpected API response structure:", data);
