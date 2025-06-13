@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Typography, List, Box, Snackbar, Alert } from "@mui/material";
-import Orders from "./Orders";
+import { Typography, Box, Snackbar, Alert } from "@mui/material";
 import notiSound from './assets/sound/Noti.mp3';
 import { useWithSound } from './useWithSound';
 import useWebSocket from "./useWebSocket";
+import ConfirmedOrders from "./KitchenStaff/ConfirmedOrders.jsx";
 
 function KitchenStaff() {
   // retrieve the username from session storage 
@@ -127,29 +127,11 @@ function KitchenStaff() {
       </Typography>
 
       {/* Display the list of pending orders if there's any */}
-      {orders.length > 0 ? (
-        <List>
-          {orders.map((order) => (
-            <Orders
-              key={order.orderId}
-              order={order}
-              buttonName="Mark as Ready"
-              onButtonClick={markAsReady}
-              fetchOrders={fetchOrders}
-              buttonStyle={{
-                backgroundColor: "#5762d5",
-                color: "white",
-                "&:hover": { backgroundColor: "#4751b3" },
-              }}
-              forKitchen={true}
-            />
-          ))}
-        </List>
-      ) : (
-        <Typography variant="h6" sx={{ mt: 2, color: "gray" }}>
-          No orders to mark as ready
-        </Typography>
-      )}
+      <ConfirmedOrders 
+        orders={orders}
+        markAsReady={markAsReady}
+        fetchOrders={fetchOrders}
+      />
 
       {/* Snackbar for notifications */} 
       <Snackbar open={open} onClose={handleClose}>
