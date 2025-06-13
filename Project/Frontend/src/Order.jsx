@@ -11,6 +11,7 @@ import NewOrderModal from './NewOrderModal';
 import MenuCard from './MenuCard';
 import { Link } from 'react-router-dom';
 import { addItemToCart, replaceSuggestion, clearCart, removeItemFromCart, submitOrder, createNewOrder, fetchCart } from './CartContext/cartUtils';
+import BackButton from './BackButton';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -613,12 +614,7 @@ function Order() {
     return (
         <Box sx={{ padding: 3, paddingBottom: showOrderInfo ? 8 : 3 }}>
             {/* Back button */}
-            <Button
-                onClick={() => window.history.back()}
-                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' }, marginBottom: 2 }}
-            >
-                ← Back
-            </Button>
+            <BackButton />
 
             {/* Call assistance button to alert others */}
             <Button
