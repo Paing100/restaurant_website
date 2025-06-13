@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, Snackbar, Alert, Paper, Slide, TextField } from '@mui/material';
+import { Typography, List, ListItem, ListItemText, Divider, Grid, Box, Snackbar, Alert, Paper, Slide, TextField } from '@mui/material';
 import { CartContext } from './CartContext/CartContextContext.jsx';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -12,6 +12,7 @@ import BackButton from './BackButton';
 import OrderButtons from './Order/OrderButtons';
 import ItemsInCart from './Order/ItemsInCart.jsx';
 import WaiterSuggestions from './Order/WaiterSuggestions.jsx';
+import ClearAndSubmit from './Order/ClearAndSubmit.jsx';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -651,29 +652,13 @@ function Order() {
             />
 
             {/* Section for displaying total price and options to clear cart or submit */}
-            <Box sx={{ mt: 2 }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                        <Button
-                            onClick={() => clearCart(customer, cart).then(setCart)}
-                            sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-                            fullWidth
-                        >
-                            Clear Cart
-                        </Button>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <Button
-                            onClick={handleSubmit}
-                            variant="contained"
-                            sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
-                            fullWidth
-                        >
-                            Submit Order
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Box>
+            <ClearAndSubmit 
+                clearCart={clearCart}
+                setCart={setCart}
+                handleSubmit={handleSubmit}
+                customer={customer} 
+                cart={cart}
+            />
 
             {/* Snackbar for displaying messages */}
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
