@@ -6,12 +6,12 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PropTypes from "prop-types";
 import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
-import MenuCard from './MenuCard';
 import { Link } from 'react-router-dom';
 import { addItemToCart, replaceSuggestion, clearCart, removeItemFromCart, submitOrder, createNewOrder, fetchCart } from './CartContext/cartUtils';
 import BackButton from './BackButton';
 import OrderButtons from './Order/OrderButtons';
 import ItemsInCart from './Order/ItemsInCart.jsx';
+import WaiterSuggestions from './Order/WaiterSuggestions.jsx';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -642,59 +642,13 @@ function Order() {
             <Typography variant="h6" sx={{ marginTop: 2 }}>
                 Total Price: £{(cart.totalPrice || 0).toFixed(2)}
             </Typography>
-            {suggestions && suggestions.length > 0 && customer?.orderId > 0 && Object.keys(orderedItems).length > 0 && (
-                <Box sx={{
-                    mb: 4,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    width: '100%'
-                }}>
-                    <Typography variant="h5" sx={{
-                        padding: '15px',
-                        borderBottom: '1px solid #333',
-                        textAlign: 'center',
-                        width: '100%'
-                    }}>
-                        Waiter&apos;s Suggestions
-                    </Typography>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            overflowX: 'auto',
-                            pt: 2,
-                            pb: 2,
-                            width: '100%',
-                            justifyContent: 'center',
-                            '&::-webkit-scrollbar': {
-                                height: 8,
-                            },
-                            '&::-webkit-scrollbar-track': {
-                                backgroundColor: '#333',
-                                borderRadius: 4,
-                            },
-                            '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: '#5762d5',
-                                borderRadius: 4,
-                            },
-                        }}
-                    >
-                        <Box sx={{
-                            display: 'flex',
-                            gap: 2,
-                            px: 2,
-                            maxWidth: '1400px',
-                            margin: '0 auto'
-                        }}>
-                            {suggestions.map((item) => (
-                                <Box key={item.itemId} sx={{ minWidth: 260, maxWidth: 260, flexShrink: 0 }}>
-                                    <MenuCard item={item} isWaiterView={false} />
-                                </Box>
-                            ))}
-                        </Box>
-                    </Box>
-                </Box>
-            )}
+
+            {/* Section for displaying waiter suggestions */}
+            <WaiterSuggestions 
+                suggestions={suggestions}
+                customer={customer} 
+                orderedItems={orderedItems}
+            />
 
             {/* Section for displaying total price and options to clear cart or submit */}
             <Box sx={{ mt: 2 }}>
