@@ -1,8 +1,6 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, CardMedia, Snackbar, Alert, IconButton, Paper, Slide, TextField } from '@mui/material';
+import { Button, Typography, List, ListItem, ListItemText, Divider, Grid, Box, Snackbar, Alert, Paper, Slide, TextField } from '@mui/material';
 import { CartContext } from './CartContext/CartContextContext.jsx';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PropTypes from "prop-types";
@@ -12,6 +10,8 @@ import MenuCard from './MenuCard';
 import { Link } from 'react-router-dom';
 import { addItemToCart, replaceSuggestion, clearCart, removeItemFromCart, submitOrder, createNewOrder, fetchCart } from './CartContext/cartUtils';
 import BackButton from './BackButton';
+import OrderButtons from './Order/OrderButtons';
+import ItemsInCart from './Order/ItemsInCart.jsx';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -616,103 +616,29 @@ function Order() {
             {/* Back button */}
             <BackButton />
 
-            {/* Call assistance button to alert others */}
-            <Button
-                onClick={() => alertOthers(tableNum, customer.orderId)}
-                variant="contained"
-                sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' }, display: 'block', marginLeft: 'auto', marginTop: 2 }}
-            >
-                Call Assistance
-            </Button>
+            {/* Section for displaying order buttons (includes Call Assistance, New Order, and Table Number) */}
+            <OrderButtons 
+                tableNum={tableNum}
+                customer={customer}
+                alertOthers={alertOthers}
+                hasCreatedOrder={hasCreatedOrder}
+                setNewOrderModalOpen={setNewOrderModalOpen}
+                setNewTableNum={setNewTableNum}
+                setTableEditModalOpen={setTableEditModalOpen}
+            />
             
-            {/* Section for displaying the tagble number and option to change it */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px' }}>
-                <Typography variant="h4">Place Your Order</Typography>
-                {!hasCreatedOrder && (
-                    <Button
-                        onClick={() => setNewOrderModalOpen(true)}
-                        variant="contained"
-                        sx={{ backgroundColor: '#5762d5', color: 'white', '&:hover': { backgroundColor: '#4751b3' } }}
-                    >
-                        New Order
-                    </Button>
-                )}
-            </Box>
-            
-            {/* Display current table number with option to edit */}
-            <Box sx={{ display: 'flex', alignItems: 'center', padding: '15px', gap: 2 }}>
-                <Typography variant="h6" sx={{ color: 'white' }}>
-                    Your Table Number: {tableNum || 'Not set'}
-                </Typography>
-                <Button
-                    onClick={() => {
-                        setNewTableNum(tableNum?.toString() || '');
-                        setTableEditModalOpen(true);
-                    }}
-                    sx={{ 
-                        backgroundColor: '#333',
-                        color: 'white',
-                        '&:hover': { 
-                            backgroundColor: 'darkgray' 
-                        }
-                    }}
-                >
-                    CHANGE
-                </Button>
-            </Box>
-            
-            {/* Section for displaying ordered items */}
-            <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
-            <List sx={{ mb: 4 }}>
-                {Object.entries(orderedItems).map(([itemName, item]) => {
-                    const itemTotal = item.price * item.quantity;
-                    return (
-                        <ListItem key={itemName} sx={{ borderBottom: '1px solid #333' }}>
-                            <CardMedia
-                                component="img"
-                                height="50"
-                                image={item.imagePath}
-                                sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
-                            />
-                            <ListItemText
-                                primary={itemName}
-                                secondary={`£${item.price.toFixed(2)} each • Total: £${itemTotal.toFixed(2)}`}
-                                sx={{ color: 'white' }}
-                            />
-                            <Box sx={{ display: 'flex', alignItems: 'center', marginRight: 2 }}>
-                                <IconButton
-                                    onClick={() => decreaseItemQuantity(item.itemId)}
-                                    sx={{ color: 'white' }}
-                                >
-                                    <RemoveIcon />
-                                </IconButton>
-                                <Typography sx={{ margin: '0 10px', color: 'white' }}>
-                                    {item.quantity}
-                                </Typography>
-                                <IconButton
-                                    onClick={() => increaseItemQuantity(item.itemId)}
-                                    sx={{ color: 'white' }}
-                                >
-                                    <AddIcon />
-                                </IconButton>
-                            </Box>
-                            <Button
-                                onClick={async () => {
-                                    const result = await removeItemFromCart(customer, cart, item.itemId, true);
-                                           if (result){
-                                                fetchCart(customer).then(setCart);
-                                            }
-                                }}
-                                sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-                            >
-                                Remove All
-                            </Button>
+            {/* Section for displaying ordered items in cart*/}
+            <ItemsInCart 
+                orderedItems={orderedItems}
+                decreaseItemQuantity={decreaseItemQuantity}
+                increaseItemQuantity={increaseItemQuantity}
+                removeItemFromCart={removeItemFromCart}
+                customer={customer}
+                cart={cart}
+                fetchCart={fetchCart}
+                setCart={setCart}
+            />
 
-
-                        </ListItem>
-                    );
-                })}
-            </List>
             <Typography variant="h6" sx={{ marginTop: 2 }}>
                 Total Price: £{(cart.totalPrice || 0).toFixed(2)}
             </Typography>
