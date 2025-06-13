@@ -4,6 +4,7 @@ import notiSound from './assets/sound/Noti.mp3';
 import { useWithSound } from './useWithSound';
 import useWebSocket from "./useWebSocket";
 import ConfirmedOrders from "./KitchenStaff/ConfirmedOrders.jsx";
+import axios from "axios";
 
 function KitchenStaff() {
   // retrieve the username from session storage 
@@ -41,12 +42,8 @@ function KitchenStaff() {
   // function to fetch orders from server 
   const fetchOrders = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/order/getAllOrders"
-      );
-      if (!response.ok) throw new Error("Error fetching orders");
-
-      const data = await response.json();
+      const response = await axios.get("http://localhost:8080/api/order/getAllOrders");
+      const data = response.data;
       // Filter orders with "CONFIRMED"
       const pendingOrders = data.filter(
         (order) => order.orderStatus === "CONFIRMED"
@@ -64,52 +61,40 @@ function KitchenStaff() {
   const ws = useWebSocket(handleOnMessage);
 
   // function to change the order status to "READY"
-  const markAsReady = async (orderId) => {
-    setOrders((prevOrders) =>
-      prevOrders.filter((order) => order.orderId !== orderId)
+const markAsReady = async (orderId) => {
+  setOrders((prevOrders) =>
+    prevOrders.filter((order) => order.orderId !== orderId)
+  );
+
+  // notification message to be sent to the waiter 
+  const notificationMessage = {
+    type: "READY",
+    orderId: orderId,
+    recipient: "waiter",
+    message: `#${orderId} is ready to be delivered`,
+  };
+
+  try {
+    // update the order status using the API
+    await axios.post(
+      `http://localhost:8080/api/order/${orderId}/updateOrderStatus`,
+      { orderStatus: "READY" }
     );
 
-    const settings = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderStatus: "READY" }),
-    };
+    // send the message to the waiter with an API end point 
+    await axios.post(
+      "http://localhost:8080/api/notification/send",
+      notificationMessage
+    );
 
-    // notification message to be sent to the waiter 
-    const notificationMessage = {
-      type: "READY",
-      orderId: orderId,
-      recipient: "waiter",
-      message: `#${orderId} is ready to be delivered`,
-    };
-
-    try {
-      // update the order status using the API
-      await fetch(
-        `http://localhost:8080/api/order/${orderId}/updateOrderStatus`,
-        settings
-      );
-
-      // send the message to the waiter with an API end point 
-      const sendMessage = await fetch(
-        "http://localhost:8080/api/notification/send",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(notificationMessage),
-        }
-      );
-
-      if (!sendMessage.ok) throw new Error("Failed to send notification");
-
-      // send the notification via websocket if the connection is open 
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify(notificationMessage));
-      }
-    } catch (error) {
-      console.error("Error updating order status:", error);
+    // send the notification via websocket if the connection is open 
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify(notificationMessage));
     }
-  };
+  } catch (error) {
+    console.error("Error updating order status:", error);
+  }
+};
 
   // function to close the snackbar 
   const handleClose = (event, reason) => {
