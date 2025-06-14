@@ -13,7 +13,8 @@ import OrderButtons from './Order/OrderButtons';
 import ItemsInCart from './Order/ItemsInCart.jsx';
 import WaiterSuggestions from './Order/WaiterSuggestions.jsx';
 import ClearAndSubmit from './Order/ClearAndSubmit.jsx';
-import { handleTableNumChange, buildNewOrder, createOrderInfo } from './Order/OrderUtils.jsx';
+import { handleTableNumChange, buildNewOrder, createOrderInfo, createReceipt, orderInfoExisingOrder } from './Order/OrderUtils.jsx';
+import axios from 'axios';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -378,37 +379,19 @@ function Order() {
         checkOrderStatus();
     }, [customer]);
 
-    // rs
-    useEffect(() => {
-        const checkExistingOrders = async () => {
+
+    const checkExistingOrders = async () => {
             if (customer?.customerId) {
                 try {
-                    const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/orders`, {
-                        method: 'GET',
-                        headers: { 'Accept': 'application/json' },
-                    });
+                    const {data: orders} = await axios.get(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
 
-                    if (response.ok) {
-                        const orders = await response.json();
                         // Filter for submitted orders (status not CREATED)
                         const submittedOrders = orders.filter(order => order.orderStatus !== 'CREATED');
                         
                         if (submittedOrders.length > 0) {
                             const latestOrder = submittedOrders[submittedOrders.length - 1];
 
-                            setReceipt(submittedOrders.map(order => ({
-                                orderId: order.orderId,
-                                receipt: order.orderMenuItems.map(item => ({
-                                    itemName: item.menuItem.name,
-                                    quantity: item.quantity,
-                                    price: item.menuItem.price
-                                })),
-                                receiptTotal: order.orderMenuItems.reduce((total, item) => 
-                                    total + (item.quantity * item.menuItem.price), 0),
-                                orderTime: order.orderPlaced,
-                                tableNum: order.tableNum,
-                                status: order.orderStatus
-                            })));
+                            setReceipt(createReceipt(submittedOrders));
 
                             setShowOrderInfo(true);
                             setOrderStatus(latestOrder.orderStatus);
@@ -417,17 +400,8 @@ function Order() {
                             if (latestNonDeliveredOrder) {
                                 setOrderTime(new Date(latestNonDeliveredOrder.orderPlaced));
                             }
-
-                            const orderInfo = {
-                                show: true,
-                                expanded: false,
-                                status: latestOrder.orderStatus,
-                                receipt: receipt,
-                                total: latestOrder.orderMenuItems.reduce((total, item) => 
-                                    total + (item.quantity * item.menuItem.price), 0),
-                                orderTime: latestOrder.orderPlaced,
-                                tableNum: latestOrder.tableNum
-                            };
+                            
+                            const orderInfo = orderInfoExisingOrder(latestOrder, receipt);
                             localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
                         } else {
                             // No submitted orders, clear the status bar
@@ -435,13 +409,15 @@ function Order() {
                             setReceipt([]);
                             localStorage.removeItem('orderInfo');
                         }
-                    }
+                    
                 } catch (error) {
                     console.error('Error fetching customer orders:', error);
                 }
             }
         };
 
+    // Add new useEffect to check for existing orders
+    useEffect(() => {
         checkExistingOrders();
     }, [customer?.customerId]); // Only run when customerId changes
 

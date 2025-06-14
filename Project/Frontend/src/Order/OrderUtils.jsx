@@ -53,3 +53,32 @@ export const createOrderInfo = (newOrder, receipt, cart, tableNum) => {
             return orderInfo;
     }
 
+export const createReceipt = (submittedOrders) => {
+    return (submittedOrders.map(order => ({
+                                orderId: order.orderId,
+                                receipt: order.orderMenuItems.map(item => ({
+                                    itemName: item.menuItem.name,
+                                    quantity: item.quantity,
+                                    price: item.menuItem.price
+                                })),
+                                receiptTotal: order.orderMenuItems.reduce((total, item) => 
+                                    total + (item.quantity * item.menuItem.price), 0),
+                                orderTime: order.orderPlaced,
+                                tableNum: order.tableNum,
+                                status: order.orderStatus
+                            })));
+}
+
+export const orderInfoExisingOrder = (latestOrder, receipt) => {
+  return ({
+        show: true,
+        expanded: false,
+        status: latestOrder.orderStatus,
+        receipt: receipt,
+        total: latestOrder.orderMenuItems.reduce((total, item) => 
+              total + (item.quantity * item.menuItem.price), 0),
+        orderTime: latestOrder.orderPlaced,
+        tableNum: latestOrder.tableNum
+  });
+}
+
