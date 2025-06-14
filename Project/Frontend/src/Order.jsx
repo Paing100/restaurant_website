@@ -328,22 +328,13 @@ function Order() {
     // Fetches the current order status from the backend using orderId
     const fetchOrderStatus = useCallback(async (orderId) => {
         try {
-            const response = await fetch(`http://localhost:8080/api/orders/${orderId}/getOrder`, {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' },
-            });
-            if (response.ok) {
-                const orderData = await response.json(); // Parse order data from the response
+            const {data: orderData} = await axios.get(`http://localhost:8080/api/orders/${orderId}/getOrder`);
                 updateOrderStatus(orderData.orderId, orderData.orderStatus); // Update the order status
                 setOrderStatus(orderData.orderStatus); // Set the new order status in state
                 if (orderData.orderStatus === 'DELIVERED') {
                     stopTimer();
                     setOrderTime(null);
                 }
-            }
-            else {
-                console.error("Failed to fetch order status");
-            }
         }
         catch (error) {
             console.error("Failed to fetch order status", error);
