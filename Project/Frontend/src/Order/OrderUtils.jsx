@@ -82,3 +82,17 @@ export const orderInfoExisingOrder = (latestOrder, receipt) => {
   });
 }
 
+export const assembleAlertMessage = (orderId, tableNumber) => {
+  const alertMessage = {
+            type: "ALERT",
+            orderId: orderId,
+            recipient: "waiter",
+            message: `Table ${tableNumber} needs assistance`,
+            userName: sessionStorage.getItem("userName")
+  };
+
+  return alertMessage;
+}
+
+
+

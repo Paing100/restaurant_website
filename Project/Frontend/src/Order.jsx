@@ -13,7 +13,7 @@ import OrderButtons from './Order/OrderButtons';
 import ItemsInCart from './Order/ItemsInCart.jsx';
 import WaiterSuggestions from './Order/WaiterSuggestions.jsx';
 import ClearAndSubmit from './Order/ClearAndSubmit.jsx';
-import { handleTableNumChange, buildNewOrder, createOrderInfo, createReceipt, orderInfoExisingOrder } from './Order/OrderUtils.jsx';
+import { handleTableNumChange, buildNewOrder, createOrderInfo, createReceipt, orderInfoExisingOrder, assembleAlertMessage } from './Order/OrderUtils.jsx';
 import axios from 'axios';
 
 // Popup component to display order information
@@ -262,25 +262,8 @@ function Order() {
 
     // function to alert others 
     const alertOthers = async (tableNumber, orderId) => {
-        const alertMessage = {
-            // Define the userName variable
-            type: "ALERT",
-            orderId: orderId,
-            recipient: "waiter",
-            message: `Table ${tableNumber} needs assistance`,
-            userName: sessionStorage.getItem("userName")
-        };
-
         try {
-          const sendAlert = await fetch('http://localhost:8080/api/notification/send', {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(alertMessage),
-          });
-      
-          if (!sendAlert.ok) {
-            throw new Error("Failed to send an alert");
-          }
+          await axios.post('http://localhost:8080/api/notification/send', assembleAlertMessage(orderId, tableNumber));
           setMessage(`Assistance requested! A waiter will be with you shortly.`,);
           setOpen(true);
         } catch (error) {
