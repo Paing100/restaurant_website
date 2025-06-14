@@ -13,7 +13,7 @@ import OrderButtons from './Order/OrderButtons';
 import ItemsInCart from './Order/ItemsInCart.jsx';
 import WaiterSuggestions from './Order/WaiterSuggestions.jsx';
 import ClearAndSubmit from './Order/ClearAndSubmit.jsx';
-import { handleTableNumChange } from './Order/OrderUtils.jsx';
+import { handleTableNumChange, buildNewOrder, createOrderInfo } from './Order/OrderUtils.jsx';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -378,7 +378,7 @@ function Order() {
         checkOrderStatus();
     }, [customer]);
 
-    // Add new useEffect to check for existing orders
+    // rs
     useEffect(() => {
         const checkExistingOrders = async () => {
             if (customer?.customerId) {
@@ -468,57 +468,51 @@ function Order() {
     }
 
     // Handles payment success by submitting the order and updating the UI and local storage
-    const handlePaymentSuccess = async () => {
-        const result = await submitOrder(customer, cart, ws, tableNum); // submit order and get result 
-        if (result.success) {
-            // create a new order object 
-            const newOrder = {
-                orderId: customer?.orderId,
-                receipt: Object.entries(orderedItems).map(([itemName, item]) => ({ itemName, ...item })),
-                receiptTotal: cart.totalPrice,
-                orderTime: new Date().toISOString(),
-                tableNum: tableNum,
-                status: 'SUBMITTED',
-            };
-            setOrderStatus('SUBMITTED');
-            setShowOrderInfo(true);
-            setMessage(result.message);
-            setSeverity('success');
-            // Append the new order to the receipt array
-            setReceipt((prevReceipt) => [...prevReceipt, newOrder]);
-            setReceiptTotal(cart.totalPrice);
-            setOrderTime(new Date());
-            setHasCreatedOrder(false);
-
-            const orderInfo = {
-                show: true,
-                expanded: false,
-                status: 'SUBMITTED',
-                receipt: [...receipt, newOrder], // append the new order to the receipt array
-                total: cart.totalPrice,
-                orderTime: new Date().toISOString(),
-                tableNum: tableNum
-            };
-            localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
-            setStoredTableNum(tableNum);
-
-            await fetchCart(customer);
-            setCart({ ...cart, orderedItems: [], totalPrice: 0 });
-
-            const customerNullOrderID = {
-                ...customer,
-                orderId: 0,
-                tableNum: customer.tableNum || tableNum
-            };
-
-            setCustomer(customerNullOrderID);
-            localStorage.setItem('tableNum', customer.tableNum || tableNum);
-        } else {
-            setMessage(result.message);
-            setSeverity('error');
-        }
-        setOpen(true);
-    };
+     const handlePaymentSuccess = async () => {
+            const result = await submitOrder(customer, cart, ws, tableNum); // submit order and get result 
+            if (result.success) {
+                const newOrder = await generateNewOrder(result);
+                updateLocalStorage(newOrder);
+            } else {
+                setMessage(result.message);
+                setSeverity('error');
+            }
+            setOpen(true);
+        };
+    
+     const generateNewOrder = async (result) => {
+                // create a new order object 
+                const newOrder = buildNewOrder(customer, orderedItems, cart, tableNum);
+                setOrderStatus('SUBMITTED');
+                setShowOrderInfo(true);
+                setMessage(result.message);
+                setSeverity('success');
+                // Append the new order to the receipt array
+                setReceipt((prevReceipt) => [...prevReceipt, newOrder]);
+                setReceiptTotal(cart.totalPrice);
+                setOrderTime(new Date());
+                setHasCreatedOrder(false);
+                return newOrder;
+        };
+    
+        // update local storage of the customer after the payment goes through
+     const updateLocalStorage = async (newOrder) => {
+                const orderInfo = createOrderInfo(newOrder, receipt, cart, tableNum);
+                localStorage.setItem('orderInfo', JSON.stringify(orderInfo));
+                setStoredTableNum(tableNum);
+    
+                await fetchCart(customer);
+                setCart({ ...cart, orderedItems: [], totalPrice: 0 });
+    
+                const customerNullOrderID = {
+                    ...customer,
+                    orderId: 0,
+                    tableNum: customer.tableNum || tableNum
+                };
+    
+                setCustomer(customerNullOrderID);
+                localStorage.setItem('tableNum', customer.tableNum || tableNum);
+        };
 
     // Function to handle confirming a new order
     const handleNewOrderConfirm = async () => {
