@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useState, useEffect, useRef } from 'react';
 import { Typography, List, ListItem, ListItemText, Divider, Grid, Box, Snackbar, Alert, Paper, Slide, TextField } from '@mui/material';
 import { CartContext } from './CartContext/CartContextContext.jsx';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -15,6 +15,7 @@ import WaiterSuggestions from './Order/WaiterSuggestions.jsx';
 import ClearAndSubmit from './Order/ClearAndSubmit.jsx';
 import { handleTableNumChange, buildNewOrder, createOrderInfo, createReceipt, orderInfoExisingOrder, assembleAlertMessage } from './Order/OrderUtils.jsx';
 import axios from 'axios';
+import useWebSocket from './useWebSocket.jsx';
 
 // Popup component to display order information
 const OrderInfoPopup = React.memo(({
@@ -205,60 +206,20 @@ function Order() {
     const [newOrderModalOpen, setNewOrderModalOpen] = useState(false); // Controls new order modal visibility
     const [hasCreatedOrder, setHasCreatedOrder] = useState(false); // Tracks if an order has been created
     const timerRef = useRef(null); // Timer reference for elapsed time
-    const ws = useRef(null); // WebSocket reference 
     const [tableEditModalOpen, setTableEditModalOpen] = useState(false); // Controls table edit modal visibility
     const [newTableNum, setNewTableNum] = useState(''); // Tracks new table number input
 
     const orderedItems = cart?.orderedItems || {}; // Extract ordered items from the cart
 
-    // WebSocket setup for real-time updates
-    useEffect(() => {
-        if (!ws.current) {
-            ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
-
-            ws.current.onopen = () => {
-                console.log('WebSocket connected');
-            };
-
-            ws.current.onclose = () => {
-                console.log('WebSocket closed. Attempting to reconnect...');
-            };
-            ws.current.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    updateOrderStatus(data.orderId, data.status);
-                    fetchOrderStatus(data.orderId);
-                    if (receipt.length === 0) {
-                        setElapsedTime('00:00:00');
-                    }
-                    //}
-                    if (data.type === "ORDER_CANCELLED") {
-                        removeOrderItem(data.orderId);
-                    }
-                }
-                catch (error) {
-                    console.log(error);
-                }
-            }
-        }
-
-        return () => {
-            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-                console.log("Closing WebSocket on cleanup");
-                ws.current.close();
-            }
-        };
-    }, []);
-
     // function to stop the timer for customer 
-    const stopTimer = () => {
+    const stopTimer = useCallback(() => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
             setOrderTime(null);
             setElapsedTime('00:00:00');
         }
-    };
+    },[]);
 
     // function to alert others 
     const alertOthers = async (tableNumber, orderId) => {
@@ -272,42 +233,44 @@ function Order() {
     };
 
     // update the status of an order that accepts two arguments
-    const updateOrderStatus = (orderId, newStatus) => {
-        setReceipt((prevReceipt) => {
-            // Find and update the status of the specific order
-            const updatedReceipt = prevReceipt.map((order) =>
-                order.orderId === orderId ? { ...order, status: newStatus } : order
-            );
+    const updateOrderStatus = useCallback((orderId, newStatus) => {
+    setReceipt((prevReceipt) =>
+        prevReceipt.map((order) =>
+        order.orderId === orderId ? { ...order, status: newStatus } : order
+        )
+    );
+    }, []);
 
-            return updatedReceipt;
-        });
-    };
 
     // remove the order based on its id 
-    const removeOrderItem = (orderId) => {
-        setReceipt((prevReceipt) => {
-            const updatedReceipt = prevReceipt.filter((item) => item.orderId !== orderId);
+    const removeOrderItem = useCallback((orderId) => {
+    setReceipt((prevReceipt) => {
+        const updatedReceipt = prevReceipt.filter((item) => item.orderId !== orderId);
 
-            if (prevReceipt.length > 0 && prevReceipt[prevReceipt.length - 1].orderId === orderId) {
-                if (updatedReceipt.length === 0) {
-                    stopTimer();
-                    setOrderTime(null);
-                } else {
-                    setOrderStatus(updatedReceipt.status);
-                }
+        if (prevReceipt.length > 0 && prevReceipt[prevReceipt.length - 1].orderId === orderId) {
+            if (updatedReceipt.length === 0) {
+                stopTimer();
+                setOrderTime(null);
+            } else {
+                setOrderStatus(updatedReceipt[updatedReceipt.length - 1]?.status || null); 
             }
-            const updatedTotal = updatedReceipt.reduce(
-                (total, item) => total + item.quantity * item.price,
-                0
-            );
-            setReceiptTotal(updatedTotal);
-            setMessage(`Your Order #${orderId} is cancelled by the waiter!`);
-            stopTimer();
-            setSeverity('error');
-            setOpen(true);
-            return updatedReceipt;
-        });
-    };
+        }
+
+        const updatedTotal = updatedReceipt.reduce(
+        (total, item) => total + item.quantity * item.price,
+        0
+        );
+        setReceiptTotal(updatedTotal);
+        setMessage(`Your Order #${orderId} is cancelled by the waiter!`);
+        stopTimer();
+        setSeverity('error');
+        setOpen(true);
+
+        return updatedReceipt; // Don't forget this return!
+    });
+    }, [stopTimer, setOrderTime, setOrderStatus, setReceiptTotal, setMessage, setSeverity, setOpen]);
+
+    
 
     // Timer for elapsed time
     useEffect(() => {
@@ -363,7 +326,7 @@ function Order() {
     }, [customer]);
 
 
-    const checkExistingOrders = async () => {
+    const checkExistingOrders = useCallback(async () => {
             if (customer?.customerId) {
                 try {
                     const {data: orders} = await axios.get(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
@@ -397,12 +360,12 @@ function Order() {
                     console.error('Error fetching customer orders:', error);
                 }
             }
-        };
+        },[customer?.customerId, receipt]);
 
     // Add new useEffect to check for existing orders
     useEffect(() => {
         checkExistingOrders();
-    }, [customer?.customerId]); // Only run when customerId changes
+    }, [checkExistingOrders]); // Only run when customerId changes
 
     // Function to decrease item quantity by removing it from the cart
     const decreaseItemQuantity = async (itemId) => {
@@ -515,7 +478,7 @@ function Order() {
     };
 
     // Fetches the current order status from the backend using orderId
-    const fetchOrderStatus = async (orderId) => {
+    const fetchOrderStatus = useCallback(async (orderId) => {
         try {
             const response = await fetch(`http://localhost:8080/api/orders/${orderId}/getOrder`, {
                 method: 'GET',
@@ -537,11 +500,30 @@ function Order() {
         catch (error) {
             console.error("Failed to fetch order status", error);
         }
-    }
+    }, [updateOrderStatus, setOrderStatus, stopTimer, setOrderTime]);
 
     const changeTableNum = () => {
         handleTableNumChange({newTableNum, setMessage, setSeverity, setOpen, customer, setCustomer, setTableNum, setTableEditModalOpen, setNewTableNum});
     }
+
+    // WebSocket setup for real-time updates
+    const handleOnMessage = useCallback((event) => {
+    try {
+        const data = JSON.parse(event.data);
+        updateOrderStatus(data.orderId, data.status);
+        fetchOrderStatus(data.orderId);
+        if (receipt.length === 0) {
+            setElapsedTime('00:00:00'); 
+        }
+        if (data.type === "ORDER_CANCELLED") {
+            removeOrderItem(data.orderId);
+        }
+    } catch (error) {
+        console.log(error);
+    }
+    }, [updateOrderStatus, fetchOrderStatus, receipt.length, removeOrderItem, setElapsedTime]);
+
+    const ws = useWebSocket(handleOnMessage);
 
     return (
         <Box sx={{ padding: 3, paddingBottom: showOrderInfo ? 8 : 3 }}>

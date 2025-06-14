@@ -14,7 +14,7 @@ const useWebSocket = (onMessage) => {
         ws.current.close();
       }
     };
-  },[onMessage]);
+  },[]);
   return ws;
 };
 
