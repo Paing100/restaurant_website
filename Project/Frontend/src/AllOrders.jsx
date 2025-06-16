@@ -1,9 +1,10 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext/CartContextContext.jsx';
 import BackButton from './BackButton';
 import OrderList from './AllOrder/OrderList.jsx';
+import useWebSocket from './useWebSocket.jsx';
 
 const AllOrders = () => {
     // State to store orders and the currently expanded order ID
@@ -12,9 +13,6 @@ const AllOrders = () => {
 
     // Access customer data from CartContext
     const { customer } = useContext(CartContext);
-
-    // WebSocket reference 
-    const ws = useRef(null);
 
     // Function to fetch orders for current customer using its unique ID 
     const fetchOrders = async () => {
@@ -44,32 +42,7 @@ const AllOrders = () => {
         return () => clearInterval(interval); // Cleanup interval on unmount
     }, [customer]);
 
-    // set up websocket connection to listen for order updates 
-    useEffect(() => {
-        if (!ws.current) {
-            ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
-
-            ws.current.onopen = () => {
-                console.log('WebSocket connected');
-            };
-
-            ws.current.onclose = () => {
-                console.log('WebSocket closed. Attempting to reconnect...');
-            };
-
-            ws.current.onmessage = (event) => {
-                console.log("EVENT IN CUSTOMER: " + event.data);
-                fetchOrders(); // refresh orders when a websocket message is received
-            }
-        }
-        return () => {
-            // Cleanup WebSocket connection on component unmount
-            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-                console.log("Closing WebSocket on cleanup");
-                ws.current.close();
-            }
-        };
-    }, []);
+    useWebSocket(fetchOrders);
 
     // Format the order time into a readable string 
     const formatTime = (orderPlaced) => {
