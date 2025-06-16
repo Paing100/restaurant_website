@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from 'axios';
 import PropTypes from 'prop-types';
 
 function ImageUploader({ setImagePath }) {
@@ -12,12 +13,9 @@ function ImageUploader({ setImagePath }) {
 
     try {
       // send the image to the server using the API 
-      const response = await fetch("http://localhost:8080/api/images/upload", {
-        method: "POST",
-        body: formData
-      });
+      const response = await axios.post("http://localhost:8080/api/images/upload", formData);
 
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         const imageUrl = await response.text(); // get uploaded image URL from server 
         setImagePath(imageUrl); // Pass image URL to parent (EditMenu)
         setPreviewURL(imageUrl); // update the preview URL for display 
