@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from 'axios';
 import {
   Button,
   Box,
@@ -122,22 +123,13 @@ function EditMenu() {
     }
 
     const updatedMenuItem = { ...menuItem, imagePath };
-
+    console.log("updatedMenuItem", updatedMenuItem);
     try {
-      const response = await fetch(`http://localhost:8080/MenuItems/edit/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedMenuItem),
-      });
-
-      if (response.ok) {
+      await axios.put(`http://localhost:8080/MenuItems/edit/${id}`,updatedMenuItem);
         setSeverity("success");
         setMessage("Menu Updated Successfully!");
         setOpen(true);
         setTimeout(() => navigate("/waiter_menu"), 3000); // redirect to waiter menu pager after success after 3 seconds 
-      } else {
-        throw new Error("Failed to update menu item.");
-      }
     } catch (error) {
       console.error(error);
       setSeverity("error");

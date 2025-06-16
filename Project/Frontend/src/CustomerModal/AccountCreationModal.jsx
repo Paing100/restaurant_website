@@ -1,18 +1,8 @@
 import { Modal, Box, TextField, Button, Typography } from '@mui/material';
 import PropTypes from "prop-types";
+import {inputStyle} from '../useCommonInputStyle';
 
 const AccountCreationModal = ({showEmailPassword, setShowEmailPassword, setEmail, error, setPassword, handleAccountCreation, email, password}) => {
-  
-  const inputStyle = {
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: 'white' },
-                                '&:hover fieldset': { borderColor: 'white' },
-                                '&.Mui-focused fieldset': { borderColor: 'white' },
-                            },
-                            '& .MuiInputLabel-root': { color: 'white' },
-                            '& .MuiInputBase-input': { color: 'white' },
-  }
-  
   return(
             <Modal open={showEmailPassword} onClose={() => setShowEmailPassword(false)}>
                 <Box sx={{

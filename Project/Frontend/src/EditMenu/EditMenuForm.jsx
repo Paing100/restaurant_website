@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 
 import PropTypes from "prop-types";
+import {inputStyle} from '../useCommonInputStyle';
 
 
 function EditMenuForm( {imageComponent, handleSubmit, menuItem, handleChange, errors} ) { 
@@ -15,17 +16,6 @@ function EditMenuForm( {imageComponent, handleSubmit, menuItem, handleChange, er
   // Options for allergens and dietary restrictions 
   const ALLERGENS_OPTIONS = ["GLUTEN", "DAIRY", "PEANUTS", "SHELLFISH"];
   const DIETARY_RESTRICTIONS_OPTIONS = ["VEGETARIAN", "VEGAN", "HALAL"];
-
-  const textFieldStyles = {
-    mb: 2,
-    "& .MuiInputBase-input": { color: "white" },
-    "& .MuiInputLabel-root": { color: "white" },
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": { borderColor: "white" },
-      "&:hover fieldset": { borderColor: "white" },
-      "&.Mui-focused fieldset": { borderColor: "white" },
-    },
-  };
 
   const selectStyles = {
     color: "white",
@@ -44,7 +34,7 @@ function EditMenuForm( {imageComponent, handleSubmit, menuItem, handleChange, er
               required
               error={errors.name}
               helperText={errors.name ? "Name must be 3-50 characters, only letters, spaces, and hyphens" : ""}
-              sx={textFieldStyles}
+              sx={{mb: 2, ...inputStyle}}
             />
     
             {/* Description Field */}
@@ -59,7 +49,7 @@ function EditMenuForm( {imageComponent, handleSubmit, menuItem, handleChange, er
               rows={3}
               error={errors.description}
               helperText={errors.description ? "Description must be 10-250 characters" : ""}
-              sx={textFieldStyles}
+              sx={{mb:2, ...inputStyle}}
             />
     
             {/* Price Field */}
@@ -74,7 +64,7 @@ function EditMenuForm( {imageComponent, handleSubmit, menuItem, handleChange, er
               error={errors.price}
               helperText={errors.price ? "Price must be between 0 and 21" : ""}
               inputProps={{ step: "0.01", min: "0", max: "1000" }}
-              sx={textFieldStyles}
+              sx={inputStyle}
             />
     
             {/* Image Upload */}
@@ -92,7 +82,7 @@ function EditMenuForm( {imageComponent, handleSubmit, menuItem, handleChange, er
               error={errors.calories}
               helperText={errors.calories ? "Calories must be between 0 and 2000" : ""}
               inputProps={{ min: "0", max: "2000" }}
-              sx={textFieldStyles}
+              sx={inputStyle}
             />
     
             {/* Category Field */}
@@ -107,7 +97,7 @@ function EditMenuForm( {imageComponent, handleSubmit, menuItem, handleChange, er
               error={errors.category}
               helperText={errors.category ? "Category must be between 0 and 3" : ""}
               inputProps={{ min: "0", max: "3" }}
-              sx={textFieldStyles}
+              sx={inputStyle}
             />
     
             {/* Allergens Multi-Select */}

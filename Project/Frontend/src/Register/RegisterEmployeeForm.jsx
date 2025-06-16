@@ -1,34 +1,12 @@
 import { Button, TextField, InputLabel, Select, MenuItem } from "@mui/material";
 import PropTypes from "prop-types";
+import {inputStyle} from '../useCommonInputStyle';
 
 function RegisterEmployeeForm({values, errors, handlers}) {
 
   const { userId, password, firstName, lastName, role } = values; 
   const {passwordError, nameError} = errors; 
   const {handleSelectChange, handleRegister, setUserId, setPassword, setFirstName, setLastName, setPasswordError} = handlers;
-  
-  const textFieldStyles = {
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'white',
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white',
-              },
-              '& .MuiInputBase-input': {
-                color: 'white',
-              },
-            };
 
   return (
     <>
@@ -41,7 +19,7 @@ function RegisterEmployeeForm({values, errors, handlers}) {
             required
             error={!userId}
             onChange={(e) => setUserId(e.target.value)}
-            sx={textFieldStyles}
+            sx={inputStyle}
           />
         </div>
         <div className="password">
@@ -57,7 +35,7 @@ function RegisterEmployeeForm({values, errors, handlers}) {
               setPassword(e.target.value);
               setPasswordError(false);
             }}
-            sx={textFieldStyles}
+            sx={inputStyle}
           />
         </div>
         <div className="firstName">
@@ -69,7 +47,7 @@ function RegisterEmployeeForm({values, errors, handlers}) {
             required
             error={nameError.firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            sx={textFieldStyles}
+            sx={inputStyle}
           />
         </div>
         <div className="lastName">
@@ -81,7 +59,7 @@ function RegisterEmployeeForm({values, errors, handlers}) {
             required
             error={nameError.lastName}
             onChange={(e) => setLastName(e.target.value)}
-            sx={textFieldStyles}
+            sx={inputStyle}
           />
         </div>
         <div className="role">
