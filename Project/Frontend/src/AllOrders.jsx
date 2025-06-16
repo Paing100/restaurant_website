@@ -5,6 +5,7 @@ import { CartContext } from './CartContext/CartContextContext.jsx';
 import BackButton from './BackButton';
 import OrderList from './AllOrder/OrderList.jsx';
 import useWebSocket from './useWebSocket.jsx';
+import axios from 'axios';
 
 const AllOrders = () => {
     // State to store orders and the currently expanded order ID
@@ -22,14 +23,10 @@ const AllOrders = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
-            if (response.ok) {
-                const customerOrders = await response.json();
-                setOrders(customerOrders); // update orders state 
-            } else {
-                console.error('Error fetching orders:', response.statusText);
-            }
-        } catch (error) {
+            const {data: customerOrders} = await axios.get(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
+            setOrders(customerOrders); // update orders state 
+        } 
+        catch (error) {
             console.error('Error fetching orders:', error);
         }
     };
@@ -37,9 +34,6 @@ const AllOrders = () => {
     // Fetch orders on component mount
     useEffect(() => {
         fetchOrders();
-        // Refresh orders every 30 seconds
-        const interval = setInterval(fetchOrders, 30000);
-        return () => clearInterval(interval); // Cleanup interval on unmount
     }, [customer]);
 
     useWebSocket(fetchOrders);
