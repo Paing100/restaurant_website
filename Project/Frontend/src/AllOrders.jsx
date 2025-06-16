@@ -1,9 +1,10 @@
 import { useState, useEffect, useContext, useRef } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper, Button, IconButton } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper, IconButton } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext/CartContextContext.jsx';
+import BackButton from './BackButton';
 
 const AllOrders = () => {
     // State to store orders and the currently expanded order ID
@@ -82,12 +83,9 @@ const AllOrders = () => {
         <Box sx={{ padding: 3 }}>
             {/*Header with Back and Refresh button*/}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                <Button
-                    onClick={() => window.history.back()}
-                    sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-                >
-                    ← Back
-                </Button>
+                <Box>
+                    <BackButton />
+                </Box>
                 <IconButton
                     onClick={() => fetchOrders()} // Call fetchOrders to refresh the orders
                     sx={{
