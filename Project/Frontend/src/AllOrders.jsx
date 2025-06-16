@@ -1,9 +1,11 @@
-import { useState, useEffect, useContext, useRef } from 'react';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper, Button, IconButton } from '@mui/material';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useState, useEffect, useContext, useCallback } from 'react';
+import { Box, Typography, IconButton } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext/CartContextContext.jsx';
+import BackButton from './BackButton';
+import OrderList from './AllOrder/OrderList.jsx';
+import useWebSocket from './useWebSocket.jsx';
+import axios from 'axios';
 
 const AllOrders = () => {
     // State to store orders and the currently expanded order ID
@@ -13,81 +15,36 @@ const AllOrders = () => {
     // Access customer data from CartContext
     const { customer } = useContext(CartContext);
 
-    // WebSocket reference 
-    const ws = useRef(null);
-
     // Function to fetch orders for current customer using its unique ID 
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         if (!customer || !customer.customerId) {
             console.error('No customer found');
             return;
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
-            if (response.ok) {
-                const customerOrders = await response.json();
-                setOrders(customerOrders); // update orders state 
-            } else {
-                console.error('Error fetching orders:', response.statusText);
-            }
-        } catch (error) {
+            const {data: customerOrders} = await axios.get(`http://localhost:8080/api/customers/${customer.customerId}/orders`);
+            setOrders(customerOrders); // update orders state 
+        } 
+        catch (error) {
             console.error('Error fetching orders:', error);
         }
-    };
+    }, [customer]);
 
     // Fetch orders on component mount
     useEffect(() => {
         fetchOrders();
-        // Refresh orders every 30 seconds
-        const interval = setInterval(fetchOrders, 30000);
-        return () => clearInterval(interval); // Cleanup interval on unmount
-    }, [customer]);
+    }, [fetchOrders]);
 
-    // set up websocket connection to listen for order updates 
-    useEffect(() => {
-        if (!ws.current) {
-            ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
-
-            ws.current.onopen = () => {
-                console.log('WebSocket connected');
-            };
-
-            ws.current.onclose = () => {
-                console.log('WebSocket closed. Attempting to reconnect...');
-            };
-
-            ws.current.onmessage = (event) => {
-                console.log("EVENT IN CUSTOMER: " + event.data);
-                fetchOrders(); // refresh orders when a websocket message is received
-            }
-        }
-        return () => {
-            // Cleanup WebSocket connection on component unmount
-            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-                console.log("Closing WebSocket on cleanup");
-                ws.current.close();
-            }
-        };
-    }, []);
-
-    // Format the order time into a readable string 
-    const formatTime = (orderPlaced) => {
-        if (!orderPlaced) return 'N/A';
-        const date = new Date(orderPlaced);
-        return date.toLocaleString();
-    };
+    useWebSocket(fetchOrders);
 
     return (
         <Box sx={{ padding: 3 }}>
             {/*Header with Back and Refresh button*/}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-                <Button
-                    onClick={() => window.history.back()}
-                    sx={{ backgroundColor: '#333', color: 'white', '&:hover': { backgroundColor: 'darkgray' } }}
-                >
-                    ← Back
-                </Button>
+                <Box>
+                    <BackButton />
+                </Box>
                 <IconButton
                     onClick={() => fetchOrders()} // Call fetchOrders to refresh the orders
                     sx={{
@@ -114,110 +71,11 @@ const AllOrders = () => {
             </Box>
             <Typography variant="h4" sx={{ marginBottom: 3 }}>Your Order History</Typography>
             {/*List of orders*/}
-            <List>
-                {orders.map((order) => (
-                    <Paper
-                        key={order.orderId} // unique key for each order
-                        sx={{
-                            backgroundColor: '#333',
-                            color: 'white',
-                            marginBottom: 2,
-                            padding: 2,
-                            cursor: 'pointer'
-                        }}
-                        onClick={() => setExpandedOrderId(expandedOrderId === order.orderId ? null : order.orderId)}
-                    >
-                        <Box>
-                            <Grid container spacing={1} alignItems="center">
-                                <Grid item xs={3}>
-                                    <Typography variant="body2">
-                                        Order #{order.orderId}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={3}>
-                                    <Typography variant="body2">
-                                        Table {order.tableNum}
-                                    </Typography>
-                                </Grid>
-                                <Grid item xs={3}>
-                                    <Typography variant="body2">
-                                        {formatTime(order.orderPlaced)}
-                                    </Typography>
-                                </Grid>
-
-                                {/* Order status with color-coded indicator */}
-                                <Grid item xs={2}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                        <Box
-                                            sx={{
-                                                width: 20,
-                                                height: 20,
-                                                borderRadius: '50%',
-                                                backgroundColor:
-                                                    order.orderStatus === 'SUBMITTED' ? 'orange' :
-                                                        order.orderStatus === 'CONFIRMED' ? 'yellow' :
-                                                            order.orderStatus === 'READY' ? 'green' : 'red',
-                                                border: '2px solid white',
-                                                marginRight: 2,
-                                                boxShadow: order.orderStatus === 'SUBMITTED' ? '0 0 10px orange, 0 0 20px orange, 0 0 30px orange' :
-                                                    order.orderStatus === 'CONFIRMED' ? '0 0 10px yellow, 0 0 20px yellow, 0 0 30px blue' :
-                                                        order.orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
-                                                            '0 0 10px red, 0 0 20px red, 0 0 30px red',
-                                            }}
-                                        />
-                                        <Typography variant="body2">
-                                            {order.orderStatus}
-                                        </Typography>
-                                    </Box>
-                                </Grid>
-
-                                {/*Expand/Collapse icon*/}
-                                <Grid item xs={1}>
-                                    {expandedOrderId === order.orderId ? <ExpandMoreIcon /> : <ExpandLessIcon />}
-                                </Grid>
-                            </Grid>
-                        </Box>
-
-                        {/*Expanded order details*/}
-                        {expandedOrderId === order.orderId && (
-                            <Box sx={{ mt: 2, overflowY: 'auto', maxHeight: '80vh' }}>
-                                <Typography variant="h6" sx={{ mb: 2, borderBottom: '1px solid #555', pb: 1 }}>
-                                    Order Details
-                                </Typography>
-                                <List>
-                                    {order.orderMenuItems.map((item) => (
-                                        <ListItem key={item.orderMenuItemsId.itemId} sx={{ py: 1 }}>
-                                            <ListItemText
-                                                primary={item.menuItem.name}
-                                                secondary={
-                                                    <Typography variant="body2" sx={{ color: '#aaa' }}>
-                                                        {item.quantity} x £{item.menuItem.price.toFixed(2)}
-                                                    </Typography>
-                                                }
-                                            />
-                                            <Typography variant="body2">
-                                                £{(item.quantity * item.menuItem.price).toFixed(2)}
-                                            </Typography>
-                                        </ListItem>
-                                    ))}
-                                </List>
-                                <Divider sx={{ my: 2, backgroundColor: '#555' }} />
-                                <Grid container spacing={2} sx={{ px: 2 }}>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body1">Total</Typography>
-                                    </Grid>
-                                    <Grid item xs={6} sx={{ textAlign: 'right' }}>
-                                        <Typography variant="body1">
-                                            £{order.orderMenuItems.reduce((total, item) =>
-                                                total + (item.quantity * item.menuItem.price), 0).toFixed(2)}
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                        )}
-                    </Paper>
-                ))}
-            </List>
+            <OrderList 
+                orders={orders}
+                expandedOrderId={expandedOrderId}
+                setExpandedOrderId={setExpandedOrderId}
+            />
         </Box >
     );
 };
