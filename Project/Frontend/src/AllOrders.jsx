@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { Box, Typography, IconButton } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { CartContext } from './CartContext/CartContextContext.jsx';
@@ -16,7 +16,7 @@ const AllOrders = () => {
     const { customer } = useContext(CartContext);
 
     // Function to fetch orders for current customer using its unique ID 
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         if (!customer || !customer.customerId) {
             console.error('No customer found');
             return;
@@ -29,12 +29,12 @@ const AllOrders = () => {
         catch (error) {
             console.error('Error fetching orders:', error);
         }
-    };
+    }, [customer]);
 
     // Fetch orders on component mount
     useEffect(() => {
         fetchOrders();
-    }, [customer]);
+    }, [fetchOrders]);
 
     useWebSocket(fetchOrders);
 
