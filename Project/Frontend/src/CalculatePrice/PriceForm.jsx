@@ -1,5 +1,6 @@
 import { TextField, Button } from "@mui/material";
 import PropTypes from "prop-types";
+import {inputStyle} from '../useCommonInputStyle';
 
 function PriceForm({ handleSubmit, cost, profitMargin, setCost, setProfitMargin }) {
 
@@ -27,28 +28,7 @@ function PriceForm({ handleSubmit, cost, profitMargin, setCost, setProfitMargin 
             min: 0, 
             step: 0.01 
           }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: "white",
-              },
-              "&:hover fieldset": {
-                borderColor: "white",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "white",
-              },
-            },
-            "& .MuiInputLabel-root": {
-              color: "white",
-            },
-            "& .MuiInputLabel-root.Mui-focused": {
-              color: "white",
-            },
-            "& .MuiInputBase-input": {
-              color: "white",
-            },
-          }}
+          sx={inputStyle}
         />
         
         {/* Input field for profit margin */}
@@ -65,28 +45,7 @@ function PriceForm({ handleSubmit, cost, profitMargin, setCost, setProfitMargin 
             max: 99, 
             step: 0.1 
           }}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              "& fieldset": {
-                borderColor: "white",
-              },
-              "&:hover fieldset": {
-                borderColor: "white",
-              },
-              "&.Mui-focused fieldset": {
-                borderColor: "white",
-              },
-            },
-            "& .MuiInputLabel-root": {
-              color: "white",
-            },
-            "& .MuiInputLabel-root.Mui-focused": {
-              color: "white",
-            },
-            "& .MuiInputBase-input": {
-              color: "white",
-            },
-          }}
+          sx={inputStyle}
         />
         
         <Button

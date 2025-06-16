@@ -13,6 +13,7 @@ import { handleTableNumChange, buildNewOrder, createOrderInfo, createReceipt, or
 import axios from 'axios';
 import useWebSocket from './useWebSocket.jsx';
 import OrderInfoPopup from './Order/OrderInfoPopup.jsx';
+import {inputStyle} from './useCommonInputStyle';
 
 function Order() {
     // Context and state variables
@@ -473,25 +474,7 @@ function Order() {
                             type="number"
                             value={newTableNum}
                             onChange={(e) => setNewTableNum(e.target.value)}
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    '& fieldset': {
-                                        borderColor: 'white',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'white',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'white',
-                                    },
-                                },
-                                '& .MuiInputLabel-root': {
-                                    color: 'white',
-                                },
-                                '& .MuiInputBase-input': {
-                                    color: 'white',
-                                },
-                            }}
+                            sx={inputStyle}
                         />
                     </Box>
                 }

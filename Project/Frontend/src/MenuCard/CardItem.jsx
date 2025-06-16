@@ -1,6 +1,7 @@
 import { Card, CardActionArea, CardContent, Typography, CardMedia, Button, Box, TextField } from "@mui/material";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import {inputStyle} from '../useCommonInputStyle';
 
 function CardItem ({item, isWaiterView, setQuantity, handleAddToCart, quantity}) {
   return (
@@ -68,13 +69,7 @@ function CardItem ({item, isWaiterView, setQuantity, handleAddToCart, quantity})
                   sx={{
                     width: 100,
                     marginRight: 2,
-                    "& .MuiInputBase-input": { color: "white" },
-                    "& .MuiInputLabel-root": { color: "white" },
-                    "& .MuiOutlinedInput-root": {
-                      "& fieldset": { borderColor: "white" },
-                      "&:hover fieldset": { borderColor: "white" },
-                      "&.Mui-focused fieldset": { borderColor: "white" },
-                    },
+                    ...inputStyle
                   }}
                   InputProps={{ inputProps: { min: 1 } }}
                 />

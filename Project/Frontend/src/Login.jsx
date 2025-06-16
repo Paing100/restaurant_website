@@ -2,6 +2,7 @@ import { Button, TextField, Snackbar, Alert } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import {inputStyle} from "./useCommonInputStyle";
 
 function Login() {
   // state variables 
@@ -82,28 +83,7 @@ function Login() {
             label="User ID"
             variant="outlined"
             onChange={(e) => setUserId(e.target.value)}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'white',
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white',
-              },
-              '& .MuiInputBase-input': {
-                color: 'white',
-              },
-            }}
+            sx={inputStyle}
           />
         </div>
 
@@ -115,28 +95,7 @@ function Login() {
             type="password"
             autoComplete="current-password"
             onChange={(e) => setPassword(e.target.value)}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: 'white',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'white',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'white',
-                },
-              },
-              '& .MuiInputLabel-root': {
-                color: 'white',
-              },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: 'white',
-              },
-              '& .MuiInputBase-input': {
-                color: 'white',
-              },
-            }}
+            sx={inputStyle}
           />
         </div>
 

@@ -2,31 +2,9 @@
 import { Modal, Box, TextField, Button, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PropTypes from "prop-types";
+import {inputStyle} from '../useCommonInputStyle';
 
 const InitialCustomerCreationModal = ({handleClose, name, open, setName, nameInputRef, error, tableNum, handleSubmit, setTableNumState}) => {
-    const inputStyle = {
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': {
-                                    borderColor: 'white',
-                                },
-                                '&:hover fieldset': {
-                                    borderColor: 'white',
-                                },
-                                '&.Mui-focused fieldset': {
-                                    borderColor: 'white',
-                                },
-                            },
-                            '& .MuiInputLabel-root': {
-                                color: 'white',
-                            },
-                            '& .MuiInputLabel-root.Mui-focused': {
-                                color: 'white',
-                            },
-                            '& .MuiInputBase-input': {
-                                color: 'white',
-                            },
-                        };
-
     return (
             <Modal open={open} onClose={handleClose}>
                 <Box sx={{

@@ -1,19 +1,9 @@
 import { Box, TextField, Button, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PropTypes from 'prop-types';
+import {inputStyle} from '../useCommonInputStyle';
 
 function InputBox({setEmail, setPassword, onClose, email, password, handleLogin, error}) {
-  const textStyle = {
-                            '& .MuiOutlinedInput-root': {
-                                '& fieldset': { borderColor: 'white' },
-                                '&:hover fieldset': { borderColor: 'white' },
-                                '&.Mui-focused fieldset': { borderColor: 'white' },
-                                '& input': { color: 'white' },
-                            },
-                            '& .MuiInputLabel-root': { color: 'white' },
-                            '& .MuiInputLabel-root.Mui-focused': { color: 'white' },
-                            '& .MuiInputBase-input': { color: 'white' },
-                        };
 
   return (
                 <Box sx={{
@@ -49,7 +39,7 @@ function InputBox({setEmail, setPassword, onClose, email, password, handleLogin,
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         error={!!error}
-                        sx={textStyle}
+                        sx={inputStyle}
                     />
                     <TextField
                         label="Password"
@@ -59,7 +49,7 @@ function InputBox({setEmail, setPassword, onClose, email, password, handleLogin,
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         error={!!error}
-                        sx={textStyle}
+                        sx={inputStyle}
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
                         <Button
