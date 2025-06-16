@@ -44,13 +44,6 @@ const AllOrders = () => {
 
     useWebSocket(fetchOrders);
 
-    // Format the order time into a readable string 
-    const formatTime = (orderPlaced) => {
-        if (!orderPlaced) return 'N/A';
-        const date = new Date(orderPlaced);
-        return date.toLocaleString();
-    };
-
     return (
         <Box sx={{ padding: 3 }}>
             {/*Header with Back and Refresh button*/}
@@ -88,7 +81,6 @@ const AllOrders = () => {
                 orders={orders}
                 expandedOrderId={expandedOrderId}
                 setExpandedOrderId={setExpandedOrderId}
-                formatTime={formatTime}
             />
         </Box >
     );

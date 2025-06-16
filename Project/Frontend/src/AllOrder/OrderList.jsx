@@ -3,7 +3,14 @@ import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper } f
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-function OrderList({orders, expandedOrderId, setExpandedOrderId, formatTime}) {
+function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
+      // Format the order time into a readable string 
+    const formatTime = (orderPlaced) => {
+        if (!orderPlaced) return 'N/A';
+        const date = new Date(orderPlaced);
+        return date.toLocaleString();
+    };
+
   return (
       <>
               <List>
@@ -118,7 +125,6 @@ OrderList.propTypes = {
   orders: PropTypes.array.isRequired,
   expandedOrderId: PropTypes.number.isRequired,
   setExpandedOrderId: PropTypes.func.isRequired,
-  formatTime:PropTypes.func.isRequired,
 }
 
 export default OrderList;
