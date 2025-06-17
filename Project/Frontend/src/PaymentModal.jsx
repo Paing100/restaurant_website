@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Modal, Box, Typography, Button, TextField, Snackbar, Alert } from '@mui/material';
 import PropTypes from 'prop-types';
 import './index.css';
+import axios from 'axios';
 
 const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) => {
     const [cardName, setCardName] = useState('');
@@ -36,23 +37,14 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         }
         handlePaymentSuccess();
     };
+
     // Handles the payment process by sending a request to the backend
     const handlePaymentSuccess = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/order/${orderId}/markAsPaid`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                 // If the payment is successful, call the success callback and close the modal
-                onPaymentSuccess();
-                onClose();
-            } else {
-                console.error('Error marking order as paid:', response.statusText);
-            }
+            await axios.post(`http://localhost:8080/api/order/${orderId}/markAsPaid`);
+            // If the payment is successful, call the success callback and close the modal
+            onPaymentSuccess();
+            onClose();
         } catch (error) {
             console.error('Error marking order as paid:', error);
         }
