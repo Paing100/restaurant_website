@@ -1,8 +1,9 @@
-import { Button, TextField, Snackbar, Alert } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import {inputStyle} from "./useCommonInputStyle";
+import CommonSnackBar from "./CommonSnackBar";
 
 function Login() {
   // state variables 
@@ -116,11 +117,13 @@ function Login() {
       </div>
       
       {/* Snackbar for displaying messages */}
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
-          {message}
-        </Alert>
-      </Snackbar>
+      <CommonSnackBar
+        open={open}
+        severity={severity}
+        handleClose={handleClose}
+        notification={message}
+        backgroundColor="#ff748c"
+      />
     </>
   );
 }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Typography, Box, Snackbar, Alert } from "@mui/material";
+import { Typography, Box} from "@mui/material";
 import notiSound from './assets/sound/Noti.mp3';
 import { useWithSound } from './useWithSound';
 import useWebSocket from "./useWebSocket";
 import ConfirmedOrders from "./KitchenStaff/ConfirmedOrders.jsx";
 import axios from "axios";
+import CommonSnackBar from "./CommonSnackBar.jsx";
 
 function KitchenStaff() {
   // retrieve the username from session storage 
@@ -119,21 +120,12 @@ const markAsReady = async (orderId) => {
       />
 
       {/* Snackbar for notifications */} 
-      <Snackbar open={open} onClose={handleClose}>
-        <Alert
-          onClose={handleClose}
-          severity="success"
-          sx={{
-            width: "100%",
-            backgroundColor: "#5762d5",
-            color: "white",
-            borderRadius: "8px",
-            "& .MuiAlert-icon": { color: "white" },
-          }}
-        >
-          {notification}
-        </Alert>
-      </Snackbar>
+      <CommonSnackBar
+        open={open}
+        severity={"success"}
+        handleClose={handleClose}
+        notification={notification}
+      />
     </Box>
   );
 }

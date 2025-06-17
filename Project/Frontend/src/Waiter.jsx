@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  Box,
-  Snackbar,
-  Alert,
+  Box
 } from "@mui/material";
 import notiSound from './assets/sound/Noti.mp3';
 import { useWithSound } from './useWithSound';
@@ -15,6 +13,7 @@ import {
 } from "./Waiter/WaiterUtils";
 import CategorizedOrders from "./Waiter/CategorizedOrders";
 import StaticUI from "./Waiter/StaticUI";
+import CommonSnackBar from "./CommonSnackBar";
 
 
 function Waiter() {
@@ -133,23 +132,13 @@ function Waiter() {
       />  
       
       {/* Snackbar for notifications */}
-      <Snackbar open={open} onClose={handleClose}>
-        <Alert
-          onClose={handleClose}
-          severity={"success"}
-          sx={{
-            width: "100%",
-            backgroundColor: "#5762d5",
-            color: "white",
-            borderRadius: "8px",
-            "& .MuiAlert-icon": {
-              color: "white",
-            },
-          }}
-        >
-          {notification}
-        </Alert>
-      </Snackbar>
+      <CommonSnackBar
+        open={open}
+        severity={"success"}
+        handleClose={handleClose}
+        notification={notification}
+      />
+
     </Box>
   );
 }

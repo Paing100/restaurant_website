@@ -1,5 +1,5 @@
 import { useCallback, useContext, useState, useEffect, useRef } from 'react';
-import { Typography, Box, Snackbar, Alert, TextField } from '@mui/material';
+import { Typography, Box, TextField } from '@mui/material';
 import { CartContext } from './CartContext/CartContextContext.jsx';
 import PaymentModal from './PaymentModal';
 import NewOrderModal from './NewOrderModal';
@@ -14,6 +14,7 @@ import axios from 'axios';
 import useWebSocket from './useWebSocket.jsx';
 import OrderInfoPopup from './Order/OrderInfoPopup.jsx';
 import {inputStyle} from './useCommonInputStyle';
+import CommonSnackBar from './CommonSnackBar.jsx';
 
 function Order() {
     // Context and state variables
@@ -414,12 +415,12 @@ function Order() {
             />
 
             {/* Snackbar for displaying messages */}
-            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-                <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
-                    {message}
-                </Alert>
-
-            </Snackbar>
+            <CommonSnackBar
+                open={open}
+                severity={severity}
+                handleClose={handleClose}
+                notification={message}
+            />
 
             {/* Modal to show order details */}
             {receipt.length > 0 && (
