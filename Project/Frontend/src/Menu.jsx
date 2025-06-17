@@ -13,8 +13,8 @@ function Menu({ isWaiterView }) {
 
   // fetch all menu itmes when component loads 
   useEffect(() => {
-    fetch('http://localhost:8080/MenuItems')
-      .then(response => response.json())
+    axios.get('http://localhost:8080/MenuItems')
+      .then(response => response.data)
       .then(data => {
         setMenuItems(data); 
       })
