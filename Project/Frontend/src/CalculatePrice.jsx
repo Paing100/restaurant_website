@@ -2,6 +2,7 @@ import { Typography, Box } from "@mui/material";
 import { useState } from "react";
 import PriceForm from "./CalculatePrice/PriceForm";
 import BackButton from "./BackButton";
+import axios from 'axios';
 
 function CalculatePrice() {
   // State variables for cost, profit margin, result and error
@@ -19,20 +20,11 @@ function CalculatePrice() {
 
     try {
       // API call to calculate the price 
-      const response = await fetch(
-        `http://localhost:8080/Manager/calculateRecommendedPrice?cost=${cost}&margin=${parseFloat(profitMargin)/100}`,
-        {
-          method: "GET",
-        }
-      );
+      const {data: data} = await axios.get(
+        `http://localhost:8080/Manager/calculateRecommendedPrice?cost=${cost}&margin=${parseFloat(profitMargin)/100}`);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Price calculated successfully " + data);
-        setResult(data); // update the result with the calculated price 
-      } else {
-        console.error("Failed to calculate price:", response.statusText);
-      }
+      console.log("Price calculated successfully " + data);
+      setResult(data); // update the result with the calculated price 
     } catch (error) {
       console.error("Network error:", error);
     }

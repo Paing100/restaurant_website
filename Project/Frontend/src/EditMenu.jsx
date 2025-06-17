@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from 'axios';
 import {
   Button,
   Box,
@@ -19,6 +18,7 @@ import {
 
 import ImageUpload from "./EditMenu/ImageUpload";
 import EditMenuForm from "./EditMenu/EditMenuForm";
+import axios from 'axios';
 
 function EditMenu() {
   // state variables 
@@ -39,8 +39,8 @@ function EditMenu() {
 
   // fetch the menu item details when component loads
   useEffect(() => {
-    fetch(`http://localhost:8080/MenuItems/get/${id}`)
-      .then((response) => response.json())
+    axios.get(`http://localhost:8080/MenuItems/get/${id}`)
+      .then((response) => response.data)
       .then((data) => {
         setMenuItem(data);
         setImagePath(data.imagePath || "");
@@ -77,18 +77,9 @@ function EditMenu() {
     formData.append("image", file);
 
     try {
-      const response = await fetch("http://localhost:8080/api/images/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const imageUrl = await response.text();
-        setImagePath(imageUrl);
-        setMenuItem({ ...menuItem, imagePath: imageUrl });
-      } else {
-        console.error("Failed to upload image");
-      }
+      const {data: imageUrl} = await axios.post("http://localhost:8080/api/images/upload", formData);
+      setImagePath(imageUrl);
+      setMenuItem({ ...menuItem, imagePath: imageUrl });
     } catch (error) {
       console.error("Error uploading image:", error);
     }

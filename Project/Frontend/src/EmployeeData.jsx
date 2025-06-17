@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Typography, Box, Card, CardContent } from "@mui/material";
 import BackButton from "./BackButton";
+import axios from 'axios';
 
 function EmployeeData() {
   // state variable to store employee data fetched from server 
@@ -8,17 +9,14 @@ function EmployeeData() {
 
   // function to fetch employee data 
   const fetchEmployeeData = async () => {
-    const response = await fetch("http://localhost:8080/Manager/getAllEmployeeData", {
-      method: "GET",
-    });
-    if (!response.ok) {
-      // error message in console log 
-      console.log("Something went wrong " + response.statusText);
-    } else {
+    try{
+      const {data: data} = await axios.get("http://localhost:8080/Manager/getAllEmployeeData");
       // parse and set the fetched employee data 
-      const data = await response.json();
       setEmployeeData(data);
       console.log("Data fetched successfully " + data);
+    }
+    catch(e) {
+      console.log("Cannot fetch employee's data. Something went wrong!" + e);
     }
   };
 
