@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Typography, ListItem, ListItemText, Button } from "@mui/material";
 import PropTypes from "prop-types";
+import axios from 'axios';
 
 function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, alertButton, forKitchen = false, employeeId, setOrders  }) {
   const [elapsedTime, setElapsedTime] = useState("");
@@ -42,13 +43,8 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
   
   // Function to handle order cancellation
   const handleCancelOrder = async(orderId) => {
-      const response = await fetch(`http://localhost:8080/api/order/${orderId}/cancelOrder`,{
-        method: "DELETE", 
-        headers: {"Content-Type":"application/json"}
-      });
-      if (response.ok){
-        fetchOrders(employeeId).then(setOrders).catch(console.error);
-      }
+      await axios.delete(`http://localhost:8080/api/order/${orderId}/cancelOrder`);
+      fetchOrders(employeeId).then(setOrders).catch(console.error);
   }
 
   return (
