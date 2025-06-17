@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Modal, Box, Typography, Button, TextField, Snackbar, Alert } from '@mui/material';
+import { Modal, Box, Typography, Button, Snackbar, Alert } from '@mui/material';
 import PropTypes from 'prop-types';
 import './index.css';
+import axios from 'axios';
+import PaymentForm from './PaymentModal/PaymentForm.jsx';
 
 const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) => {
     const [cardName, setCardName] = useState('');
@@ -36,23 +38,14 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
         }
         handlePaymentSuccess();
     };
+
     // Handles the payment process by sending a request to the backend
     const handlePaymentSuccess = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/order/${orderId}/markAsPaid`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                 // If the payment is successful, call the success callback and close the modal
-                onPaymentSuccess();
-                onClose();
-            } else {
-                console.error('Error marking order as paid:', response.statusText);
-            }
+            await axios.post(`http://localhost:8080/api/order/${orderId}/markAsPaid`);
+            // If the payment is successful, call the success callback and close the modal
+            onPaymentSuccess();
+            onClose();
         } catch (error) {
             console.error('Error marking order as paid:', error);
         }
@@ -71,45 +64,20 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
                 >
                     Enter Payment Details
                 </Typography>
-                <Box className="payment-form">
-                    <TextField
-                        label="Card Number"
-                        margin="normal"
-                        value={cardNumber}
-                        onChange={(e) => setCardNumber(e.target.value)}
-                        fullWidth
-                    />
-                    <Box className="payment-row">
-                        <TextField
-                            label="Sort Code"
-                            margin="normal"
-                            value={sortCode}
-                            onChange={(e) => setSortCode(e.target.value)}
-                            sx={{ flex: 1 }}
-                        />
-                        <TextField
-                            label="Expiry Date"
-                            margin="normal"
-                            value={expiryDate}
-                            onChange={(e) => setExpiryDate(e.target.value)}
-                            sx={{ flex: 1 }}
-                        />
-                        <TextField
-                            label="CVV"
-                            margin="normal"
-                            value={cvv}
-                            onChange={(e) => setCvv(e.target.value)}
-                            sx={{ flex: 1 }}
-                        />
-                    </Box>
-                    <TextField
-                        label="Name on Card"
-                        margin="normal"
-                        value={cardName}
-                        onChange={(e) => setCardName(e.target.value)}
-                        fullWidth
-                    />
-                </Box>
+                
+                <PaymentForm
+                    cardNumber={cardNumber}
+                    setCardNumber={setCardNumber}
+                    sortCode={sortCode}
+                    setSortCode={setSortCode}
+                    expiryDate={expiryDate}
+                    setExpiryDate={setExpiryDate}
+                    cvv={cvv}
+                    setCvv={setCvv}
+                    cardName={cardName}
+                    setCardName={setCardName}
+                />
+
                 <Box className="button-container">
                     <Button
                         variant="contained"
