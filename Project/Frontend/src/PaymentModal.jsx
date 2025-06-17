@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Modal, Box, Typography, Button, Snackbar, Alert } from '@mui/material';
+import { Modal, Box, Typography, Button } from '@mui/material';
 import PropTypes from 'prop-types';
 import './index.css';
 import axios from 'axios';
 import PaymentForm from './PaymentModal/PaymentForm.jsx';
+import CommonSnackBar from './CommonSnackBar.jsx';
 
 const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) => {
     const [cardName, setCardName] = useState('');
@@ -88,15 +89,13 @@ const PaymentModal = ({ open, onClose, totalPrice, onPaymentSuccess, orderId }) 
                     </Button>
                 </Box>
                 {error && (
-                    <Snackbar
-                        open={true}
-                        autoHideDuration={6000}
-                        onClose={() => setError('')}
-                    >
-                        <Alert onClose={() => setError('')} severity="error" sx={{ width: '100%' }}>
-                            {error}
-                        </Alert>
-                    </Snackbar>
+                          <CommonSnackBar
+                            open={true}
+                            severity={"error"}
+                            handleClose={() => setError('')}
+                            notification={error}
+                            backgroundColor="#ff748c"
+                        />
                 )}
             </Box>
         </Modal>

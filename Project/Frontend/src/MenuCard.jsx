@@ -1,4 +1,3 @@
-import { Snackbar, Alert } from "@mui/material";
 import PropTypes from "prop-types";
 import { useContext, useState, useEffect } from "react";
 import { CartContext } from './CartContext/CartContextContext.jsx';
@@ -7,6 +6,7 @@ import NewOrderModal from "./NewOrderModal";
 import { replaceSuggestion, createNewOrder, addItemToCart } from "./CartContext/cartUtils";
 import CardItem from "./MenuCard/CardItem.jsx"; 
 import axios from "axios";
+import CommonSnackBar from "./CommonSnackBar.jsx";
 
 function MenuCard({ item, isWaiterView }) {
   // Access cart-related functions and customer data from CartContext
@@ -148,13 +148,14 @@ function MenuCard({ item, isWaiterView }) {
       )}
 
       {/* Snackbar for notifications */}
-      <Snackbar open={openSnackbar} autoHideDuration={2000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={severity} sx={{ width: '100%' }}>
-          {message}
-        </Alert>
-      </Snackbar>
+      <CommonSnackBar
+        open={openSnackbar}
+        severity={severity}
+        handleClose={handleSnackbarClose}
+        notification={message}
+        backgroundColor={severity === 'error' ? '#ff748c': '#5762d5'}
+      />
     </>
-
   );
 }
 

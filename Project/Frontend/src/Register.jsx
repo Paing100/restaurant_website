@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Snackbar, Alert } from "@mui/material";
 import axios from "axios";
 import BackButton from "./BackButton";
 import RegisterEmployeeForm from "./Register/RegisterEmployeeForm";
+import CommonSnackBar from "./CommonSnackBar";
 
 function Register() {
   const [userId, setUserId] = useState("");
@@ -169,22 +169,12 @@ function Register() {
       ></RegisterEmployeeForm>
 
       </div>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
-        <Alert
-          onClose={handleClose}
-          severity={severity}
-          sx={{
-            width: '100%',
-            backgroundColor: '#333',
-            color: 'white',
-            '& .MuiAlert-icon': {
-              color: 'white',
-            },
-          }}
-        >
-          {message}
-        </Alert>
-      </Snackbar>
+      <CommonSnackBar
+        open={open}
+        severity={severity}
+        handleClose={handleClose}
+        notification={message}
+      />
     </>
   );
 }
