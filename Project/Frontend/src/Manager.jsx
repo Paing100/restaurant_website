@@ -60,7 +60,7 @@ function Manager() {
   // Handle the end-of-day button click
   const handleEndOfDayButton = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/Manager/endOfDay");
+      await axios.post("http://localhost:8080/Manager/endOfDay");
       setEndOfDayOpen(false);
       fetchOutstandingOrders(); 
     }catch(err){
