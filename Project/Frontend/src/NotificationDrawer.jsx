@@ -25,6 +25,7 @@ import { useEffect, useState, useRef } from "react";
 import {
   AddAlert as AddAlertIcon
 } from '@mui/icons-material';
+import axios from 'axios';
 
 // Styled component for notification items
 const Item = styled(Paper)(({ theme }) => ({
@@ -61,45 +62,26 @@ function NotificationDrawer({ notifications = [] }) {
   // Function to remove a notification
   const removeAlert = async (index) => {
     const notiId = alertStack[index]?.notifId;
-    const response = await fetch(`http://localhost:8080/api/notification/${notiId}/removeMessages`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (response.ok) {
-      setalertStack(alertStack.filter((_, i) => i !== index)); // Remove the alert from the UI
+    await axios.delete(`http://localhost:8080/api/notification/${notiId}/removeMessages`);
+    setalertStack(alertStack.filter((_, i) => i !== index)); // Remove the alert from the UI
 
       // send WebSocket message to all waiters, remove the alert
       if (ws.current && ws.current.readyState === WebSocket.OPEN) {
         const messageDel = { notification_id: notiId, type: "REMOVE_ALERT", };
         try {
-          const sendAlert = await fetch('http://localhost:8080/api/notification/send', {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(messageDel),
-          });
-
-          if (!sendAlert.ok) {
-            throw new Error("Failed to send an alert");
-          }
+          await axios.post('http://localhost:8080/api/notification/send',messageDel);
         } catch (error) {
           console.error("Error from alert: " + error);
         }
       }
-    }
   };
+
   // Fetch notifications and setup WebSocket connection
   useEffect(() => {
      // Fetch existing notifications from the server
     const getAlerts = async () => {
-      const response = await fetch("http://localhost:8080/api/notification/getMessages", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setalertStack(data); // Update notifications in state
-      }
+      const {data: data} = await axios.get("http://localhost:8080/api/notification/getMessages");
+      setalertStack(data); // Update notifications in state
     }
     getAlerts();
      // Setup WebSocket connection if not already established
