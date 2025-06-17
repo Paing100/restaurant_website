@@ -7,6 +7,7 @@ import StockStatusTable from "./Manager/StockStatusTable.jsx";
 import OrdersAndStockTabs from "./Manager/OrdersAndStockTabs.jsx";
 import ManagerNavButton from "./Manager/ManagerNavButton.jsx";
 import ErrorBar from "./ErrorBar.jsx";
+import axios from 'axios';
 
 function Manager() {
   // state variables 
@@ -22,11 +23,8 @@ function Manager() {
   // Fetch outstanding orders from the server
   const fetchOutstandingOrders = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:8080/Manager/getOutstandingOrders");
-      if (!response.ok) throw new Error("Failed to fetch orders");
-      const data = await response.json();
+      const {data: data} = await axios.get("http://localhost:8080/Manager/getOutstandingOrders");
       setOrders(data);
-
       // Calculate total sales from the list of orders
       const total = data.reduce((total, order) => {
         const orderTotal = order.orderMenuItems.reduce(
@@ -43,9 +41,7 @@ function Manager() {
   // Fetch stock data from the server
   const fetchStock = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:8080/Manager/showAllStock");
-      if (!response.ok) throw new Error("Failed to fetch stock");
-      const data = await response.text();
+      const {data: data} = await axios.get("http://localhost:8080/Manager/showAllStock");
       setStock(data);
     } catch (err) {
       setError(err.message);
@@ -64,11 +60,7 @@ function Manager() {
   // Handle the end-of-day button click
   const handleEndOfDayButton = async () => {
     try {
-      const response = await fetch("http://localhost:8080/Manager/endOfDay", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (!response.ok) throw new Error("Failed to end the day");
+      const response = await axios.post("http://localhost:8080/Manager/endOfDay");
       setEndOfDayOpen(false);
       fetchOutstandingOrders(); 
     }catch(err){
