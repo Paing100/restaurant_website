@@ -1,19 +1,21 @@
+import axios from "axios"; 
 
+// Fetch employee details from the server
 export const fetchTables = async (employeeId) => { 
-    const response = await fetch(
+    const response = await axios.get(
         `http://localhost:8080/api/waiter/${employeeId}/tables`
     );
-    if (!response.ok) throw new Error("Error fetching tables");
-    return await response.json();
+    if (response.status !== 200) throw new Error("Error fetching tables");
+    return response.data;
 };
 
  // Fetch orders assigned to the waiter
 export const fetchOrders = async (employeeId) => {
-    const response = await fetch(
+    const response = await axios.get(
       `http://localhost:8080/api/waiter/${employeeId}/orders`
-    );  
-    if (!response.ok) throw new Error("Error fetching orders");
-    const data = await response.json();
+    );
+    if (response.status !== 200) throw new Error("Error fetching orders");
+    const data = response.data;
     const ordersWithPayment = data.map((order) => ({
         ...order,
         isPaid: order.orderPaid === true,
@@ -24,18 +26,12 @@ export const fetchOrders = async (employeeId) => {
 
 // Update order status on the server
 export const updateOrderStatus = async (employeeId, orderId, newStatus) => {
-    const settings = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ orderStatus: newStatus }),
-    }; 
-    await fetch(
-        `http://localhost:8080/api/order/${orderId}/updateOrderStatus`,
-        settings
-      );
-    return await fetchOrders(employeeId)
+    const response = await axios.post(
+      `http://localhost:8080/api/order/${orderId}/updateOrderStatus`,
+      { orderStatus: newStatus }
+    );
+    if (response.status !== 200) throw new Error("Error updating order status");
+    return await fetchOrders(employeeId);
 }
 
 // Send alert notification to waiter if assistance is needed
@@ -47,15 +43,9 @@ export const alertOthers = async (tableNumber, orderId, employeeId, setAlerts) =
       message: `Table ${tableNumber} needs assistance`,
       waiterId: employeeId,
     };
-    const sendAlert = await fetch(
-        "http://localhost:8080/api/notification/send",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(alertMessage),
-        }
-      );
-    if (!sendAlert.ok) throw new Error("Failed to send an alert");
+    const sendAlert = await axios.post(
+        "http://localhost:8080/api/notification/send",alertMessage);
+    if (sendAlert.status !== 200) throw new Error("Error sending alert");
     setAlerts((prevAlerts) => [...prevAlerts, alertMessage]); // Add the alert to the alerts state
 }
 
