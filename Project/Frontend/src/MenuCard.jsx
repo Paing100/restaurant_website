@@ -8,7 +8,7 @@ import CardItem from "./MenuCard/CardItem.jsx";
 import axios from "axios";
 import CommonSnackBar from "./CommonSnackBar.jsx";
 
-function MenuCard({ item, isWaiterView }) {
+function MenuCard({ item, isWaiterView, setSnackbarOpen }) {
   // Access cart-related functions and customer data from CartContext
   const { suggestions, menuItems, tableNum, setTableNum, setCustomer, setSuggestions, setCart, cart, customer } = useContext(CartContext);
   
@@ -67,7 +67,11 @@ function MenuCard({ item, isWaiterView }) {
       setCart(updatedCart);
       setMessage("Item Added to Cart!");
       setSeverity('success');
-      setOpenSnackbar(true);
+      if (setSnackbarOpen) {
+        setSnackbarOpen(true); // use parent-provided snackbar
+      } else {
+        setOpenSnackbar(true); // fallback to local
+      }
     } catch (error) {
       console.error('Error checking order status:', error);
       setMessage("Error adding item to cart");
@@ -173,6 +177,7 @@ MenuCard.propTypes = {
     available: PropTypes.bool.isRequired,
   }).isRequired,
   isWaiterView: PropTypes.bool.isRequired,
+  setSnackbarOpen: PropTypes.func.isRequired, 
 };
 
 export default MenuCard;
