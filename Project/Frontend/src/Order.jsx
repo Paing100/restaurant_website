@@ -112,6 +112,7 @@ function Order() {
             );
             setReceiptTotal(updatedTotal);
             setMessage(`Your Order #${orderId} is cancelled by the waiter!`);
+            setOrderStatus('CANCELLED');
             stopTimer();
             setSeverity('error');
             setOpen(true);
