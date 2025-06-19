@@ -1,8 +1,16 @@
 import MenuCard from '../MenuCard';
 import { Typography, Box } from '@mui/material';
 import PropTypes from 'prop-types';
+import { useState } from 'react';
+import CommonSnackBar from '../CommonSnackBar';
 
 function WaiterSuggestions({ suggestions, customer, orderedItems }) {
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+    const handleClose = () => {
+        setSnackbarOpen(false); 
+    }
 
   return(
     <> 
@@ -52,15 +60,21 @@ function WaiterSuggestions({ suggestions, customer, orderedItems }) {
                         }}>
                             {suggestions.map((item) => (
                                 <Box key={item.itemId} sx={{ minWidth: 260, maxWidth: 260, flexShrink: 0 }}>
-                                    <MenuCard item={item} isWaiterView={false} />
+                                    <MenuCard item={item} isWaiterView={false} setSnackbarOpen={setSnackbarOpen}/>
                                 </Box>
                             ))}
                         </Box>
                     </Box>
                 </Box>
             )}
-    </>
-  );
+            <CommonSnackBar
+                open={snackbarOpen}
+                severity='success'
+                handleClose={handleClose}
+                notification='Item added to cart!'
+            />
+        </>
+    );
 }
 
 WaiterSuggestions.propTypes = {
