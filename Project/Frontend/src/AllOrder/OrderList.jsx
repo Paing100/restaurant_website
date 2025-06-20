@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper } from '@mui/material';
+import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper, CardMedia } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
@@ -24,9 +24,11 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
                             padding: 2,
                             cursor: 'pointer'
                         }}
-                        onClick={() => setExpandedOrderId(expandedOrderId === order.orderId ? null : order.orderId)}
                     >
-                        <Box>
+                        <Box 
+                            onClick={() => 
+                                setExpandedOrderId(expandedOrderId === order.orderId ? null : order.orderId)}    
+                        >
                             <Grid container spacing={1} alignItems="center">
                                 <Grid item xs={3}>
                                     <Typography variant="body2">
@@ -79,13 +81,22 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
 
                         {/*Expanded order details*/}
                         {expandedOrderId === order.orderId && (
-                            <Box sx={{ mt: 2, overflowY: 'auto', maxHeight: '80vh' }}>
+                            <Box sx={{ mt: 2, overflowY: 'auto', maxHeight: '80vh', cursor:'default' }}>
                                 <Typography variant="h6" sx={{ mb: 2, borderBottom: '1px solid #555', pb: 1 }}>
                                     Order Details
                                 </Typography>
                                 <List>
                                     {order.orderMenuItems.map((item) => (
-                                        <ListItem key={item.orderMenuItemsId.itemId} sx={{ py: 1 }}>
+                                        <ListItem
+                                            key={item.orderMenuItemsId.itemId} 
+                                            sx={{ py: 1, "&:hover": {background: 'rgba(128, 128, 128, 0.3)'}, transition: 'background-color 0.3s ease'}}
+                                        >
+                                            <CardMedia
+                                                component="img"
+                                                height="50"
+                                                image={item.menuItem.imagePath}
+                                                sx={{ marginRight: 2, width: 50, borderRadius: "25%" }}
+                                            />
                                             <ListItemText
                                                 primary={item.menuItem.name}
                                                 secondary={
