@@ -11,7 +11,7 @@ import CommonSnackBar from './CommonSnackBar.jsx';
 const AllOrders = () => {
     // State to store orders and the currently expanded order ID
     const [orders, setOrders] = useState([]);
-    const [expandedOrderId, setExpandedOrderId] = useState(null);
+    const [expandedOrderId, setExpandedOrderId] = useState([]);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     // Access customer data from CartContext

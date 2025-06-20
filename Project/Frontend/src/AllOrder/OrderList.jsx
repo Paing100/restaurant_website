@@ -26,8 +26,15 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
                         }}
                     >
                         <Box 
-                            onClick={() => 
-                                setExpandedOrderId(expandedOrderId === order.orderId ? null : order.orderId)}    
+                            onClick={() => {
+                                    if (!expandedOrderId.includes(order.orderId)) {
+                                        setExpandedOrderId(prevOrderId => [...prevOrderId, order.orderId])
+                                    }    
+                                    else{ 
+                                        setExpandedOrderId(prevOrderId => prevOrderId.filter(orderId => orderId !== order.orderId));
+                                    }
+                                }
+                            }
                         >
                             <Grid container spacing={1} alignItems="center">
                                 <Grid item xs={3}>
@@ -74,13 +81,15 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
 
                                 {/*Expand/Collapse icon*/}
                                 <Grid item xs={1}>
-                                    {expandedOrderId === order.orderId ? <ExpandMoreIcon /> : <ExpandLessIcon />}
+                                    {
+                                        expandedOrderId.includes(order.orderId) ? <ExpandMoreIcon/> : <ExpandLessIcon/>
+                                    }
                                 </Grid>
                             </Grid>
                         </Box>
 
                         {/*Expanded order details*/}
-                        {expandedOrderId === order.orderId && (
+                        {expandedOrderId.includes(order.orderId) && (
                             <Box sx={{ mt: 2, overflowY: 'auto', maxHeight: '80vh', cursor:'default' }}>
                                 <Typography variant="h6" sx={{ mb: 2, borderBottom: '1px solid #555', pb: 1 }}>
                                     Order Details
@@ -126,15 +135,15 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
                             </Box>
                         )}
                     </Paper>
-                ))}
-            </List>
+                    ))}
+                </List>
       </>
   );
 }
 
 OrderList.propTypes = {
   orders: PropTypes.array.isRequired,
-  expandedOrderId: PropTypes.number.isRequired,
+  expandedOrderId: PropTypes.arrayOf(PropTypes.number).isRequired,
   setExpandedOrderId: PropTypes.func.isRequired,
 }
 
