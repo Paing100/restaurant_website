@@ -11,6 +11,8 @@ function Menu({ isWaiterView }) {
   const [menuItems, setMenuItems] = useState([]); // stores the list of menu items 
   const [selectedFilter, setSelectedFilter] = useState([]); // stores the selected fitlers 
 
+  console.log("MENUTIEMS: " + JSON.stringify(menuItems));
+
   // fetch all menu itmes when component loads 
   useEffect(() => {
     axios.get('http://localhost:8080/MenuItems')
@@ -99,8 +101,8 @@ function Menu({ isWaiterView }) {
           <Grid container spacing={3} sx={{ marginTop: 2 }}>
             {/* Filter and display menu items based on the selected category */}
             {menuItems.filter((item) => item.category === selectedTab)
-              .map((item, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
+              .map((item) => (
+                <Grid item xs={12} sm={6} md={4} key={item.itemId}>
                   <MenuCard item={item} isWaiterView={isWaiterView}></MenuCard> {/* Render a MenuCard for each item */}
                 </Grid>
               ))}
