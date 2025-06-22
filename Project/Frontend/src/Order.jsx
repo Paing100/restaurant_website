@@ -475,7 +475,13 @@ function Order() {
                             label="New Table Number"
                             type="number"
                             value={newTableNum}
-                            onChange={(e) => setNewTableNum(e.target.value)}
+                            onChange={(e) => {
+                                    const num = parseInt(e.target.value);
+                                    if (!isNaN(num) && num > 0) {
+                                        setNewTableNum(num)
+                                    }
+                                }
+                            }
                             sx={inputStyle}
                         />
                     </Box>
