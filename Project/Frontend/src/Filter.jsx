@@ -1,4 +1,4 @@
-import { Select, MenuItem, FormControl, InputLabel, Button, Box } from "@mui/material";
+import { Select, MenuItem, FormControl, InputLabel, Button, Box, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import { useState } from "react";
 
@@ -47,13 +47,17 @@ function Filter({ onFilterChange }) {
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 2 }}>
       {/* Dropdown for selecting dietary restrictions */}
       <FormControl fullWidth variant="outlined" sx={{ width: 400, backgroundColor: '#3c3a3a', border: '1px solid #5762d5', borderRadius: '4px' }}>
-        <InputLabel sx={{ color: '#5762d5' }}>Dietary Restrictions</InputLabel>
+        <InputLabel sx={{ color: 'rgb(255,255,255)' }}>Dietary Restrictions</InputLabel>
         <Select
           multiple
           value={selectedDietary}
           onChange={handleDietaryChange}
           label="Dietary Restrictions"
-          renderValue={(selected) => selected.join(", ")}
+          renderValue={(selected) => (
+            <Typography sx={{ color: 'white' }}>
+              {selected.join(", ")}
+            </Typography>
+          )}
         >
         {/* Options for dietary restrictions */}
           <MenuItem value="Vegetarian">Vegetarian</MenuItem>
@@ -65,13 +69,17 @@ function Filter({ onFilterChange }) {
 
       {/* Dropdown for selecting allergens */}
       <FormControl fullWidth variant="outlined" sx={{ width: 400, backgroundColor: '#3c3a3a', border: '1px solid #5762d5', borderRadius: '4px' }}>
-        <InputLabel sx={{ color: '#5762d5' }}>Allergens</InputLabel>
+        <InputLabel sx={{ color: 'rgb(255, 255, 255)' }}>Allergens</InputLabel>
         <Select
           multiple
           value={selectedAllergens}
           onChange={handleAllergenChange}
           label="Exclude Allergens"
-          renderValue={(selected) => selected.join(", ")}
+          renderValue={(selected) => (
+            <Typography sx={{ color: 'white' }}>
+              {selected.join(", ")}
+            </Typography>
+          )}
         >
         {/* Options for allergens */}
           <MenuItem value="Dairy">Dairy</MenuItem>
