@@ -1,10 +1,11 @@
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { Button, Typography, List, ListItem, ListItemText, Box, CardMedia, IconButton } from '@mui/material';
+import { Button, Typography, List, ListItem, ListItemText, Box, CardMedia, IconButton, TextField } from '@mui/material';
 import PropTypes from 'prop-types';
 
-function ItemsInCart({orderedItems, decreaseItemQuantity, increaseItemQuantity, removeItemFromCart, customer, cart, fetchCart, setCart}) {
-  return (
+function ItemsInCart({charLeft, setCharLeft, comment, setComment, orderedItems, decreaseItemQuantity, increaseItemQuantity, removeItemFromCart, customer, cart, fetchCart, setCart}) {
+
+    return (
         <>
             <Typography variant="h5" sx={{ marginTop: 4, padding: '15px', borderBottom: '1px solid #333' }}>Ordered Items</Typography>
             <List sx={{ mb: 4 }}>
@@ -22,6 +23,25 @@ function ItemsInCart({orderedItems, decreaseItemQuantity, increaseItemQuantity, 
                                 primary={itemName}
                                 secondary={`£${item.price.toFixed(2)} each • Total: £${itemTotal.toFixed(2)}`}
                                 sx={{ color: 'white' }}
+                            />
+                            <TextField
+                                id="filled-multiline-flexible"
+                                label="Comment"
+                                helperText={`${charLeft[item.itemId]?? 100}`+" characters left"}
+                                multiline
+                                maxRows={4}
+                                variant="filled"
+                                inputProps={{maxLength:100}}
+                                 sx={{
+                                    input: { color: 'white' },
+                                    textarea: { color: 'white' }, 
+                                    label: { color: 'white' }, 
+                                }}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setComment(prev => ({...prev, [item.itemId]: value})); 
+                                    setCharLeft(prev => ({...prev, [item.itemId]: 100 - value.length}));
+                                }}
                             />
                             <Box sx={{ display: 'flex', alignItems: 'center', marginRight: 2 }}>
                                 <IconButton

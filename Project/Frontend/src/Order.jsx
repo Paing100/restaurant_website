@@ -61,6 +61,10 @@ function Order() {
 
     const orderedItems = cart?.orderedItems || {}; // Extract ordered items from the cart
 
+    const [charLeft, setCharLeft] = useState({});
+    const [comment, setComment] = useState({});
+
+
     // function to alert others 
     const alertOthers = async (tableNumber, orderId) => {
         try {
@@ -383,6 +387,10 @@ function Order() {
                 cart={cart}
                 fetchCart={fetchCart}
                 setCart={setCart}
+                setCharLeft={setCharLeft}
+                setComment={setComment}
+                charLeft={charLeft}
+                comment={comment}
             />
 
             <Typography variant="h6" sx={{ marginTop: 2 }}>
