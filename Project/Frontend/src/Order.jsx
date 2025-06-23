@@ -61,16 +61,6 @@ function Order() {
 
     const orderedItems = cart?.orderedItems || {}; // Extract ordered items from the cart
 
-    // function to stop the timer for customer 
-    const stopTimer = useCallback(() => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-            setOrderTime(null);
-            setElapsedTime('00:00:00');
-        }
-    },[]);
-
     // function to alert others 
     const alertOthers = async (tableNumber, orderId) => {
         try {
@@ -99,7 +89,6 @@ function Order() {
 
             if (prevReceipt.length > 0 && prevReceipt[prevReceipt.length - 1].orderId === orderId) {
                 if (updatedReceipt.length === 0) {
-                    stopTimer();
                     setOrderTime(null);
                 } else {
                     setOrderStatus(updatedReceipt[updatedReceipt.length - 1]?.status || null); 
@@ -113,19 +102,21 @@ function Order() {
             setReceiptTotal(updatedTotal);
             setMessage(`Your Order #${orderId} is cancelled by the waiter!`);
             setOrderStatus('CANCELLED');
-            stopTimer();
             setSeverity('error');
             setOpen(true);
 
             return updatedReceipt; // Don't forget this return!
         });
-    }, [stopTimer, setOrderTime, setOrderStatus, setReceiptTotal, setMessage, setSeverity, setOpen]);
+    }, [setOrderTime, setOrderStatus, setReceiptTotal, setMessage, setSeverity, setOpen]);
 
     
 
     // Timer for elapsed time
     useEffect(() => {
-        if (orderTime) {
+        if (orderStatus === "DELIVERED") {
+            setElapsedTime('00:00:00');
+        }
+        else if (orderTime) {
             timerRef.current = setInterval(() => {
                 const now = new Date();
                 const diff = now - orderTime;
@@ -138,7 +129,7 @@ function Order() {
             setElapsedTime('00:00:00');
         }
         return () => clearInterval(timerRef.current);
-    }, [orderTime]);
+    }, [elapsedTime, orderStatus]);
 
     // Save order info to localStorage
     useEffect(() => {
@@ -335,14 +326,13 @@ function Order() {
                 updateOrderStatus(orderData.orderId, orderData.orderStatus); // Update the order status
                 setOrderStatus(orderData.orderStatus); // Set the new order status in state
                 if (orderData.orderStatus === 'DELIVERED') {
-                    stopTimer();
                     setOrderTime(null);
                 }
         }
         catch (error) {
             console.error("Failed to fetch order status", error);
         }
-    }, [updateOrderStatus, setOrderStatus, stopTimer, setOrderTime]);
+    }, [updateOrderStatus, setOrderStatus, setOrderTime]);
 
     const changeTableNum = () => {
         handleTableNumChange({newTableNum, setMessage, setSeverity, setOpen, customer, setCustomer, setTableNum, setTableEditModalOpen, setNewTableNum});
