@@ -37,7 +37,7 @@ public class MenuItemService {
 
     return menuItems.stream()
         .filter(item -> (dietaryRestrictions.isEmpty()
-            || item.getDietaryRestrictions().stream().anyMatch(dietaryRestrictions::contains))
+            || item.getDietaryRestrictions().isEmpty() || item.getDietaryRestrictions().stream().anyMatch(dietaryRestrictions::contains))
             && (allergens.isEmpty() || item.getAllergens().stream().noneMatch(allergens::contains)))
         .collect(Collectors.toList());
   }

@@ -58,7 +58,7 @@ class MenuItemServiceTest {
 
     List<MenuItem> filteredItems = menuItemService.filterMenu(params);
 
-    assertEquals(1, filteredItems.size());
+    assertEquals(2, filteredItems.size());
     assertEquals("Salad", filteredItems.get(0).getName());
   }
 
@@ -81,7 +81,7 @@ class MenuItemServiceTest {
 
     List<MenuItem> filteredItems = menuItemService.filterMenu(params);
 
-    assertEquals(0, filteredItems.size());
+    assertEquals(1, filteredItems.size());
   }
 
   @Test
