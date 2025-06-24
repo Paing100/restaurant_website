@@ -420,4 +420,10 @@ class OrderControllerTest {
     verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
   }
 
+  @Test
+  void testGetComments() throws Exception {
+    mockMvc.perform(get("/api/1/comments")).andExpect(status().isOk());
+    verify(orderService, times(1)).getComments(1);
+  }
+
 }
