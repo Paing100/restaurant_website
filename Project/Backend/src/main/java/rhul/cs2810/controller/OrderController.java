@@ -1,10 +1,7 @@
 package rhul.cs2810.controller;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -23,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import rhul.cs2810.model.*;
+import rhul.cs2810.repository.OrderMenuItemRepository;
+import rhul.cs2810.repository.OrderRepository;
 import rhul.cs2810.service.OrderService;
 import rhul.cs2810.service.NotificationService;
 import rhul.cs2810.service.WaiterService;
@@ -45,6 +44,12 @@ public class OrderController {
 
   @Autowired
   private WaiterService waiterService;
+
+  @Autowired
+  private OrderRepository orderRepository;
+
+  @Autowired
+  private OrderMenuItemRepository orderMenuItemRepository;
 
 
   /**
@@ -72,6 +77,12 @@ public class OrderController {
       @RequestParam int quantity) {
     orderService.addItemToOrder(orderId, itemId, quantity);
     return ResponseEntity.ok("Item added to order");
+  }
+
+  @PostMapping("orders/{orderId}/addComment")
+  public ResponseEntity<String> addCommentToOrder(@PathVariable int orderId, @RequestParam int itemId, @RequestParam int quantity, @RequestParam String comment) {
+    orderService.addCommentToOrder(orderId, itemId, quantity, comment);
+    return ResponseEntity.ok("Comment added to the item of the order");
   }
 
   /**
@@ -140,6 +151,11 @@ public class OrderController {
   public ResponseEntity<List<Order>> getAllOrders() {
     List<Order> orders = orderService.getAllOrders();
     return ResponseEntity.ok(orders);
+  }
+
+  @GetMapping("/{orderId}/comments")
+  public ResponseEntity<Map<String, String>> getComments(@PathVariable int orderId) {
+    return ResponseEntity.ok(orderService.getComments(orderId));
   }
 
   /**

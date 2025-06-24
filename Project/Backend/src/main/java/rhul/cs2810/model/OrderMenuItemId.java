@@ -72,4 +72,9 @@ public class OrderMenuItemId implements Serializable {
   }
 
 
+  @Override
+  public String toString() {
+    return orderId + " - " + itemId;
+  }
+
 }
