@@ -74,8 +74,8 @@ public class OrderController {
    */
   @PostMapping("/orders/{orderId}/addItems")
   public ResponseEntity<String> addItemToOrder(@PathVariable int orderId, @RequestParam int itemId,
-      @RequestParam int quantity) {
-    orderService.addItemToOrder(orderId, itemId, quantity);
+      @RequestParam int quantity, @RequestParam String comment) {
+    orderService.addItemToOrder(orderId, itemId, quantity, comment);
     return ResponseEntity.ok("Item added to order");
   }
 

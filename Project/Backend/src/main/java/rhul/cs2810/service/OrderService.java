@@ -58,7 +58,7 @@ public class OrderService {
    * @param itemId of the item
    * @param quantity of the item
    */
-  public void addItemToOrder(int orderId, int itemId, int quantity) {
+  public void addItemToOrder(int orderId, int itemId, int quantity, String comment) {
     Order order = orderRepository.findById(orderId).orElseThrow(
         () -> new IllegalArgumentException("Order with ID " + orderId + " not found."));
 
@@ -74,7 +74,7 @@ public class OrderService {
     MenuItem item = menuItemRepository.findById(itemId).orElseThrow(
         () -> new IllegalArgumentException("Menu item with ID " + itemId + " not found."));
 
-    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity, false);
+    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity, false, comment);
     orderMenuItemRepository.save(orderMenuItem);
   }
 
