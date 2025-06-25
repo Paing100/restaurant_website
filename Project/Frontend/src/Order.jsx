@@ -133,7 +133,7 @@ function Order() {
             setElapsedTime('00:00:00');
         }
         return () => clearInterval(timerRef.current);
-    }, [elapsedTime, orderStatus]);
+    }, [elapsedTime, orderStatus, orderTime]);
 
     // Save order info to localStorage
     useEffect(() => {
