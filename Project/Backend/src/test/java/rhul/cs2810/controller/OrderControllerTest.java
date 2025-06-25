@@ -83,10 +83,10 @@ class OrderControllerTest {
 
   @Test
   void testAddItemToOrder() throws Exception {
-    mockMvc.perform(post("/api/orders/1/addItems").param("itemId", "101").param("quantity", "2"))
+    mockMvc.perform(post("/api/orders/1/addItems").param("itemId", "101").param("quantity", "2").param("comment", "Hello"))
         .andExpect(status().isOk()).andExpect(content().string("Item added to order"));
 
-    verify(orderService, times(1)).addItemToOrder(1, 101, 2);
+    verify(orderService, times(1)).addItemToOrder(1, 101, 2, "Hello");
   }
 
   @Test
@@ -418,6 +418,12 @@ class OrderControllerTest {
       .andExpect(status().isNotFound())
       .andExpect(content().string("No waiter available for the new table"));
     verify(orderService, times(1)).updateOrderDetails(1, updateRequest);
+  }
+
+  @Test
+  void testGetComments() throws Exception {
+    mockMvc.perform(get("/api/1/comments")).andExpect(status().isOk());
+    verify(orderService, times(1)).getComments(1);
   }
 
 }

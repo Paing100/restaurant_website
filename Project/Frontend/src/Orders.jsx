@@ -71,6 +71,7 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
               {order.orderMenuItems.map(item => (
                 <Typography key={item.orderMenuItemsId.itemId} variant="body2">
                   {item.menuItem.name} x{item.quantity} (£{(item.menuItem.price * item.quantity).toFixed(2)})
+                  : {item.comment || ''} 
                 </Typography>
               ))}
             </>

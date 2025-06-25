@@ -84,7 +84,7 @@ class OrderServiceTest {
     when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
     when(menuItemRepository.findById(100)).thenReturn(Optional.of(mockItem));
 
-    orderService.addItemToOrder(1, 100, 2);
+    orderService.addItemToOrder(1, 100, 2, "hello");
 
     verify(orderMenuItemRepository, times(1)).save(any(OrderMenuItem.class));
   }
@@ -94,7 +94,7 @@ class OrderServiceTest {
     when(orderRepository.findById(1)).thenReturn(Optional.empty());
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2));
+        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2, "hello"));
     assertEquals("Order with ID 1 not found.", exception.getMessage());
   }
 
@@ -106,7 +106,7 @@ class OrderServiceTest {
     when(menuItemRepository.findById(100)).thenReturn(Optional.empty());
 
     Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2));
+        assertThrows(IllegalArgumentException.class, () -> orderService.addItemToOrder(1, 100, 2, "hello"));
 
     assertEquals("Menu item with ID 100 not found.", exception.getMessage());
   }
@@ -276,7 +276,7 @@ class OrderServiceTest {
     when(orderRepository.findById(1)).thenReturn(Optional.of(mockOrder));
     when(menuItemRepository.findById(100)).thenReturn(Optional.of(mockItem));
     
-    orderService.addItemToOrder(1, 100, 2);
+    orderService.addItemToOrder(1, 100, 2, "hello");
     
     verify(orderMenuItemRepository).save(any(OrderMenuItem.class));
   }
@@ -447,7 +447,23 @@ class OrderServiceTest {
       () -> orderService.updateOrderDetails(1, map));
 
     assertEquals("No waiter available for the new table", exception.getMessage());
+  }
+
+  @Test
+  void testGetComments() {
+    Order order = new Order();
+    order.setOrderId(1);
+    OrderMenuItem orderMenuItem = new OrderMenuItem();
+    OrderMenuItemId orderMenuItemId = new OrderMenuItemId(1, 1);
+    orderMenuItem.setOrderMenuItemsId(orderMenuItemId);
+    orderMenuItem.setComment("Hello");
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+    when(orderMenuItemRepository.findByOrder(order)).thenReturn(List.of(orderMenuItem));
+
+    Map<String, String> comments = orderService.getComments(1);
+    assertEquals("Hello", comments.get("1 - 1"));
 
   }
+
 
 }

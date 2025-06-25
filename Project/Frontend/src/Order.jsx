@@ -61,6 +61,10 @@ function Order() {
 
     const orderedItems = cart?.orderedItems || {}; // Extract ordered items from the cart
 
+    const [charLeft, setCharLeft] = useState({});
+    const [comment, setComment] = useState({});
+
+
     // function to alert others 
     const alertOthers = async (tableNumber, orderId) => {
         try {
@@ -129,7 +133,7 @@ function Order() {
             setElapsedTime('00:00:00');
         }
         return () => clearInterval(timerRef.current);
-    }, [elapsedTime, orderStatus]);
+    }, [elapsedTime, orderStatus, orderTime]);
 
     // Save order info to localStorage
     useEffect(() => {
@@ -383,6 +387,10 @@ function Order() {
                 cart={cart}
                 fetchCart={fetchCart}
                 setCart={setCart}
+                setCharLeft={setCharLeft}
+                setComment={setComment}
+                charLeft={charLeft}
+                comment={comment}
             />
 
             <Typography variant="h6" sx={{ marginTop: 2 }}>

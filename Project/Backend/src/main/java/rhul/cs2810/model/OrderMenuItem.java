@@ -36,6 +36,9 @@ public class OrderMenuItem {
   @Column(name = "orderSubmitted", nullable = false)
   private boolean orderSubmitted;
 
+  @Column(name = "comment", nullable = true)
+  private String comment;
+
   public OrderMenuItem() {}
 
   /**
@@ -51,6 +54,15 @@ public class OrderMenuItem {
     this.menuItem = menuItem;
     this.quantity = quantity;
     this.orderSubmitted = orderSubmitted;
+  }
+
+  public OrderMenuItem(Order order, MenuItem menuItem, int quantity, boolean orderSubmitted, String comment) {
+    this.orderMenuItemsId = new OrderMenuItemId(order.getOrderId(), menuItem.getItemId());
+    this.order = order;
+    this.menuItem = menuItem;
+    this.quantity = quantity;
+    this.orderSubmitted = orderSubmitted;
+    this.comment = comment;
   }
 
   /**
@@ -143,4 +155,12 @@ public class OrderMenuItem {
     this.orderSubmitted = orderSubmitted;
   }
 
+
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
 }

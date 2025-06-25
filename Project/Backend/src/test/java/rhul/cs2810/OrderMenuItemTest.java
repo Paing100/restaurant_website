@@ -67,4 +67,12 @@ class OrderMenuItemTest {
     assertEquals(orderMenuItemId, orderMenuItem.getOrderMenuItemsId());
   }
 
+  @Test
+  void testGetAndSetComment() {
+    OrderMenuItem orderMenuItem1 = new OrderMenuItem(order, menuItem, 1, false, "no onion please");
+    assertEquals("no onion please", orderMenuItem1.getComment());
+    orderMenuItem1.setComment("no garlic please");
+    assertEquals("no garlic please", orderMenuItem1.getComment());
+  }
+
 }

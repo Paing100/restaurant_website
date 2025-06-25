@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rhul.cs2810.model.*;
+import rhul.cs2810.repository.CustomerRepository;
 import rhul.cs2810.repository.MenuItemRepository;
 import rhul.cs2810.repository.OrderMenuItemRepository;
 import rhul.cs2810.repository.OrderRepository;
@@ -35,6 +36,9 @@ public class OrderService {
   private WaiterService waiterService;
 
   @Autowired
+  private CustomerRepository customerRepository;
+
+  @Autowired
   private EntityManager entityManager;
 
   /**
@@ -54,7 +58,7 @@ public class OrderService {
    * @param itemId of the item
    * @param quantity of the item
    */
-  public void addItemToOrder(int orderId, int itemId, int quantity) {
+  public void addItemToOrder(int orderId, int itemId, int quantity, String comment) {
     Order order = orderRepository.findById(orderId).orElseThrow(
         () -> new IllegalArgumentException("Order with ID " + orderId + " not found."));
 
@@ -70,7 +74,7 @@ public class OrderService {
     MenuItem item = menuItemRepository.findById(itemId).orElseThrow(
         () -> new IllegalArgumentException("Menu item with ID " + itemId + " not found."));
 
-    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity, false);
+    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity, false, comment);
     orderMenuItemRepository.save(orderMenuItem);
   }
 
@@ -134,6 +138,21 @@ public class OrderService {
    */
   public List<Order> getAllOrders() {
     return (List<Order>) orderRepository.findAll();
+  }
+
+  public Map<String, String> getComments(int orderId) {
+    Optional<Order> orderOptional = orderRepository.findById(orderId);
+    if (orderOptional.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    List<OrderMenuItem> items = orderMenuItemRepository.findByOrder(orderOptional.get());
+
+    Map<String, String> comments = new HashMap<>();
+    for (OrderMenuItem item : items) {
+      comments.put(item.getOrderMenuItemsId().toString(), item.getComment());
+    }
+    return comments;
   }
 
   /**
