@@ -27,7 +27,7 @@ function ItemsInCart({charLeft, setCharLeft, comment, setComment, orderedItems, 
             return;
         }
         try {
-            await axios.post(`http://localhost:8080/api/orders/${currentCustomer.orderId}/addComment?itemId=${itemId}&quantity=${quantity}&comment=${messageComment}`);
+            await axios.post(`http://localhost:8080/api/orders/${currentCustomer.orderId}/addItems?itemId=${itemId}&quantity=${quantity}&comment=${messageComment}`);
             return fetchCart(currentCustomer).then(setCart);
         } catch (error) {
             console.error('Error adding comment for the item:', error);

@@ -78,20 +78,6 @@ public class OrderService {
     orderMenuItemRepository.save(orderMenuItem);
   }
 
-  public void addCommentToOrder(int orderId, int itemId, int quantity, String comment) {
-    Order order = orderRepository.findById(orderId).orElseThrow(
-      () -> new IllegalArgumentException("Order with ID " + orderId + " not found."));
-
-    if (order.getOrderStatus() != OrderStatus.CREATED) {
-      throw new IllegalStateException("Cannot modify a submitted order.");
-    }
-    MenuItem item = menuItemRepository.findById(itemId).orElseThrow(
-      () -> new IllegalArgumentException("Menu item with ID " + itemId + " not found."));
-
-    OrderMenuItem orderMenuItem = new OrderMenuItem(order, item, quantity, false, comment);
-    orderMenuItemRepository.save(orderMenuItem);
-  }
-
   /**
    * Removes an item from order.
    *

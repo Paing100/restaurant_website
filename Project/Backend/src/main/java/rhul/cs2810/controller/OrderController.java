@@ -79,12 +79,6 @@ public class OrderController {
     return ResponseEntity.ok("Item added to order");
   }
 
-  @PostMapping("orders/{orderId}/addComment")
-  public ResponseEntity<String> addCommentToOrder(@PathVariable int orderId, @RequestParam int itemId, @RequestParam int quantity, @RequestParam String comment) {
-    orderService.addCommentToOrder(orderId, itemId, quantity, comment);
-    return ResponseEntity.ok("Comment added to the item of the order");
-  }
-
   /**
    * Deletes a specific item from order.
    *

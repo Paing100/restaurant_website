@@ -57,9 +57,7 @@ export const addItemToCart = async (customer, itemId, quantity, cart) => {
             const currentItem = Object.values(cart.orderedItems).find(item => item.itemId === itemId);
             const newQuantity = currentItem ? currentItem.quantity + quantity : quantity;
 
-            const { data: currentComment } = await axios.get(`http://localhost:8080/api/${customer.orderId}/comments`);
-            const key = `${customer.orderId} - ${itemId}`;
-            const comment = currentComment[key] || '';
+            const comment = await getComments(customer, itemId);
 
             console.log("CURRNET: " + comment);
             await axios.post(`http://localhost:8080/api/orders/${customer.orderId}/addItems?itemId=${itemId}&quantity=${newQuantity}&comment=${comment}`);
@@ -68,6 +66,13 @@ export const addItemToCart = async (customer, itemId, quantity, cart) => {
             console.error('Error adding item to cart:', error);
             throw error;
         }
+}
+
+const getComments = async (customer, itemId) => {
+    const { data: currentComment } = await axios.get(`http://localhost:8080/api/${customer.orderId}/comments`);
+    const key = `${customer.orderId} - ${itemId}`;
+    const comment = currentComment[key] || '';
+    return comment;
 }
 
 // replace a suggestion after the customer puts it in cart 
@@ -192,9 +197,7 @@ export const removeItemFromCart = async (customer, cart, itemId, removeAll = fal
                     return true;
                 } else {
 
-                    const { data: currentComment } = await axios.get(`http://localhost:8080/api/${customer.orderId}/comments`);
-                    const key = `${customer.orderId} - ${itemId}`;
-                    const comment = currentComment[key] || '';
+                    const comment = await getComments(customer, itemId);
                     const newQuantity = currentItem.quantity - 1;
                     await axios.post(`http://localhost:8080/api/orders/${customer.orderId}/addItems?itemId=${itemId}&quantity=${newQuantity}&comment=${comment}`);
 
