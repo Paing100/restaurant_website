@@ -64,12 +64,14 @@ const OrderInfoPopup = React.memo(({
                                     backgroundColor:
                                         orderStatus === 'SUBMITTED' ? 'orange' :
                                             orderStatus === 'CONFIRMED' ? 'yellow' :
-                                                orderStatus === 'READY' ? 'green' : 'red',
+                                                orderStatus === 'READY' ? 'green' : 
+                                                    orderStatus === 'CANCELLED' ? 'purple' : 'red',
                                     border: '2px solid white',
                                     boxShadow:
                                         orderStatus === 'SUBMITTED' ? '0 0 10px orange, 0 0 20px orange, 0 0 30px orange' :
                                             orderStatus === 'CONFIRMED' ? '0 0 10px yellow, 0 0 20px yellow, 0 0 30px yellow' :
-                                                orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
+                                                orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' : 
+                                                    orderStatus === "CANCELLED" ? '0 0 10px purple, 0 0 20px purple, 0 0 30px purple':
                                                     '0 0 10px red, 0 0 20px red, 0 0 30px red',
                                     marginRight: 2, // Increased marginRight to add more space
                                 }}
