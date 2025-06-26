@@ -38,13 +38,14 @@ function Waiter() {
   }
 
   // categories for the tabs 
-  const categories = ["To Confirm", "Ready To Deliver", "Delivered"];
+  const categories = ["To Confirm", "Ready To Deliver", "Delivered", "Cancelled"];
 
   // map order statuses to tab categories 
   const statusMap = new Map([
     ["To Confirm", "SUBMITTED"],
     ["Ready To Deliver", "READY"],
     ["Delivered", "DELIVERED"],
+    ["Cancelled", "CANCELLED"]
   ]);
 
   const handleMessage = (event) => {
@@ -61,7 +62,7 @@ function Waiter() {
           
           if (
             (message.recipient === "waiter" && message.type === "READY") ||
-            message.type === "ORDER_SUBMITTED"
+            message.type === "ORDER_SUBMITTED" || message.type === "CANCELLED"
           ) {
             handleNotiSound();
             setOpen(true);

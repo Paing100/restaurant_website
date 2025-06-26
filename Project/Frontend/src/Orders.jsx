@@ -50,7 +50,7 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
   return (
     <>
       <ListItem key={order.orderId} sx={{ borderBottom: "1px solid gray" }}>
-        {!forKitchen && (
+        {!forKitchen && (order.orderStatus !== "DELIVERED"  && order.orderStatus !== "CANCELLED") && (
           <Button variant="outlined" size="small" onClick={() => {alertButton(order.tableNum, order.orderId)}}>Alert Others</Button>
         )}
         <ListItemText
@@ -62,7 +62,7 @@ function Orders({ order, buttonName, onButtonClick, fetchOrders, buttonStyle, al
               </Typography>
               
               {/* Only show timer if order is not DELIVERED */}
-              {order.orderStatus !== "DELIVERED" && (
+              {order.orderStatus !== "DELIVERED" && order.orderStatus !== "CANCELLED" && (
                 <Typography variant="body2" sx={{ fontWeight: "bold", color: 'gray' }}>
                   Time in Progress: {elapsedTime}
                 </Typography>

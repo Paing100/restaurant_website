@@ -21,7 +21,7 @@ function CategorizedOrders({ filteredOrders, selectedTab, categories, fetchOrder
                           ? order.isPaid
                             ? "Paid"
                             : "Unpaid"
-                          : ""
+                          : null
                   }
                   buttonStyle={
                     selectedTab === 2
@@ -33,13 +33,14 @@ function CategorizedOrders({ filteredOrders, selectedTab, categories, fetchOrder
                         cursor: "default",
                         textTransform: "uppercase",
                         pointerEvents: "none",
-                      }
+                      }: 
+                    selectedTab === 3 ? undefined
                       : {
                         backgroundColor: "#2e7d32",
                       }
                   }
                   onButtonClick={() => {
-                    if (selectedTab === 2) return; // do nothing for "Delivered" tab
+                    if (selectedTab === 2 || selectedTab === 3) return; // do nothing for "Delivered" && "Cancelled" tab
                     const newStatus =
                       selectedTab === 0
                         ? "CONFIRMED"
