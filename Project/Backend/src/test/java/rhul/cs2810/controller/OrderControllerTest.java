@@ -426,4 +426,11 @@ class OrderControllerTest {
     verify(orderService, times(1)).getComments(1);
   }
 
+  @Test
+  void testGetOrderStatus() throws Exception {
+    mockMvc.perform(get("/api/orders/1/getOrderStatus")).andExpect(status().isOk());
+    verify(orderService, times(1)).getOrderStatus(1);
+  }
+
+
 }
