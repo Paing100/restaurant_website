@@ -217,4 +217,9 @@ public class OrderController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
     }
   }
+
+  @GetMapping("/orders/{orderId}/getOrderStatus")
+  public ResponseEntity<String> getOrderStatus(@PathVariable int orderId) {
+    return ResponseEntity.ok(orderService.getOrderStatus(orderId));
+  }
 }
