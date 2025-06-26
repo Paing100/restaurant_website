@@ -238,7 +238,11 @@ public class OrderService {
     if (status.equals("READY")) {
       notificationService.sendNotification("READY", orderId, "waiter",
         orderId + " is ready to be delivered", waiterId);
-    } else {
+    } else if (status.equals("CANCELLED")){
+      notificationService.sendNotification(status, orderId, "kitchen",
+        "Order # " + orderId + " has been cancelled", waiterId);
+    }
+    else{
       notificationService.sendNotification(status, orderId, "kitchen",
         "Order # " + orderId + " has been confirmed", waiterId);
     }
@@ -254,6 +258,15 @@ public class OrderService {
     if (rowDeleted == 0) {
       throw new NoSuchElementException("Order not found for deletion");
     }
+  }
+
+  public String getOrderStatus(int orderId) {
+    Optional<Order> order = orderRepository.findById(orderId);
+    if (order.isEmpty()){
+      throw new NoSuchElementException("No such order exists");
+    }
+    String status = order.get().getOrderStatus().toString();
+    return status;
   }
 
 }

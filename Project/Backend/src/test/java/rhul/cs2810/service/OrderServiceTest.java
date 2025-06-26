@@ -462,7 +462,36 @@ class OrderServiceTest {
 
     Map<String, String> comments = orderService.getComments(1);
     assertEquals("Hello", comments.get("1 - 1"));
+  }
 
+  @Test
+  void testGetStatus() {
+    Waiter waiter = new Waiter();
+    Employee employee = new Employee();
+    employee.setEmployeeId("E001");
+    waiter.setEmployee(employee);
+    Order order = new Order();
+    order.setOrderId(1);
+    order.setOrderStatus(OrderStatus.IN_PROGRESS);
+    order.setWaiter(waiter);
+    order.getWaiter().setEmployee(employee);
+
+    when(orderRepository.findById(1)).thenReturn(Optional.of(order));
+
+    String status = orderService.getOrderStatus(1);
+    verify(orderRepository, times(1)).findById(1);
+    assertEquals(order.getOrderStatus().toString(), status);
+  }
+
+  @Test
+  void testGetStatus_NotExists() {
+    when(orderRepository.findById(1)).thenReturn(Optional.empty());
+
+    Exception exception = assertThrows(NoSuchElementException.class, () -> {
+      orderService.getOrderStatus(1);
+    });
+    verify(orderRepository, times(1)).findById(1);
+    assertEquals("No such order exists", exception.getMessage());
   }
 
 

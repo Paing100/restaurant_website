@@ -6,7 +6,7 @@ package rhul.cs2810.model;
 public enum OrderStatus {
   CREATED("Order is created"), SUBMITTED("Order is submitted"), CONFIRMED(
       "Order is confirmed by waiter"), IN_PROGRESS("IN preparation"), READY(
-      "Ready to be delivered!"), DELIVERED("Order is delivered!");
+      "Ready to be delivered!"), DELIVERED("Order is delivered!"), CANCELLED("Order is cancelled by customer");
 
   private final String description;
 

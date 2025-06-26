@@ -117,7 +117,7 @@ function Order() {
 
     // Timer for elapsed time
     useEffect(() => {
-        if (orderStatus === "DELIVERED") {
+        if (orderStatus === "DELIVERED" || orderStatus === "CANCELLED") {
             setElapsedTime('00:00:00');
         }
         else if (orderTime) {
@@ -133,7 +133,7 @@ function Order() {
             setElapsedTime('00:00:00');
         }
         return () => clearInterval(timerRef.current);
-    }, [elapsedTime, orderStatus, orderTime]);
+    }, [elapsedTime, orderStatus]);
 
     // Save order info to localStorage
     useEffect(() => {

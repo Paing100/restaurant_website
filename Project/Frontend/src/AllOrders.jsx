@@ -87,6 +87,7 @@ const AllOrders = () => {
                     orders={orders}
                     expandedOrderId={expandedOrderId}
                     setExpandedOrderId={setExpandedOrderId}
+                    fetchOrders={fetchOrders}
                 />
             </Box >
             <CommonSnackBar

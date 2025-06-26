@@ -2,8 +2,9 @@ import PropTypes from 'prop-types';
 import { Box, Typography, List, ListItem, ListItemText, Divider, Grid, Paper, CardMedia } from '@mui/material';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CancelOrder from './CancelOrder.jsx'; 
 
-function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
+function OrderList({orders, expandedOrderId, setExpandedOrderId, fetchOrders}) {
       // Format the order time into a readable string 
     const formatTime = (orderPlaced) => {
         if (!orderPlaced) return 'N/A';
@@ -64,13 +65,16 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
                                                 backgroundColor:
                                                     order.orderStatus === 'SUBMITTED' ? 'orange' :
                                                         order.orderStatus === 'CONFIRMED' ? 'yellow' :
-                                                            order.orderStatus === 'READY' ? 'green' : 'red',
+                                                            order.orderStatus === 'READY' ? 'green' : 
+                                                                order.orderStatus === 'CANCELLED' ? 'purple' : 'red',
+
                                                 border: '2px solid white',
                                                 marginRight: 2,
                                                 boxShadow: order.orderStatus === 'SUBMITTED' ? '0 0 10px orange, 0 0 20px orange, 0 0 30px orange' :
                                                     order.orderStatus === 'CONFIRMED' ? '0 0 10px yellow, 0 0 20px yellow, 0 0 30px blue' :
                                                         order.orderStatus === 'READY' ? '0 0 10px green, 0 0 20px green, 0 0 30px green' :
-                                                            '0 0 10px red, 0 0 20px red, 0 0 30px red',
+                                                            order.orderStatus === "CANCELLED" ? '0 0 10px purple, 0 0 20px purple, 0 0 30px purple':
+                                                                '0 0 10px red, 0 0 20px red, 0 0 30px red',
                                             }}
                                         />
                                         <Typography variant="body2">
@@ -78,7 +82,7 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
                                         </Typography>
                                     </Box>
                                 </Grid>
-
+                                
                                 {/*Expand/Collapse icon*/}
                                 <Grid item xs={1}>
                                     {
@@ -132,11 +136,18 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId}) {
                                         </Typography>
                                     </Grid>
                                 </Grid>
+                                { order.orderStatus === "SUBMITTED" && (
+                                <CancelOrder 
+                                    orderId={order.orderId}
+                                    fetchOrders={fetchOrders}
+                                />
+                                )}
                             </Box>
                         )}
                     </Paper>
                     ))}
                 </List>
+
       </>
   );
 }
@@ -145,6 +156,7 @@ OrderList.propTypes = {
   orders: PropTypes.array.isRequired,
   expandedOrderId: PropTypes.arrayOf(PropTypes.number).isRequired,
   setExpandedOrderId: PropTypes.func.isRequired,
+  fetchOrders: PropTypes.func.isRequired,
 }
 
 export default OrderList;
