@@ -5,7 +5,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CancelOrder from './CancelOrder.jsx'; 
 
 function OrderList({orders, expandedOrderId, setExpandedOrderId, fetchOrders}) {
-      // Format the order time into a readable string 
+
+    // Format the order time into a readable string 
     const formatTime = (orderPlaced) => {
         if (!orderPlaced) return 'N/A';
         const date = new Date(orderPlaced);
@@ -118,9 +119,12 @@ function OrderList({orders, expandedOrderId, setExpandedOrderId, fetchOrders}) {
                                                     </Typography>
                                                 }
                                             />
-                                            <Typography variant="body2">
-                                                £{(item.quantity * item.menuItem.price).toFixed(2)}
-                                            </Typography>
+                                            <Box display="flex" alignItems="center" gap={2}>
+                                                <Box>{item.comment}</Box>
+                                                <Typography variant="body2">
+                                                    £{(item.quantity * item.menuItem.price).toFixed(2)}
+                                                </Typography>
+                                            </Box>
                                         </ListItem>
                                     ))}
                                 </List>
