@@ -5,22 +5,9 @@ import PropTypes from "prop-types";
 import alertSound from './assets/sound/alertNoti.mp3';
 import { useWithSound } from './useWithSound';
 
-import {
-  styled,
-  Box,
-  Paper,
-  Stack,
-  Drawer,
-  Button,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Snackbar,
-  Alert,
-} from '@mui/material';
-import { useEffect, useState, useRef } from "react";
+import {styled, Box, Paper, Stack, Drawer, Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Snackbar, Alert} from '@mui/material';
+import { useEffect, useState } from "react";
+import useWebSocket from './useWebSocket.jsx';
 
 import {
   AddAlert as AddAlertIcon
@@ -42,7 +29,6 @@ const Item = styled(Paper)(({ theme }) => ({
 function NotificationDrawer({ notifications = [] }) {
 
   const [alertStack, setalertStack] = useState(notifications);
-  const ws = useRef(null);
   const { playSound } = useWithSound(alertSound); // Function to play alert sound
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -59,44 +45,13 @@ function NotificationDrawer({ notifications = [] }) {
     setSnackbarOpen(false);
   };
 
-  // Function to remove a notification
-  const removeAlert = async (index) => {
-    const notiId = alertStack[index]?.notifId;
-    await axios.delete(`http://localhost:8080/api/notification/${notiId}/removeMessages`);
-    setalertStack(alertStack.filter((_, i) => i !== index)); // Remove the alert from the UI
+  // Fetch existing notifications from the server
+  const getAlerts = async () => {
+    const {data: data} = await axios.get("http://localhost:8080/api/notification/getMessages");
+    setalertStack(data); // Update notifications in state
+  }
 
-      // send WebSocket message to all waiters, remove the alert
-      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-        const messageDel = { notification_id: notiId, type: "REMOVE_ALERT", };
-        try {
-          await axios.post('http://localhost:8080/api/notification/send',messageDel);
-        } catch (error) {
-          console.error("Error from alert: " + error);
-        }
-      }
-  };
-
-  // Fetch notifications and setup WebSocket connection
-  useEffect(() => {
-     // Fetch existing notifications from the server
-    const getAlerts = async () => {
-      const {data: data} = await axios.get("http://localhost:8080/api/notification/getMessages");
-      setalertStack(data); // Update notifications in state
-    }
-    getAlerts();
-     // Setup WebSocket connection if not already established
-    if (!ws.current) {
-      ws.current = new WebSocket("ws://localhost:8080/ws/notifications")
-
-      ws.current.onopen = () => {
-        console.log('WebSocket connected', ws.current.readyState);
-      };
-
-      ws.current.onclose = () => {
-        console.log("Websocket session is closed");
-      };
-
-      ws.current.onmessage = (event) => {
+  const handleOnMessage = () => {
         try {
           const message = JSON.parse(event.data);
 
@@ -117,12 +72,31 @@ function NotificationDrawer({ notifications = [] }) {
           console.log(error);
         }
       };
-    }
-    // Log WebSocket state
-    if (ws.current) {
-      getAlerts();
-    }
+
+  const ws = useWebSocket(handleOnMessage);
+
+    // Function to remove a notification
+  const removeAlert = async (index) => {
+    const notiId = alertStack[index]?.notifId;
+    await axios.delete(`http://localhost:8080/api/notification/${notiId}/removeMessages`);
+    setalertStack(alertStack.filter((_, i) => i !== index)); // Remove the alert from the UI
+
+      // send WebSocket message to all waiters, remove the alert
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        const messageDel = { notification_id: notiId, type: "REMOVE_ALERT", };
+        try {
+          await axios.post('http://localhost:8080/api/notification/send',messageDel);
+        } catch (error) {
+          console.error("Error from alert: " + error);
+        }
+      }
+  };
+
+  // Fetch notifications and setup WebSocket connection
+  useEffect(() => {
+    getAlerts();
   }, []);
+
   // State to manage drawer open/close
   const [state, setState] = React.useState({
     right: false,
