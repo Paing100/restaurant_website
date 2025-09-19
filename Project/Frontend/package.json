@@ -19,7 +19,7 @@
     "@mui/styled-engine-sc": "^6.4.2",
     "@popperjs/core": "^2.11.8",
     "axios": "^1.7.9",
-    "framer-motion": "^12.4.9",
+    "framer-motion": "^12.23.12",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.29.0",
